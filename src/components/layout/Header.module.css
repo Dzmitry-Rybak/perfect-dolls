@@ -2,9 +2,22 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  /* Шапка заходит под вырез камеры и статус-бар — иначе выше неё
+     остаётся полоса, сквозь которую видно прокручиваемый текст */
+  padding-top: var(--safe-top);
   background: rgb(14 13 16 / 0.86);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid rgb(81 76 88 / 0.4);
+}
+
+/* Полоса выреза — всегда сплошная. Через полупрозрачный фон шапки
+   там просвечивал и мелькал текст страницы. */
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: var(--safe-top);
+  background: var(--ink);
 }
 
 /* Ссылка «к содержимому» для клавиатуры */
@@ -20,7 +33,7 @@
   text-decoration: none;
   transition: top var(--t-fast) var(--ease-out);
 }
-.skip:focus { top: 0; }
+.skip:focus { top: var(--safe-top); }
 
 .bar {
   display: flex;
@@ -109,7 +122,19 @@
 .burgerOpen i:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 @media (max-width: 860px) {
-  .burger { display: block; order: 3; }
+  /* Без переноса .nav с flex-basis:100% оставался на первой строке
+     и съедал всё свободное место — margin-right:auto у логотипа
+     оказывалось нечего распределять, и бургер прилипал к названию */
+  .bar { flex-wrap: wrap; }
+
+  /* На телефоне фон сплошной: полупрозрачность с блюром даёт
+     мерцание прокручиваемого текста и лишнюю нагрузку на GPU */
+  .header {
+    background: var(--ink);
+    backdrop-filter: none;
+  }
+
+  .burger { display: block; order: 3; margin-left: auto; }
   .nav {
     order: 4;
     flex-basis: 100%;

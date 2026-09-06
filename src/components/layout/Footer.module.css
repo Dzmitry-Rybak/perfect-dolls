@@ -68,7 +68,8 @@
   flex-wrap: wrap;
   gap: var(--sp-4);
   justify-content: space-between;
-  padding-block: var(--sp-4);
+  /* Снизу — полоса жеста «домой» */
+  padding-block: var(--sp-4) calc(var(--sp-4) + var(--safe-bottom));
   border-top: 1px dashed rgb(81 76 88 / 0.35);
   font-size: var(--step--1);
   color: var(--muted);

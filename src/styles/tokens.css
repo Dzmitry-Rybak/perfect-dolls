@@ -71,6 +71,14 @@
   --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
   --t-fast: 140ms;  --t-mid: 260ms;  --t-slow: 480ms;
 
+  /* --- Безопасные зоны (вырез камеры, статус-бар, полоса жеста) ---
+     Отдельными переменными, чтобы значение читалось в одном месте
+     и его можно было подменить при отладке. */
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+
   /* --- Раскладка --- */
   --measure: 62ch;
   --page-max: 1240px;

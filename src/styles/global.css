@@ -143,7 +143,10 @@ button:disabled,
   width: 100%;
   max-width: var(--page-max);
   margin-inline: auto;
-  padding-inline: var(--gutter);
+  /* В альбомной ориентации вырез уходит вбок — берём большее
+     из обычного поля и безопасного отступа */
+  padding-left: max(var(--gutter), var(--safe-left));
+  padding-right: max(var(--gutter), var(--safe-right));
 }
 
 .visually-hidden {
