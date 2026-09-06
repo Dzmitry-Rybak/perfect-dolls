@@ -95,6 +95,48 @@ body::after {
 }
 
 /* ============================================================
+   КУРСОР
+   Стрелка со светящейся розовой обводкой и игла с ниткой
+   на кликабельном. Свечение набрано вложенными полупрозрачными
+   обводками, а не SVG-фильтром: фильтры в курсорах браузеры
+   растеризуют ненадёжно, обводки рисуются всегда.
+   Числа после url() — точка нажатия (кончик стрелки / иглы).
+   ============================================================ */
+
+:root {
+  --cur-arrow: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M4 3 L4 22.5 L9.2 17.8 L12.4 25 L15.8 23.4 L12.7 16.6 L19.4 16.2 Z' fill='none' stroke='%23FF96C9' stroke-opacity='.16' stroke-width='7.5' stroke-linejoin='round'/><path d='M4 3 L4 22.5 L9.2 17.8 L12.4 25 L15.8 23.4 L12.7 16.6 L19.4 16.2 Z' fill='none' stroke='%23FF96C9' stroke-opacity='.4' stroke-width='4.2' stroke-linejoin='round'/><path d='M4 3 L4 22.5 L9.2 17.8 L12.4 25 L15.8 23.4 L12.7 16.6 L19.4 16.2 Z' fill='%230E0D10' stroke='%23FF96C9' stroke-width='1.7' stroke-linejoin='round'/></svg>") 4 3, auto;
+  --cur-needle: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><g stroke-linecap='round' fill='none'><path d='M3.5 3.5 L17.5 17.5' stroke='%23FF96C9' stroke-opacity='.18' stroke-width='9'/><path d='M3.5 3.5 L17.5 17.5' stroke='%23FF96C9' stroke-opacity='.45' stroke-width='5.4'/><path d='M3.5 3.5 L17.5 17.5' stroke='%230E0D10' stroke-width='4.4'/><path d='M3.5 3.5 L17.5 17.5' stroke='%23EDE6DC' stroke-width='2.6'/></g><circle cx='19.6' cy='19.6' r='3.9' fill='%230E0D10' stroke='%23EDE6DC' stroke-width='2.2'/><path d='M22.6 22.6 C27 24 26.5 29 22 29.6' fill='none' stroke='%23FF96C9' stroke-width='2.6' stroke-linecap='round'/></svg>") 4 4, pointer;
+}
+
+body { cursor: var(--cur-arrow); }
+
+a,
+button,
+summary,
+label,
+[role='button'],
+[role='tab'] {
+  cursor: var(--cur-needle);
+}
+
+/* Ввод текста остаётся системным — свой курсор тут только мешает */
+input:not([type='radio']):not([type='checkbox']),
+textarea,
+select {
+  cursor: auto;
+}
+
+button:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+/* На тач-устройствах курсора нет — незачем тянуть картинки */
+@media (pointer: coarse) {
+  body, a, button, summary, label, [role='button'], [role='tab'] { cursor: auto; }
+}
+
+/* ============================================================
    УТИЛИТЫ
    ============================================================ */
 .page {

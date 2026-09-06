@@ -5,3 +5,6 @@ dist
 .env
 .env.*
 !.env.example
+
+# Референсы — палитра с них уже снята в tokens.css
+styleILike/

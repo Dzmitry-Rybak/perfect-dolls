@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { CartProvider } from './context/CartContext.jsx';
 import Header from './components/layout/Header.jsx';
 import Footer from './components/layout/Footer.jsx';
+import ButtonTrail from './components/ui/ButtonTrail.jsx';
 
 import Home from './pages/Home.jsx';
 import Catalog from './pages/Catalog.jsx';
@@ -42,6 +43,7 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
+      <ButtonTrail />
     </CartProvider>
   );
 }

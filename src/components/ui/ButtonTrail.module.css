@@ -1,0 +1,17 @@
+.host {
+  position: fixed;
+  inset: 0;
+  /* Под зерном (9999), чтобы след ложился в ту же фактуру,
+     что и остальная страница */
+  z-index: 9998;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  will-change: transform, opacity;
+}
