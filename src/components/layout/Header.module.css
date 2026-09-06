@@ -27,6 +27,23 @@
   border-bottom: 1px solid rgb(81 76 88 / 0.4);
 }
 
+/* Страховка: сплошной блок вплотную НАД шапкой.
+   Когда шапка прибита к верху экрана, он целиком за кадром и ничего
+   не стоит. Но если между верхом экрана и шапкой почему-либо остаётся
+   зазор — вырез, статус-бар, дрожание sticky при сворачивании панелей
+   Safari — он его закрывает, не зная его высоты.
+   Это единственный способ закрыть полосу, не полагаясь на env(). */
+.header::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 160px;
+  background: var(--ink);
+  pointer-events: none;
+}
+
 /* Ссылка «к содержимому» для клавиатуры */
 .skip {
   position: absolute;
@@ -137,26 +154,45 @@
 .burgerOpen i:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 @media (max-width: 860px) {
-  /* Без переноса .nav с flex-basis:100% оставался на первой строке
-     и съедал всё свободное место — margin-right:auto у логотипа
-     оказывалось нечего распределять, и бургер прилипал к названию */
-  .bar { flex-wrap: wrap; }
+  /* Меню выносим из потока целиком. Пока оно было флекс-элементом,
+     раскладка ломалась дважды: с flex-basis:100% без переноса оно
+     съедало всё место и прижимало бургер к логотипу, а с переносом
+     появлялась вторая флекс-строка, делившая высоту шапки пополам —
+     логотип уезжал вверх, а под ним оставалась полоса пустой
+     полупрозрачной шапки, сквозь которую был виден текст страницы.
+     Абсолютным позиционированием обе проблемы снимаются сразу:
+     в шапке остаётся одна строка, которая центрируется штатно. */
+  .burger { display: block; }
 
-  .burger { display: block; order: 3; margin-left: auto; }
   .nav {
-    order: 4;
-    flex-basis: 100%;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
     display: grid;
     grid-template-rows: 0fr;
+    /* Меню почти непрозрачно: сквозь 0.94 читался текст страницы
+       и пункты становились нечитаемыми. Блюр оставляем — он держит
+       ощущение материала и мягкий край. */
+    background: rgb(14 13 16 / 0.985);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgb(81 76 88 / 0.4);
     transition: grid-template-rows var(--t-mid) var(--ease-out);
   }
   .navOpen { grid-template-rows: 1fr; }
+
   .list {
     overflow: hidden;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 0;
+    width: 100%;
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding-inline: max(var(--gutter), env(safe-area-inset-left, 0px));
   }
+
   .link {
     display: block;
     width: 100%;
@@ -164,11 +200,13 @@
     font-size: var(--step-0);
     border-bottom: 1px dashed rgb(81 76 88 / 0.35);
   }
-  /* В раскрытом меню кнопка занимает всю ширину — так её труднее промахнуть */
+  .list li:last-child .link { border-bottom: none; }
+
   .order {
     width: 100%;
-    margin-block: var(--sp-4) var(--sp-3);
+    margin-block: var(--sp-4) var(--sp-4);
     padding-block: 0.7rem;
     font-size: var(--step-0);
   }
 }
+
