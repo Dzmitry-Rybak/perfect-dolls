@@ -1,0 +1,34 @@
+.section { padding-block: var(--sp-8); }
+
+.panel {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.5rem, 5vw, 3.5rem);
+  background: var(--plum-deep);
+  border: var(--stitch-rose);
+  border-radius: var(--r-lg);
+}
+
+/* Клетка — тот же приём, что на странице конструктора */
+.paper {
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  background-image:
+    repeating-linear-gradient(to right,  rgb(201 191 214 / 0.5) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(to bottom, rgb(201 191 214 / 0.5) 0 1px, transparent 1px 26px);
+}
+
+.content { position: relative; max-width: 56ch; }
+
+/* Подпись маркером на полях */
+.scribble {
+  font-family: var(--font-hand);
+  font-size: var(--step-1);
+  color: var(--rose);
+  rotate: -3deg;
+  margin-bottom: var(--sp-2);
+}
+
+.title { margin-bottom: var(--sp-4); }
+.lead  { margin-bottom: var(--sp-6); color: var(--lilac); }

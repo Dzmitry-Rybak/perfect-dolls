@@ -1,0 +1,15 @@
+.shell { padding-block: var(--sp-8) var(--sp-9); }
+.wide  { max-width: none; }
+
+.head {
+  position: relative;
+  margin-bottom: var(--sp-8);
+  max-width: 60ch;
+}
+.title { margin-top: var(--sp-2); }
+.lead  { margin-top: var(--sp-4); }
+
+.spiral {
+  margin-top: var(--sp-5);
+  opacity: 0.7;
+}

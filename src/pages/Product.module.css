@@ -1,0 +1,125 @@
+.page { padding-block: var(--sp-6) var(--sp-9); }
+
+.crumbs {
+  display: flex;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-6);
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+.crumbs a { color: var(--lilac); text-decoration: none; }
+.crumbs a:hover { color: var(--rose); }
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+}
+
+/* --- изображение --- */
+.figure {
+  position: relative;
+  padding: var(--sp-4);
+  background: var(--ink-raised);
+  border: var(--stitch);
+  border-radius: var(--r-md);
+  rotate: -0.8deg;
+  box-shadow: var(--shadow-pin);
+  position: sticky;
+  top: 92px;
+}
+.tape {
+  position: absolute;
+  top: -14px; left: 50%; translate: -50% 0;
+  width: 110px; height: 28px;
+  background: rgb(237 230 220 / 0.14);
+  border-inline: 1px dashed rgb(237 230 220 / 0.25);
+  rotate: 2deg;
+}
+
+/* --- информация --- */
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;   /* иначе плашка статуса растягивается на всю колонку */
+  gap: var(--sp-4);
+}
+
+.name { font-size: clamp(2.8rem, 2.1rem + 3vw, 4.6rem); }
+.tagline {
+  font-family: var(--font-body);
+  font-size: var(--step-1);
+  font-style: italic;
+  color: var(--plum);
+}
+
+.priceRow { margin-top: var(--sp-2); }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-4);
+  padding-block: var(--sp-2);
+}
+.toCart {
+  font-size: var(--step--1);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.story { padding-top: var(--sp-2); }
+
+/* --- характеристики --- */
+.specs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--sp-4);
+  padding-block: var(--sp-5);
+  border-block: 1px dashed rgb(81 76 88 / 0.4);
+}
+.spec dt {
+  font-size: var(--step--1);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: var(--sp-1);
+}
+.spec dd {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  color: var(--bone);
+}
+
+/* --- материалы --- */
+.matTitle {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--plum);
+  margin-bottom: var(--sp-3);
+}
+.matList { display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-5); }
+.matList li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  color: var(--lilac);
+}
+
+.missing {
+  display: grid;
+  gap: var(--sp-5);
+  justify-items: start;
+  padding-block: var(--sp-9);
+}
+
+@media (max-width: 880px) {
+  .layout { grid-template-columns: 1fr; }
+  .figure { position: static; rotate: 0deg; max-width: 380px; }
+}

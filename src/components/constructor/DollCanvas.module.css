@@ -1,0 +1,16 @@
+.canvas {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  aspect-ratio: 200 / 300;
+  margin-inline: auto;
+  /* Слои меняются мягко, а не рывком */
+  transition: filter var(--t-mid) var(--ease-soft);
+}
+.canvas path, .canvas circle, .canvas ellipse, .canvas rect {
+  transition: fill var(--t-mid) var(--ease-soft),
+              stroke var(--t-mid) var(--ease-soft);
+}
+@media (prefers-reduced-motion: reduce) {
+  .canvas path, .canvas circle, .canvas ellipse, .canvas rect { transition: none; }
+}

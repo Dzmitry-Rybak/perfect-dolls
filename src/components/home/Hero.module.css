@@ -1,0 +1,88 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding-block: var(--sp-9) var(--sp-8);
+}
+
+/* --- акварельные кляксы --- */
+.bleed { position: absolute; inset: 0; pointer-events: none; }
+.blobA, .blobB {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+}
+.blobA {
+  width: 46vw; height: 46vw; max-width: 620px; max-height: 620px;
+  top: -14%; right: -8%;
+  background: radial-gradient(circle, rgb(165 103 126 / 0.5), transparent 70%);
+}
+.blobB {
+  width: 38vw; height: 38vw; max-width: 480px; max-height: 480px;
+  bottom: -20%; left: -10%;
+  background: radial-gradient(circle, rgb(42 27 51 / 0.9), transparent 70%);
+}
+
+.inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: center;
+  gap: var(--sp-8);
+}
+
+.title {
+  margin-top: var(--sp-3);
+  font-size: clamp(3.8rem, 2.6rem + 5.2vw, 7rem);
+}
+/* «и» выпадает из строки — рукописная вставка на полях */
+.and {
+  display: block;
+  font-family: var(--font-hand);
+  font-size: 0.42em;
+  color: var(--rose);
+  margin-left: 0.15em;
+  line-height: 1.5;
+}
+
+.lead { margin-top: var(--sp-5); }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  margin-top: var(--sp-6);
+}
+
+/* --- фигура: кукла на приклеенном скотчем листе --- */
+.figure {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 380px);
+  padding: var(--sp-4);
+  background: var(--ink-raised);
+  border: var(--stitch);
+  border-radius: var(--r-md);
+  rotate: -1.2deg;
+  box-shadow: var(--shadow-pin);
+}
+
+/* Полоска скотча сверху */
+.tape {
+  position: absolute;
+  top: -14px; left: 50%;
+  translate: -50% 0;
+  width: 106px; height: 28px;
+  background: rgb(237 230 220 / 0.14);
+  border-left: 1px dashed rgb(237 230 220 / 0.25);
+  border-right: 1px dashed rgb(237 230 220 / 0.25);
+  rotate: -2.5deg;
+  backdrop-filter: blur(2px);
+}
+
+@media (max-width: 900px) {
+  .inner { grid-template-columns: 1fr; gap: var(--sp-7); }
+  /* Без order:-1 — на узком экране картинка выталкивала заголовок
+     под сгиб, и первое, что видел человек, было безымянное фото */
+  .figure { width: min(100%, 320px); justify-self: start; }
+  .hero { padding-block: var(--sp-7) var(--sp-6); }
+}

@@ -1,0 +1,82 @@
+/* ============================================================
+   RITA DOLLS — design tokens
+   Палитра снята пипеткой с материалов в /styleILike.
+   Розовый и чёрный — фактические цвета бренда с картинки шрифтов.
+   ============================================================ */
+
+:root {
+  /* --- Цвет: основа --- */
+  --ink:            #0E0D10;  /* фон страницы */
+  --ink-raised:     #151318;  /* карточки, панели */
+  --ink-sunken:     #08080A;  /* провалы, футер */
+  --plum-deep:      #2A1B33;  /* подложки секций */
+
+  /* --- Цвет: акценты --- */
+  --rose:           #FF96C9;  /* акцент бренда · 9.65:1 AAA */
+  --rose-soft:      #FFD3E2;  /* ховеры, тонкие обводки */
+  --rose-dim:       #C56E9B;  /* нажатое состояние */
+  --plum:           #A5677E;  /* ТОЛЬКО декор и крупный текст (4.47:1) */
+  --moon:           #E8C46A;  /* цена, наличие · 11.57:1 AAA */
+
+  /* --- Цвет: текст --- */
+  --bone:           #EDE6DC;  /* основной текст · 15.64:1 AAA */
+  --lilac:          #C9BFD6;  /* вторичный текст · 10.99:1 AAA */
+  --muted:          #8E8496;  /* мета, disabled · 5.44:1 AA */
+  --fog:            #514C58;  /* разделители, рамки */
+
+  /* --- Цвет: состояния --- */
+  --sold:           #6B5F72;  /* распродано */
+  --thread:         #EDE6DC;  /* цвет нитки/стежка */
+
+  /* --- Шрифты ---
+     ВАЖНО: сайт на русском, поэтому все шрифты обязаны иметь кириллицу.
+     Mystery Quest, ButtonsPatches, floozy, WizardsMagic — только латиница,
+     на кириллице они молча падают в системный serif и вся декоративность
+     теряется. Поэтому они применяются ТОЛЬКО к латинице (логотип).
+     Подмена на собственные .ttf = правка этого блока. */
+  --font-display: 'Amatic SC', 'Alice', cursive;                   /* заголовки, кириллица */
+  --font-latin:   'Mystery Quest', 'Amatic SC', cursive;           /* ТОЛЬКО латиница: логотип */
+  --font-accent:  'Alice', Georgia, serif;                         /* H3, ярлыки */
+  --font-body:    'Cormorant Garamond', Georgia, serif;            /* описания */
+  --font-ui:      'Rubik', -apple-system, 'Segoe UI', sans-serif;  /* кнопки, цены */
+  --font-hand:    'Caveat', 'Comic Sans MS', cursive;              /* конструктор, маркер */
+
+  /* --- Типографическая шкала (1.25 major third) --- */
+  --step--1: clamp(0.79rem, 0.77rem + 0.11vw, 0.85rem);
+  --step-0:  clamp(1rem, 0.96rem + 0.20vw, 1.12rem);
+  --step-1:  clamp(1.25rem, 1.18rem + 0.36vw, 1.50rem);
+  --step-2:  clamp(1.56rem, 1.44rem + 0.61vw, 2.00rem);
+  --step-3:  clamp(1.95rem, 1.75rem + 1.00vw, 2.66rem);
+  --step-4:  clamp(2.44rem, 2.12rem + 1.59vw, 3.55rem);
+  --step-5:  clamp(3.05rem, 2.56rem + 2.45vw, 4.73rem);
+
+  /* --- Ритм --- */
+  --sp-1: 0.25rem;  --sp-2: 0.5rem;   --sp-3: 0.75rem;
+  --sp-4: 1rem;     --sp-5: 1.5rem;   --sp-6: 2rem;
+  --sp-7: 3rem;     --sp-8: 4rem;     --sp-9: 6rem;
+  --sp-10: 8rem;
+
+  /* --- Форма --- */
+  --r-sm: 3px;   --r-md: 6px;   --r-lg: 12px;   --r-pill: 999px;
+  --stitch: 2px dashed var(--fog);      /* беговой стежок */
+  --stitch-rose: 2px dashed var(--rose);
+
+  /* --- Глубина --- */
+  --shadow-pin:  0 12px 28px -12px rgb(0 0 0 / 0.9);
+  --shadow-lift: 0 22px 44px -18px rgb(0 0 0 / 0.95);
+  --glow-rose:   0 0 24px -4px rgb(255 150 201 / 0.45);
+
+  /* --- Движение --- */
+  --ease-out:  cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --t-fast: 140ms;  --t-mid: 260ms;  --t-slow: 480ms;
+
+  /* --- Раскладка --- */
+  --measure: 62ch;
+  --page-max: 1240px;
+  --gutter: clamp(1rem, 4vw, 3rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-fast: 1ms; --t-mid: 1ms; --t-slow: 1ms; }
+}

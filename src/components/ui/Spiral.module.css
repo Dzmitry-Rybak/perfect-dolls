@@ -1,0 +1,9 @@
+.spiral { display: block; }
+
+.spin { animation: turn 1.5s linear infinite; transform-origin: 50% 50%; }
+@keyframes turn { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .spin { animation: pulse 1.2s var(--ease-soft) infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .4 } }
+}

@@ -1,0 +1,31 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-6);
+}
+
+.chip {
+  padding: 0.4rem 1.1rem;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lilac);
+  background: transparent;
+  border: 2px dashed var(--fog);
+  border-radius: var(--r-pill);
+  transition: color var(--t-fast) var(--ease-soft),
+              border-color var(--t-fast) var(--ease-soft),
+              background var(--t-fast) var(--ease-soft);
+}
+.chip:hover { color: var(--bone); border-color: var(--muted); }
+
+.on {
+  color: var(--ink);
+  background: var(--rose);
+  border-color: var(--rose);
+  border-style: solid;
+}
+.on:hover { color: var(--ink); background: var(--rose-soft); border-color: var(--rose-soft); }

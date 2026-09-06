@@ -1,0 +1,57 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border-radius: var(--r-pill);
+  transition: background var(--t-fast) var(--ease-soft),
+              color var(--t-fast) var(--ease-soft),
+              border-color var(--t-fast) var(--ease-soft),
+              box-shadow var(--t-mid) var(--ease-out),
+              transform var(--t-fast) var(--ease-out);
+}
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* --- размеры --- */
+.sm { padding: 0.4rem 0.9rem;  font-size: var(--step--1); }
+.md { padding: 0.65rem 1.5rem; font-size: var(--step-0); }
+.lg { padding: 0.9rem 2.1rem;  font-size: var(--step-1); }
+
+/* --- варианты --- */
+.primary {
+  background: var(--rose);
+  color: var(--ink);
+  border: 2px solid var(--rose);
+}
+.primary:hover:not(:disabled) {
+  background: var(--rose-soft);
+  border-color: var(--rose-soft);
+  box-shadow: var(--glow-rose);
+}
+
+/* Обводка стежком — «пришитая» кнопка */
+.stitched {
+  background: transparent;
+  color: var(--rose);
+  border: var(--stitch-rose);
+}
+.stitched:hover:not(:disabled) {
+  background: rgb(255 150 201 / 0.1);
+  color: var(--rose-soft);
+  border-color: var(--rose-soft);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--lilac);
+  border: 2px solid var(--fog);
+}
+.ghost:hover:not(:disabled) {
+  color: var(--bone);
+  border-color: var(--muted);
+}

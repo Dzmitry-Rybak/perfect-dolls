@@ -1,0 +1,51 @@
+.section { padding-block: var(--sp-9); }
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+  gap: var(--sp-8);
+  align-items: start;
+}
+
+.title { margin-top: var(--sp-2); }
+.text { margin-top: var(--sp-5); display: grid; gap: var(--sp-4); }
+
+.facts {
+  display: grid;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  background: var(--ink-raised);
+  border: var(--stitch);
+  border-radius: var(--r-md);
+  rotate: 0.7deg;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: var(--sp-3);
+  align-items: center;
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px dashed rgb(81 76 88 / 0.4);
+}
+.facts li:last-child { border-bottom: none; padding-bottom: 0; }
+
+.num {
+  /* У Amatic SC слабые цифры — числа набираем Alice */
+  font-family: var(--font-accent);
+  font-weight: 400;
+  font-size: var(--step-2);
+  color: var(--moon);
+  line-height: 1;
+}
+.label {
+  grid-column: 2;
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+@media (max-width: 860px) {
+  .grid { grid-template-columns: 1fr; gap: var(--sp-6); }
+  .facts { rotate: 0deg; }
+}

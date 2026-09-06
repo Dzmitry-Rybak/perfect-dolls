@@ -1,0 +1,54 @@
+/* Бумажная бирка на нитке.
+   Рамку нельзя делать через border: clip-path срезает её вместе с фоном
+   и остаётся прямоугольный контур с «клювом». Поэтому контур —
+   это нижний слой формы, а ::before рисует поверх него фон с отступом 1px. */
+
+.tag {
+  --notch: 0.7rem;
+  --edge: rgb(232 196 106 / 0.5);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.85rem 0.3rem calc(var(--notch) + 0.95rem);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--moon);
+  background: var(--edge);                 /* виден как контур в 1px */
+  clip-path: polygon(var(--notch) 0, 100% 0, 100% 100%, var(--notch) 100%, 0 50%);
+}
+
+/* Фон, вписанный внутрь контура */
+.tag::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  background: var(--ink-sunken);
+  clip-path: polygon(var(--notch) 0, 100% 0, 100% 100%, var(--notch) 100%, 0 50%);
+}
+
+/* Дырка под нитку — поверх фона */
+.hole {
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--notch) + 0.1rem);
+  top: 50%;
+  translate: 0 -50%;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 0 1px var(--edge);
+}
+
+/* Текст поверх фона */
+.tag > :not(.hole) { position: relative; z-index: 1; }
+
+.sm { --notch: 0.55rem; font-size: var(--step--1); }
+.md { --notch: 0.7rem;  font-size: var(--step-0); }
+.lg {
+  --notch: 0.95rem;
+  font-size: var(--step-2);
+  padding-block: 0.45rem;
+}
+.lg .hole { width: 6px; height: 6px; }

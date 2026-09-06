@@ -1,0 +1,21 @@
+.eye { flex: none; overflow: visible; }
+
+.lid {
+  transform-origin: center;
+  transform: scaleY(0);
+}
+
+/* Моргает, когда наводишь на родителя */
+:global(.eye-host):hover .lid,
+.eye:hover .lid {
+  animation: blink 340ms var(--ease-soft);
+}
+
+@keyframes blink {
+  0%, 100% { transform: scaleY(0); }
+  45%      { transform: scaleY(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lid { animation: none !important; }
+}

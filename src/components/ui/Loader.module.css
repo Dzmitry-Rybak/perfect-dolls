@@ -1,0 +1,12 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-9) var(--sp-4);
+}
+.label {
+  font-family: var(--font-hand);
+  font-size: var(--step-0);
+  color: var(--muted);
+}

@@ -1,0 +1,7 @@
+.portrait {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 200 / 260;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgb(42 27 51 / 0.9), var(--ink-sunken) 72%);
+}
