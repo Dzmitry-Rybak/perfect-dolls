@@ -1,0 +1,246 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;              /* выше шапки (100), ниже зерна (9999) */
+  display: grid;
+  /* minmax(0,1fr) обязателен: при auto-треке грид растёт под контент,
+     панель перестаёт упираться в высоту экрана и кнопки внизу
+     уезжают за пределы — анкету становится невозможно отправить */
+  grid-template-rows: minmax(0, 1fr);
+  place-items: center;
+  padding: var(--sp-4);
+  padding-top: max(var(--sp-4), env(safe-area-inset-top, 0px));
+  padding-bottom: max(var(--sp-4), env(safe-area-inset-bottom, 0px));
+  background: rgb(8 8 10 / 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fade var(--t-mid) var(--ease-out);
+}
+@keyframes fade { from { opacity: 0 } }
+
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 640px);
+  max-height: 100%;
+  background: var(--ink-raised);
+  border: var(--stitch-rose);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lift);
+  animation: rise var(--t-slow) var(--ease-out);
+}
+@keyframes rise { from { transform: translateY(16px) scale(0.985); opacity: 0 } }
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay, .panel { animation: none; }
+}
+
+.close {
+  position: absolute;
+  top: var(--sp-3);
+  right: var(--sp-3);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 36px; height: 36px;
+  color: var(--muted);
+  background: var(--ink);
+  border: 1px dashed var(--fog);
+  border-radius: 50%;
+  transition: color var(--t-fast), border-color var(--t-fast);
+}
+.close:hover { color: var(--rose); border-color: var(--rose); }
+
+/* --- шапка --- */
+.head {
+  flex: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--sp-6);
+  align-items: start;
+  /* справа оставляем воздух под кнопку закрытия */
+  padding: var(--sp-6) var(--sp-6) var(--sp-5);
+  border-bottom: 1px dashed rgb(81 76 88 / 0.4);
+}
+.headMain { display: grid; gap: var(--sp-2); align-content: start; }
+.title {
+  margin-top: var(--sp-2);
+  font-size: clamp(2rem, 1.6rem + 1.8vw, 2.8rem);
+}
+.title:focus { outline: none; }   /* фокус программный, рамка тут не нужна */
+.hint {
+  margin-top: var(--sp-2);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  font-style: italic;
+  color: var(--muted);
+  max-width: 52ch;
+}
+
+/* Весь путь списком — заполняет правую колонку и показывает,
+   что будет дальше. Пуговицы соединены пунктиром-ниткой. */
+.rail {
+  display: grid;
+  gap: var(--sp-3);
+  padding-top: calc(36px + var(--sp-2));   /* ниже кнопки закрытия */
+  min-width: 148px;
+}
+
+.railItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  color: var(--muted);
+  transition: color var(--t-mid) var(--ease-soft);
+}
+
+/* Нитка между пуговицами */
+.railItem + .railItem::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: calc(-1 * var(--sp-3));
+  width: 2px;
+  height: var(--sp-3);
+  background-image: linear-gradient(to bottom, var(--fog) 55%, transparent 55%);
+  background-size: 2px 5px;
+}
+
+.railDone { color: var(--lilac); }
+.railNow {
+  color: var(--rose);
+  font-weight: 700;
+}
+.railName { white-space: nowrap; }
+
+/* На узком экране подписи не помещаются — остаётся ряд пуговиц */
+@media (max-width: 720px) {
+  .head { grid-template-columns: 1fr; gap: var(--sp-4); }
+  .rail {
+    grid-auto-flow: column;
+    justify-content: start;
+    align-items: center;
+    gap: var(--sp-4);
+    padding-top: 0;
+    min-width: 0;
+  }
+  .railName {
+    position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  .railItem + .railItem::before {
+    left: calc(-1 * var(--sp-4));
+    top: 50%;
+    translate: 0 -50%;
+    width: var(--sp-4);
+    height: 2px;
+    background-image: linear-gradient(to right, var(--fog) 55%, transparent 55%);
+    background-size: 5px 2px;
+  }
+}
+
+/* --- поля --- */
+.body {
+  display: grid;
+  gap: var(--sp-5);
+  padding: var(--sp-5) var(--sp-6);
+  /* min-height:0 снимает флексовый минимум по контенту — без него
+     overflow-y ниже не срабатывает и блок просто распирает панель */
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;  /* прокрутка не «протекает» на страницу */
+}
+
+.fileBlock { display: grid; gap: var(--sp-2); }
+.fileLabel {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lilac);
+}
+
+/* --- низ --- */
+.foot {
+  flex: none;
+  padding: var(--sp-4) var(--sp-6);
+  border-top: 1px dashed rgb(81 76 88 / 0.4);
+  background: var(--ink-sunken);
+  border-radius: 0 0 calc(var(--r-lg) - 2px) calc(var(--r-lg) - 2px);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+.btns { display: flex; align-items: center; gap: var(--sp-3); }
+
+.failed {
+  margin-bottom: var(--sp-3);
+  font-size: var(--step--1);
+  color: var(--rose);
+}
+
+/* Стоит в одной строке с кнопками и забирает свободное место —
+   раньше висело отдельной строкой и оставляло пустую полосу */
+.privacy {
+  flex: 1 1 20ch;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+/* --- успех --- */
+.done {
+  display: grid;
+  justify-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-8) var(--sp-6);
+  text-align: center;
+}
+.doneTitle { font-size: var(--step-4); }
+.doneTitle:focus { outline: none; }
+.doneText { max-width: 42ch; }
+.doneText code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.9em;
+  color: var(--rose);
+}
+
+@media (max-width: 600px) {
+  .overlay { padding: 0; }
+  .panel {
+    width: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  /* На телефоне шапка и низ забирали больше трети экрана,
+     и на сами вопросы оставалась узкая полоса — ужимаем всё,
+     что не несёт информации: кегль заголовка, отступы, зазоры. */
+  .head { padding: var(--sp-4); gap: var(--sp-3); }
+  .headMain { gap: var(--sp-1); }
+  .title { font-size: var(--step-2); }
+  .hint { font-size: var(--step--1); }
+
+  .body { padding: var(--sp-4); gap: var(--sp-4); }
+
+  .foot { padding: var(--sp-3) var(--sp-4); border-radius: 0; gap: var(--sp-2); }
+  .actions { gap: var(--sp-2); }
+  .privacy { order: 2; flex-basis: 100%; font-size: 0.72rem; }
+  .btns { order: 1; width: 100%; justify-content: flex-end; }
+
+  .done { padding: var(--sp-7) var(--sp-4); }
+}

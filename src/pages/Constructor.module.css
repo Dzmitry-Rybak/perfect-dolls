@@ -40,6 +40,7 @@
   background: rgb(237 230 220 / 0.55);
   border-inline: 1px dashed rgb(120 110 130 / 0.4);
   backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
 }
 .tapeL { left: -16px;  rotate: -32deg; }
 .tapeR { right: -16px; rotate: 32deg; }

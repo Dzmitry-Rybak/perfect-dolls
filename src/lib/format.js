@@ -10,12 +10,6 @@ const money = new Intl.NumberFormat(LOCALE, {
 
 export const formatPrice = (value) => money.format(value);
 
-export const STATUS = {
-  available: { label: 'В наличии',   tone: 'moon' },
-  preorder:  { label: 'Под заказ',   tone: 'rose' },
-  sold:      { label: 'Нашла дом',   tone: 'sold' },
-};
-
 /** Детерминированный «случайный» наклон: карточка всегда висит
  *  под одним и тем же углом, а не прыгает при каждом рендере. */
 export function tiltFor(seed) {

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import Hero from '../components/home/Hero.jsx';
 import WorkshopIntro from '../components/home/WorkshopIntro.jsx';
 import CommissionCta from '../components/home/CommissionCta.jsx';
+import OrderCta from '../components/commission/OrderCta.jsx';
 import ProductGrid from '../components/catalog/ProductGrid.jsx';
 import Loader from '../components/ui/Loader.jsx';
 import Spiral from '../components/ui/Spiral.jsx';
@@ -31,6 +32,11 @@ export default function Home() {
       <Spiral size={56} className={styles.divider} />
 
       <WorkshopIntro />
+
+      <div className={`page ${styles.section}`}>
+        <OrderCta />
+      </div>
+
       <CommissionCta />
     </>
   );

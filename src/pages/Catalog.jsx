@@ -3,8 +3,10 @@ import PageShell from '../components/layout/PageShell.jsx';
 import Filters from '../components/catalog/Filters.jsx';
 import ProductGrid from '../components/catalog/ProductGrid.jsx';
 import Loader from '../components/ui/Loader.jsx';
+import OrderCta from '../components/commission/OrderCta.jsx';
 import { getDolls, getCategories } from '../lib/api.js';
 import useAsync from '../lib/useAsync.js';
+import styles from './Catalog.module.css';
 
 export default function Catalog() {
   // Фильтр живёт в URL — ссылку на «только art toys» можно переслать
@@ -21,9 +23,11 @@ export default function Catalog() {
   return (
     <PageShell
       eyebrow="Каталог"
-      title="Кто сейчас ищет дом"
-      lead="Всё, что стоит на полке прямо сейчас. Проданные работы остаются в списке — по ним видно, что мастерская умеет."
+      title="Работы мастерской"
+      lead="Всё это уже уехало к своим людям — готовых кукол не бывает. Смотрите как примеры: любую можно взять за отправную точку и заказать свою."
     >
+      <div className={styles.cta}><OrderCta compact /></div>
+
       {categories && (
         <Filters categories={categories} active={category} onChange={setCategory} />
       )}

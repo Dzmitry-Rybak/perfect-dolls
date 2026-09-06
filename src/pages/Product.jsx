@@ -1,21 +1,18 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState } from 'react';
 import DollPortrait from '../components/ui/DollPortrait.jsx';
 import PriceTag from '../components/ui/PriceTag.jsx';
 import Button from '../components/ui/Button.jsx';
 import ButtonEye from '../components/ui/ButtonEye.jsx';
-import { StatusTag } from '../components/ui/Tag.jsx';
 import Loader from '../components/ui/Loader.jsx';
 import { getDoll } from '../lib/api.js';
 import useAsync from '../lib/useAsync.js';
-import { useCart } from '../context/CartContext.jsx';
+import { useCommission } from '../context/CommissionContext.jsx';
 import styles from './Product.module.css';
 
 export default function Product() {
   const { slug } = useParams();
   const { data: doll, loading, error } = useAsync(() => getDoll(slug), [slug]);
-  const cart = useCart();
-  const [justAdded, setJustAdded] = useState(false);
+  const { open } = useCommission();
 
   if (loading) return <div className="page"><Loader /></div>;
 
@@ -28,15 +25,6 @@ export default function Product() {
       </div>
     );
   }
-
-  const sold = doll.status === 'sold';
-  const inCart = cart.has(doll.id);
-
-  const handleAdd = () => {
-    cart.add({ id: doll.id, slug: doll.slug, name: doll.name,
-               price: doll.price, accent: doll.accent });
-    setJustAdded(true);
-  };
 
   return (
     <div className={`page ${styles.page}`}>
@@ -53,30 +41,24 @@ export default function Product() {
         </figure>
 
         <div className={styles.info}>
-          <StatusTag status={doll.status} />
+          <span className={styles.made}>Сшита в {doll.year} году · в одном экземпляре</span>
           <h1 className={styles.name}>{doll.name}</h1>
           <p className={styles.tagline}>{doll.tagline}</p>
 
           <div className={styles.priceRow}>
             <PriceTag value={doll.price} size="lg" />
+            <span className={styles.priceNote}>
+              столько стоила эта работа — ваша будет своей
+            </span>
           </div>
 
           <div className={styles.actions}>
-            {sold ? (
-              <>
-                <Button disabled>Нашла дом</Button>
-                <Button to="/constructor" variant="stitched">Собрать похожую</Button>
-              </>
-            ) : (
-              <>
-                <Button onClick={handleAdd} disabled={inCart}>
-                  {inCart ? 'Уже в корзине' : 'В корзину'}
-                </Button>
-                {justAdded && !sold && (
-                  <Link to="/cart" className={styles.toCart}>Перейти в корзину →</Link>
-                )}
-              </>
-            )}
+            <Button size="lg" onClick={() => open({ name: doll.name, slug: doll.slug })}>
+              Хочу такую же
+            </Button>
+            <Button variant="stitched" onClick={() => open()}>
+              Заказать другую
+            </Button>
           </div>
 
           <p className={`prose ${styles.story}`}>{doll.story}</p>

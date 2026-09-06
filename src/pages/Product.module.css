@@ -54,7 +54,29 @@
   color: var(--plum);
 }
 
-.priceRow { margin-top: var(--sp-2); }
+.priceRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+}
+.priceNote {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  color: var(--muted);
+  max-width: 26ch;
+}
+
+/* Заменило плашку наличия: работа не товар со склада, а пример */
+.made {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--plum);
+}
 
 .actions {
   display: flex;
@@ -63,12 +85,6 @@
   gap: var(--sp-4);
   padding-block: var(--sp-2);
 }
-.toCart {
-  font-size: var(--step--1);
-  font-weight: 600;
-  text-decoration: none;
-}
-
 .story { padding-top: var(--sp-2); }
 
 /* --- характеристики --- */

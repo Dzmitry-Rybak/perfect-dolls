@@ -145,8 +145,8 @@ button:disabled,
   margin-inline: auto;
   /* В альбомной ориентации вырез уходит вбок — берём большее
      из обычного поля и безопасного отступа */
-  padding-left: max(var(--gutter), var(--safe-left));
-  padding-right: max(var(--gutter), var(--safe-right));
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
 }
 
 .visually-hidden {

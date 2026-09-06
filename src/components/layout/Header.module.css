@@ -1,23 +1,30 @@
+/* Щит над статус-баром. Высота env() пишется НАПРЯМУЮ, а не через
+   CSS-переменную: env() внутри пользовательского свойства Safari
+   поддерживает не так надёжно, как в обычном объявлении, — и если
+   переменная схлопывается в ноль, полоса остаётся неприкрытой.
+   Когда выреза нет, высота 0 и элемент ничего не стоит. */
+.topShield {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 150;              /* выше шапки (100), ниже модалки (200) */
+  background: var(--ink);
+  pointer-events: none;
+}
+
 .header {
   position: sticky;
   top: 0;
   z-index: 100;
-  /* Шапка заходит под вырез камеры и статус-бар — иначе выше неё
-     остаётся полоса, сквозь которую видно прокручиваемый текст */
-  padding-top: var(--safe-top);
+  /* Шапка заходит под статус-бар, чтобы логотип и бургер
+     не оказались под часами и батареей */
+  padding-top: env(safe-area-inset-top, 0px);
   background: rgb(14 13 16 / 0.86);
   backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);   /* Safari без префикса не понимает */
   border-bottom: 1px solid rgb(81 76 88 / 0.4);
-}
-
-/* Полоса выреза — всегда сплошная. Через полупрозрачный фон шапки
-   там просвечивал и мелькал текст страницы. */
-.header::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: var(--safe-top);
-  background: var(--ink);
 }
 
 /* Ссылка «к содержимому» для клавиатуры */
@@ -33,7 +40,7 @@
   text-decoration: none;
   transition: top var(--t-fast) var(--ease-out);
 }
-.skip:focus { top: var(--safe-top); }
+.skip:focus { top: env(safe-area-inset-top, 0px); }
 
 .bar {
   display: flex;
@@ -95,19 +102,27 @@
 .link:hover::after, .active::after { scale: 1 1; }
 .active { color: var(--rose); }
 
-.cart { display: inline-flex; align-items: center; gap: var(--sp-2); }
-
-.badge {
-  display: inline-grid;
-  place-items: center;
-  min-width: 1.35rem;
-  height: 1.35rem;
-  padding: 0 0.3rem;
-  font-size: 0.7rem;
+/* Кнопка заказа — единственный акцент в навигации */
+.order {
+  padding: 0.42rem 1.1rem;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
   font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--ink);
   background: var(--rose);
+  border: 2px solid var(--rose);
   border-radius: var(--r-pill);
+  white-space: nowrap;
+  transition: background var(--t-fast) var(--ease-soft),
+              border-color var(--t-fast) var(--ease-soft),
+              box-shadow var(--t-mid) var(--ease-out);
+}
+.order:hover {
+  background: var(--rose-soft);
+  border-color: var(--rose-soft);
+  box-shadow: var(--glow-rose);
 }
 
 /* --- бургер --- */
@@ -126,13 +141,6 @@
      и съедал всё свободное место — margin-right:auto у логотипа
      оказывалось нечего распределять, и бургер прилипал к названию */
   .bar { flex-wrap: wrap; }
-
-  /* На телефоне фон сплошной: полупрозрачность с блюром даёт
-     мерцание прокручиваемого текста и лишнюю нагрузку на GPU */
-  .header {
-    background: var(--ink);
-    backdrop-filter: none;
-  }
 
   .burger { display: block; order: 3; margin-left: auto; }
   .nav {
@@ -155,5 +163,12 @@
     padding: var(--sp-3) 0;
     font-size: var(--step-0);
     border-bottom: 1px dashed rgb(81 76 88 / 0.35);
+  }
+  /* В раскрытом меню кнопка занимает всю ширину — так её труднее промахнуть */
+  .order {
+    width: 100%;
+    margin-block: var(--sp-4) var(--sp-3);
+    padding-block: 0.7rem;
+    font-size: var(--step-0);
   }
 }

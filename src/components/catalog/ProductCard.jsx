@@ -1,23 +1,23 @@
 import { Link } from 'react-router-dom';
 import StitchCard from '../ui/StitchCard.jsx';
 import DollPortrait from '../ui/DollPortrait.jsx';
-import PriceTag from '../ui/PriceTag.jsx';
-import { StatusTag } from '../ui/Tag.jsx';
+import { useCommission } from '../../context/CommissionContext.jsx';
+import { formatPrice } from '../../lib/format.js';
 import styles from './ProductCard.module.css';
 
 export default function ProductCard({ doll }) {
-  const sold = doll.status === 'sold';
+  const { open } = useCommission();
 
   return (
     <StitchCard
       as="article"
       seed={doll.slug}
       interactive
-      className={`${styles.card} eye-host ${sold ? styles.sold : ''}`}
+      className={`${styles.card} eye-host`}
     >
       <div className={styles.media}>
         <DollPortrait seed={doll.slug} accent={doll.accent} alt={doll.name} />
-        <div className={styles.status}><StatusTag status={doll.status} /></div>
+        <span className={styles.year}>{doll.year}</span>
       </div>
 
       <div className={styles.body}>
@@ -27,9 +27,20 @@ export default function ProductCard({ doll }) {
         </h3>
         <p className={styles.tagline}>{doll.tagline}</p>
 
-        <div className={styles.meta}>
-          <PriceTag value={doll.price} size="sm" />
-          {doll.height && <span className={styles.height}>{doll.height} см</span>}
+        <div className={styles.foot}>
+          <span className={styles.price}>
+            <span className={styles.priceLabel}>ориентир</span>
+            {formatPrice(doll.price)}
+          </span>
+
+          {/* z-index обязателен: иначе растянутая ссылка карточки
+              перекрывает кнопку и «Хочу такую же» не нажимается */}
+          <button
+            className={styles.want}
+            onClick={() => open({ name: doll.name, slug: doll.slug })}
+          >
+            Хочу такую же
+          </button>
         </div>
       </div>
     </StitchCard>

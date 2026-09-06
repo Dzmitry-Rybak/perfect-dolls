@@ -1,8 +1,11 @@
 import Button from '../ui/Button.jsx';
+import { useCommission } from '../../context/CommissionContext.jsx';
 import DollPortrait from '../ui/DollPortrait.jsx';
 import styles from './Hero.module.css';
 
 export default function Hero() {
+  const { open } = useCommission();
+
   return (
     <section className={styles.hero}>
       {/* Акварельные пятна-подложки */}
@@ -25,8 +28,8 @@ export default function Hero() {
             экземпляре — второй такой не будет, даже если очень попросить.
           </p>
           <div className={styles.actions}>
-            <Button to="/catalog" size="lg">Посмотреть кукол</Button>
-            <Button to="/constructor" size="lg" variant="stitched">Собрать свою</Button>
+            <Button size="lg" onClick={() => open()}>Заказать куклу</Button>
+            <Button to="/catalog" size="lg" variant="stitched">Посмотреть работы</Button>
           </div>
         </div>
 

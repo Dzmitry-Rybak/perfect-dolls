@@ -1,0 +1,100 @@
+.wrap { display: grid; gap: var(--sp-3); }
+
+.drop {
+  display: grid;
+  gap: var(--sp-1);
+  place-items: center;
+  padding: var(--sp-6) var(--sp-4);
+  text-align: center;
+  background: var(--ink);
+  border: 2px dashed var(--fog);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: border-color var(--t-fast) var(--ease-soft),
+              background var(--t-fast) var(--ease-soft);
+}
+.drop:hover { border-color: var(--muted); }
+.drop:has(:focus-visible) { outline: 2px solid var(--rose); outline-offset: 2px; }
+.over {
+  border-color: var(--rose);
+  border-style: solid;
+  background: rgb(255 150 201 / 0.08);
+}
+
+.dropTitle {
+  font-family: var(--font-hand);
+  font-size: var(--step-1);
+  color: var(--rose);
+}
+.dropHint {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  color: var(--muted);
+}
+
+.notice {
+  font-size: var(--step--1);
+  color: var(--rose);
+  font-family: var(--font-ui);
+}
+
+.list { display: grid; gap: var(--sp-2); }
+
+.item {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2);
+  background: var(--ink);
+  border: 1px dashed rgb(81 76 88 / 0.5);
+  border-radius: var(--r-sm);
+}
+
+.thumb {
+  width: 40px; height: 40px;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  border: 1px solid rgb(81 76 88 / 0.6);
+}
+.thumbDoc {
+  display: grid;
+  place-items: center;
+  width: 40px; height: 40px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--moon);
+  border: 1px dashed rgb(232 196 106 / 0.5);
+  border-radius: var(--r-sm);
+}
+
+.name {
+  font-size: var(--step--1);
+  color: var(--bone);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.size {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.drop_ {
+  display: grid;
+  place-items: center;
+  width: 28px; height: 28px;
+  color: var(--muted);
+  border-radius: 50%;
+  transition: color var(--t-fast), background var(--t-fast);
+}
+.drop_:hover { color: var(--rose); background: rgb(255 150 201 / 0.1); }
+
+.total {
+  font-size: var(--step--1);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}

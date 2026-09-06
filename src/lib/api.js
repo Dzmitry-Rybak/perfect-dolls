@@ -51,7 +51,7 @@ export async function getDoll(slug) {
 
 /** GET /api/dolls?featured=true */
 export function getFeatured(limit = 4) {
-  return respond(dolls.filter((d) => d.status !== 'sold').slice(0, limit));
+  return respond(dolls.slice(0, limit));
 }
 
 /** GET /api/categories */
@@ -64,6 +64,39 @@ export function getCategories() {
 /** GET /api/constructor/parts */
 export function getConstructorParts() {
   return respond({ layers, parts, basePrice: BASE_PRICE });
+}
+
+/**
+ * POST /api/commissions — заявка на куклу с референсами.
+ *
+ * Файлы нельзя положить в JSON, поэтому на бэкенде это multipart/form-data.
+ * Тело собирается здесь, чтобы компоненты про транспорт не знали.
+ * Сейчас — мок: письмо уйдёт, когда появится бэкенд (см. api/CONTRACT.md).
+ */
+export function submitCommission(values) {
+  const body = new FormData();
+  for (const [key, value] of Object.entries(values)) {
+    if (key === 'files') {
+      for (const file of value) body.append('files', file, file.name);
+    } else if (Array.isArray(value)) {
+      body.append(key, value.join(','));
+    } else {
+      body.append(key, value ?? '');
+    }
+  }
+
+  // ↓ когда появится бэкенд, весь мок ниже меняется на:
+  //   return fetch('/api/commissions', { method: 'POST', body })
+  //     .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Не удалось отправить'))));
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        id: `RD-${Date.now().toString(36).toUpperCase()}`,
+        status: 'received',
+        files: values.files.map((f) => ({ name: f.name, size: f.size })),
+      });
+    }, 900);
+  });
 }
 
 /** POST /api/builds */
