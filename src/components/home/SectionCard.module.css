@@ -1,0 +1,31 @@
+.card { display: flex; flex-direction: column; overflow: hidden; height: 100%; }
+
+.media { border-bottom: var(--stitch); overflow: hidden; }
+.media svg { transition: scale var(--t-slow) var(--ease-out); }
+.card:hover .media svg { scale: 1.05; }
+
+.body {
+  display: flex; flex-direction: column; gap: var(--sp-2);
+  padding: var(--sp-4); flex: 1;
+}
+.title { font-family: var(--font-display); font-size: var(--step-2); line-height: 1.1; }
+.title a { color: var(--bone); text-decoration: none; transition: color var(--t-fast); }
+.card:hover .title a { color: var(--rose); }
+.stretch::after { content: ''; position: absolute; inset: 0; }
+
+.blurb {
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  color: var(--muted);
+  line-height: 1.45;
+}
+.go {
+  margin-top: auto; padding-top: var(--sp-3);
+  font-family: var(--font-hand);
+  font-size: var(--step--1);
+  color: var(--rose);
+  opacity: 0; translate: -6px 0;
+  transition: opacity var(--t-mid) var(--ease-out), translate var(--t-mid) var(--ease-out);
+}
+.card:hover .go { opacity: 1; translate: 0 0; }
+@media (prefers-reduced-motion: reduce) { .go { opacity: 1; translate: 0 0; } }

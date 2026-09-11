@@ -1,0 +1,145 @@
+/* Общие стили страниц-разделов: куклы, сквиды, портреты, мастерская, PR */
+
+.small { font-size: var(--step--1); color: var(--muted); font-style: italic; }
+
+/* --- факты сбоку --- */
+.facts {
+  display: grid; gap: var(--sp-3);
+  padding: var(--sp-5);
+  background: var(--ink-raised);
+  border: var(--stitch);
+  border-radius: var(--r-md);
+  rotate: 0.6deg;
+}
+.fact { display: flex; justify-content: space-between; gap: var(--sp-3); align-items: baseline; }
+.fact dt {
+  font-size: var(--step--1); letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.fact dd {
+  font-family: var(--font-accent); font-size: var(--step-1);
+  color: var(--moon); text-align: right;
+}
+
+.facts2 { display: grid; gap: var(--sp-2); margin-top: var(--sp-2); }
+.facts2 li {
+  display: flex; align-items: center; gap: var(--sp-3);
+  font-size: var(--step--1); color: var(--lilac);
+}
+
+/* --- призыв --- */
+.cta {
+  position: relative; overflow: hidden;
+  margin-block: var(--sp-7);
+  padding: clamp(1.75rem, 5vw, 3.5rem);
+  background: var(--plum-deep);
+  border: var(--stitch-rose);
+  border-radius: var(--r-lg);
+}
+.ctaPaper {
+  position: absolute; inset: 0; opacity: 0.14;
+  background-image:
+    repeating-linear-gradient(to right,  rgb(201 191 214 / 0.5) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(to bottom, rgb(201 191 214 / 0.5) 0 1px, transparent 1px 26px);
+}
+.ctaGrid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, auto);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+}
+/* Узко — факты уходят под текст, а не жмут кнопку */
+@media (max-width: 760px) { .ctaGrid { grid-template-columns: 1fr; } }
+
+.ctaBody { max-width: 56ch; }
+.scribble {
+  font-family: var(--font-hand); font-size: var(--step-1);
+  color: var(--rose); rotate: -3deg; margin-bottom: var(--sp-2);
+}
+.ctaLead { margin-block: var(--sp-4) var(--sp-6); color: var(--lilac); }
+.ctaActions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); }
+.mail { font-size: var(--step--1); font-weight: 600; text-decoration: none; }
+
+.footNote {
+  display: flex; align-items: center; gap: var(--sp-3);
+  font-family: var(--font-body); font-size: var(--step-0);
+  font-style: italic; color: var(--muted);
+}
+
+/* --- плитки примеров --- */
+.gridTitle { margin-block: var(--sp-6) var(--sp-4); }
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+  gap: var(--sp-5);
+}
+.tile { overflow: hidden; }
+.tileName {
+  padding: var(--sp-3) var(--sp-4);
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  color: var(--bone);
+  border-top: var(--stitch);
+}
+
+/* --- пусто --- */
+.empty {
+  display: grid; justify-items: center; gap: var(--sp-3);
+  padding: var(--sp-9) var(--sp-5); text-align: center;
+  border: 2px dashed var(--fog); border-radius: var(--r-lg);
+}
+.emptyText {
+  font-family: var(--font-body); font-size: var(--step-1);
+  color: var(--lilac); max-width: 50ch; line-height: 1.55;
+}
+.emptyHint { font-size: var(--step--1); color: var(--muted); }
+
+/* --- шаги мастерской --- */
+.divider { margin: var(--sp-7) auto; opacity: 0.5; }
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: var(--sp-5);
+}
+.step { padding: var(--sp-5) var(--sp-4); background: var(--ink-raised); border-top: 2px dashed var(--fog); }
+.stepNum { font-family: var(--font-accent); font-size: var(--step-2); color: var(--rose); opacity: 0.75; }
+.stepTitle {
+  margin-block: var(--sp-2); font-family: var(--font-accent);
+  font-size: var(--step-1); color: var(--bone);
+}
+.stepText { font-family: var(--font-body); font-size: var(--step-0); color: var(--muted); line-height: 1.55; }
+
+/* --- фото --- */
+.photo {
+  position: relative; margin: 0;
+  padding: var(--sp-3);
+  background: var(--ink-raised);
+  border: var(--stitch); border-radius: var(--r-md);
+  rotate: -1.4deg; box-shadow: var(--shadow-pin);
+}
+.photoTape {
+  position: absolute; top: -12px; left: 50%; translate: -50% 0;
+  width: 92px; height: 24px;
+  background: rgb(237 230 220 / 0.14);
+  border-inline: 1px dashed rgb(237 230 220 / 0.25);
+  rotate: 2deg;
+}
+
+/* --- PR --- */
+.prBody { max-width: 60ch; display: grid; gap: var(--sp-4); }
+.prMail {
+  display: grid; justify-items: start; gap: var(--sp-3);
+  margin-top: var(--sp-7); padding: var(--sp-6);
+  background: var(--plum-deep);
+  border: var(--stitch-rose); border-radius: var(--r-lg);
+  max-width: 54ch;
+}
+.prMailLabel {
+  font-family: var(--font-ui); font-size: var(--step--1); font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--rose);
+}
+.prMailAddr {
+  font-family: var(--font-accent); font-size: var(--step-2);
+  color: var(--moon); text-decoration: none; word-break: break-all;
+}

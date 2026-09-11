@@ -3,7 +3,7 @@ import { MAX_FILES, MAX_FILE_MB, MAX_TOTAL_MB, ACCEPT } from '../../data/commiss
 import styles from './FileField.module.css';
 
 const mb = (bytes) => bytes / 1024 / 1024;
-const fmt = (bytes) => `${mb(bytes).toFixed(1)} МБ`;
+const fmt = (bytes) => `${mb(bytes).toFixed(1)} MB`;
 
 export default function FileField({ files, onChange }) {
   const id = useId();
@@ -25,12 +25,12 @@ export default function FileField({ files, onChange }) {
     const rejected = [];
 
     for (const f of incoming) {
-      if (next.length >= MAX_FILES) { rejected.push(`${f.name} — больше ${MAX_FILES} файлов не поместится`); continue; }
-      if (mb(f.size) > MAX_FILE_MB) { rejected.push(`${f.name} — тяжелее ${MAX_FILE_MB} МБ`); continue; }
+      if (next.length >= MAX_FILES) { rejected.push(`${f.name} — more than ${MAX_FILES} files won't fit`); continue; }
+      if (mb(f.size) > MAX_FILE_MB) { rejected.push(`${f.name} — heavier than ${MAX_FILE_MB} MB`); continue; }
       // Дубли по имени и размеру: люди часто кидают один файл дважды
-      if (next.some((n) => n.name === f.name && n.size === f.size)) { rejected.push(`${f.name} — уже добавлен`); continue; }
+      if (next.some((n) => n.name === f.name && n.size === f.size)) { rejected.push(`${f.name} — already added`); continue; }
       const total = next.reduce((s, n) => s + n.size, 0) + f.size;
-      if (mb(total) > MAX_TOTAL_MB) { rejected.push(`${f.name} — вместе выходит больше ${MAX_TOTAL_MB} МБ`); continue; }
+      if (mb(total) > MAX_TOTAL_MB) { rejected.push(`${f.name} — together that is over ${MAX_TOTAL_MB} MB`); continue; }
       next.push(f);
     }
 
@@ -55,9 +55,9 @@ export default function FileField({ files, onChange }) {
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
       >
-        <span className={styles.dropTitle}>Перетащите файлы сюда</span>
+        <span className={styles.dropTitle}>Drop files here</span>
         <span className={styles.dropHint}>
-          или нажмите, чтобы выбрать · до {MAX_FILES} файлов, {MAX_FILE_MB} МБ каждый
+          or tap to choose · up to {MAX_FILES} files, {MAX_FILE_MB} MB each
         </span>
         <input
           ref={inputRef}
@@ -87,14 +87,14 @@ export default function FileField({ files, onChange }) {
                   className={styles.drop_}
                   onClick={() => onChange(files.filter((_, j) => j !== i))}
                 >
-                  <span className="visually-hidden">Убрать {f.name}</span>
+                  <span className="visually-hidden">Remove {f.name}</span>
                   <span aria-hidden="true">✕</span>
                 </button>
               </li>
             ))}
           </ul>
           <p className={styles.total}>
-            {files.length} из {MAX_FILES} · {fmt(totalMb)} из {MAX_TOTAL_MB} МБ
+            {files.length} of {MAX_FILES} · {fmt(totalMb)} of {MAX_TOTAL_MB} MB
           </p>
         </>
       )}

@@ -9,8 +9,8 @@ import styles from './ButtonTrail.module.css';
  * что и глаза кукол, поэтому эффект читается как часть мастерской,
  * а не как посторонний курсор-трейл.
  *
- * Отключается сам: при prefers-reduced-motion и на устройствах без
- * точного указателя (тач — там курсора нет, эффекту неоткуда взяться).
+ * Работает и мышью, и пальцем: на телефоне пуговицы сыпятся из-под
+ * пальца при прокрутке. Отключается только при prefers-reduced-motion.
  */
 
 const COLORS = [
@@ -24,7 +24,9 @@ const COLORS = [
 ];
 
 const POOL = 22;        // переиспользуемых элементов
-const MIN_DIST = 26;    // px пути между появлениями
+const MIN_DIST = 26;        // px пути между появлениями (мышь)
+const MIN_DIST_TOUCH = 38;  // палец движется быстрее и рывками — реже
+const MIN_MS = 45;          // потолок частоты: защита от заливания
 const LIFE = [1320, 1750];   // +0.5 c — след держится дольше
 
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -76,9 +78,9 @@ export default function ButtonTrail() {
     const host = hostRef.current;
     if (!host) return;
 
-    const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const fine = window.matchMedia('(pointer: fine)');
-    if (calm.matches || !fine.matches) return;
+    // Отключаем только по просьбе системы. По типу указателя больше
+    // не отсекаем: на телефоне след идёт за пальцем.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const pool = Array.from({ length: POOL }, () => {
       const b = makeButton();
@@ -121,23 +123,51 @@ export default function ButtonTrail() {
       );
     };
 
-    const onMove = (e) => {
-      const { clientX: x, clientY: y } = e;
+    /* Порог по расстоянию и по времени. Расстояние задаёт плотность
+       следа, время страхует от заливания при быстром свайпе: touchmove
+       на телефоне срабатывает намного чаще, чем движется мышь. */
+    let lastAt = 0;
+    const track = (x, y, minDist) => {
       if (lastX === null) { lastX = x; lastY = y; return; }
-      if (Math.hypot(x - lastX, y - lastY) < MIN_DIST) return;
-      lastX = x; lastY = y;
+      const now = performance.now();
+      if (now - lastAt < MIN_MS) return;
+      if (Math.hypot(x - lastX, y - lastY) < minDist) return;
+      lastX = x; lastY = y; lastAt = now;
       drop(x, y);
     };
 
-    // Курсор мог уйти за пределы окна — не тянем нитку через всю страницу
-    const onLeave = () => { lastX = null; lastY = null; };
+    // Мышь и перо. Касания сюда не пускаем — их ведёт touchmove,
+    // иначе один жест сыпал бы пуговицы дважды.
+    const onPointer = (e) => {
+      if (e.pointerType === 'touch') return;
+      track(e.clientX, e.clientY, MIN_DIST);
+    };
 
-    window.addEventListener('pointermove', onMove, { passive: true });
-    document.addEventListener('pointerleave', onLeave);
+    /* Палец. Именно touchmove, а не pointermove: как только браузер
+       забирает жест под прокрутку, pointermove сменяется на
+       pointercancel и след обрывается на первом же движении.
+       passive — чтобы не мешать прокрутке. */
+    const onTouch = (e) => {
+      const t = e.touches[0];
+      if (t) track(t.clientX, t.clientY, MIN_DIST_TOUCH);
+    };
+
+    // Курсор ушёл за край или палец оторвался — не тянем нитку
+    // через всю страницу к месту следующего касания
+    const onEnd = () => { lastX = null; lastY = null; };
+
+    window.addEventListener('pointermove', onPointer, { passive: true });
+    window.addEventListener('touchmove', onTouch, { passive: true });
+    window.addEventListener('touchend', onEnd, { passive: true });
+    window.addEventListener('touchcancel', onEnd, { passive: true });
+    document.addEventListener('pointerleave', onEnd);
 
     return () => {
-      window.removeEventListener('pointermove', onMove);
-      document.removeEventListener('pointerleave', onLeave);
+      window.removeEventListener('pointermove', onPointer);
+      window.removeEventListener('touchmove', onTouch);
+      window.removeEventListener('touchend', onEnd);
+      window.removeEventListener('touchcancel', onEnd);
+      document.removeEventListener('pointerleave', onEnd);
       pool.forEach((p) => { p.anim?.cancel(); p.svg.remove(); });
     };
   }, []);

@@ -1,0 +1,12 @@
+.section { padding-block: var(--sp-6); }
+.title { margin-bottom: var(--sp-4); }
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-6);
+}
+.grid:has(.aside) { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); align-items: start; }
+.body { display: grid; gap: var(--sp-4); }
+@media (max-width: 860px) {
+  .grid:has(.aside) { grid-template-columns: 1fr; }
+}

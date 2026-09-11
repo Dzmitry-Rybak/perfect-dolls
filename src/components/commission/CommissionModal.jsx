@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { steps, emptyValues } from '../../data/commissionForm.js';
+import { FORMS, emptyValues } from '../../data/commissionForm.js';
 import { submitCommission } from '../../lib/api.js';
 import { useCommission } from '../../context/CommissionContext.jsx';
 import Field from './Field.jsx';
@@ -17,8 +17,13 @@ const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
 
 export default function CommissionModal() {
   const { isOpen, prefill, close } = useCommission();
+  // Куклы и портреты — разные наборы вопросов; вид приходит от кнопки
+  const form = FORMS[prefill?.kind] ?? FORMS.doll;
+  const steps = form.steps;
   const [step, setStep] = useState(0);
-  const [values, setValues] = useState(emptyValues);
+  // Ленивая инициализация обязана получить форму: emptyValues теперь
+  // строит поля по её описанию, а не по единственному глобальному набору
+  const [values, setValues] = useState(() => emptyValues(form));
   const [errors, setErrors] = useState({});
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(null);
@@ -35,9 +40,10 @@ export default function CommissionModal() {
     setSent(null);
     setFailed(null);
     setValues({
-      ...emptyValues(),
-      idea: prefill ? `Хочу похожую на «${prefill.name}».\n\n` : '',
+      ...emptyValues(form),
+      idea: prefill?.name ? `Something like "${prefill.name}".\n\n` : '',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, prefill]);
 
   // Фон не должен прокручиваться под открытой анкетой
@@ -84,9 +90,9 @@ export default function CommissionModal() {
     for (const f of current.fields) {
       const v = values[f.name];
       if (f.required && (Array.isArray(v) ? !v.length : !String(v).trim())) {
-        next[f.name] = 'Без этого не обойтись';
+        next[f.name] = 'This one is needed';
       } else if (f.type === 'email' && String(v).trim() && !isEmail(v)) {
-        next[f.name] = 'Проверьте адрес — письмо должно дойти';
+        next[f.name] = 'Check the address — the reply has to land';
       }
     }
     setErrors(next);
@@ -101,10 +107,10 @@ export default function CommissionModal() {
     setSending(true);
     setFailed(null);
     try {
-      const result = await submitCommission(values);
+      const result = await submitCommission(values, form.kind);
       setSent(result);
     } catch (err) {
-      setFailed(err?.message || 'Не удалось отправить. Попробуйте ещё раз.');
+      setFailed(err?.message || 'Could not send. Try again?');
     } finally {
       setSending(false);
     }
@@ -122,7 +128,7 @@ export default function CommissionModal() {
         aria-labelledby="commission-title"
       >
         <button className={styles.close} onClick={close}>
-          <span className="visually-hidden">Закрыть анкету</span>
+          <span className="visually-hidden">Close the form</span>
           <span aria-hidden="true">✕</span>
         </button>
 
@@ -130,19 +136,19 @@ export default function CommissionModal() {
           <div className={styles.done}>
             <Spiral size={56} color="var(--rose)" />
             <h2 id="commission-title" ref={headingRef} tabIndex={-1} className={styles.doneTitle}>
-              Заявка ушла
+              Sent
             </h2>
             <p className={`prose ${styles.doneText}`}>
-              Номер <code>{sent.id}</code>. Рита отвечает обычно в тот же день —
-              письмо придёт на {values.email}.
+              Reference <code>{sent.id}</code>. Margarita usually replies the same
+              day — the answer lands at {values.email}.
             </p>
-            <Button onClick={close}>Закрыть</Button>
+            <Button onClick={close}>Close</Button>
           </div>
         ) : (
           <>
             <header className={styles.head}>
               <div className={styles.headMain}>
-                <p className="eyebrow">Заказ куклы · шаг {step + 1} из {steps.length}</p>
+                <p className="eyebrow">{form.title} · step {step + 1} of {steps.length}</p>
                 <h2 id="commission-title" ref={headingRef} tabIndex={-1} className={styles.title}>
                   {current.title}
                 </h2>
@@ -152,7 +158,7 @@ export default function CommissionModal() {
               {/* Справа пустовало — ставим весь путь целиком: видно,
                   сколько осталось и что будет дальше. На узком экране
                   сворачивается в ряд пуговиц без подписей. */}
-              <ol className={styles.rail} aria-label={`Шаг ${step + 1} из ${steps.length}`}>
+              <ol className={styles.rail} aria-label={`Step ${step + 1} of ${steps.length}`}>
                 {steps.map((s, i) => (
                   <li
                     key={s.id}
@@ -197,21 +203,21 @@ export default function CommissionModal() {
                   и оставляло пустую полосу во всю ширину. */}
               <div className={styles.actions}>
                 <p className={styles.privacy}>
-                  Уходит только Рите, без рассылок.
+                  Goes only to Margarita. No mailing lists.
                 </p>
 
                 {/* Кнопки собраны в группу справа — так примечание
                     получает всю левую половину и не ломается на строки */}
                 <div className={styles.btns}>
                   {step > 0 && (
-                    <Button variant="ghost" onClick={back} disabled={sending}>Назад</Button>
+                    <Button variant="ghost" onClick={back} disabled={sending}>Back</Button>
                   )}
                   {isLast ? (
                     <Button onClick={send} disabled={sending}>
-                      {sending ? 'Отправляю…' : 'Оформить куклу'}
+                      {sending ? 'Sending…' : 'Send it'}
                     </Button>
                   ) : (
-                    <Button onClick={forward}>Дальше</Button>
+                    <Button onClick={forward}>Next</Button>
                   )}
                 </div>
               </div>

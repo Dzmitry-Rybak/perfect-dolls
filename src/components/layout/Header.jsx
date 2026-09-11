@@ -1,20 +1,15 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { useCommission } from '../../context/CommissionContext.jsx';
+import { NAV } from '../../data/nav.js';
 import ButtonEye from '../ui/ButtonEye.jsx';
+import { useOrders } from '../../context/OrdersContext.jsx';
 import styles from './Header.module.css';
 
-const NAV = [
-  { to: '/catalog',     label: 'Куклы' },
-  { to: '/constructor', label: 'Конструктор' },
-  { to: '/gallery',     label: 'Галерея' },
-  { to: '/about',       label: 'Мастерская' },
-  { to: '/faq',         label: 'Вопросы' },
-];
+
 
 export default function Header() {
-  const { open: openCommission } = useCommission();
   const [menuOpen, setMenuOpen] = useState(false);
+  const orders = useOrders();
 
   return (
     <>
@@ -26,12 +21,12 @@ export default function Header() {
       <div className={styles.topShield} aria-hidden="true" />
 
       <header className={styles.header}>
-        <a href="#main" className={styles.skip}>К содержимому</a>
+        <a href="#main" className={styles.skip}>Skip to content</a>
 
       <div className={`page ${styles.bar}`}>
         <Link to="/" className={`${styles.logo} eye-host`} onClick={() => setMenuOpen(false)}>
           <ButtonEye size={26} />
-          <span className={styles.logoText}>Rita&nbsp;Dolls</span>
+          <span className={styles.logoText}>cutesmokey</span>
         </Link>
 
         <button
@@ -40,7 +35,7 @@ export default function Header() {
           aria-controls="main-nav"
           onClick={() => setMenuOpen((v) => !v)}
         >
-          <span className="visually-hidden">Меню</span>
+          <span className="visually-hidden">Menu</span>
           <span className={`${styles.burgerBox} ${menuOpen ? styles.burgerOpen : ''}`} aria-hidden="true">
             <i /><i /><i />
           </span>
@@ -61,11 +56,28 @@ export default function Header() {
               </li>
             ))}
             <li>
-              <button
+              <NavLink
+                to="/builder"
+                onClick={() => setMenuOpen(false)}
                 className={styles.order}
-                onClick={() => { setMenuOpen(false); openCommission(); }}
               >
-                Заказать куклу
+                Build a squid
+              </NavLink>
+            </li>
+            {/* Ручка мастерской: открывает и закрывает приём заказов.
+                Выбор запоминается в браузере до появления админки. */}
+            <li>
+              <button
+                type="button"
+                className={`${styles.gate} ${orders.open ? styles.gateOn : ''}`}
+                role="switch"
+                aria-checked={orders.open}
+                onClick={orders.toggle}
+              >
+                <span className={styles.gateKnob} aria-hidden="true" />
+                <span className={styles.gateText}>
+                  Orders {orders.open ? 'open' : 'closed'}
+                </span>
               </button>
             </li>
           </ul>

@@ -6,10 +6,30 @@
   margin-bottom: var(--sp-8);
   max-width: 60ch;
 }
+
+/* С боковым блоком шапка становится двухколоночной. Ограничение
+   60ch переезжает на сам текст: оно про длину строки, а не про
+   ширину шапки, и на всю сетку его накладывать нельзя. */
+.split {
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: var(--sp-6) var(--sp-7);
+  align-items: start;
+}
+.headText { max-width: 60ch; }
+.headAside { min-width: 0; }
+
 .title { margin-top: var(--sp-2); }
 .lead  { margin-top: var(--sp-4); }
 
 .spiral {
   margin-top: var(--sp-5);
   opacity: 0.7;
+}
+
+/* Тот же порог, что у InfoSection: ниже него боковой блок уходит
+   под текст, иначе обе колонки становятся слишком узкими. */
+@media (max-width: 860px) {
+  .split { grid-template-columns: 1fr; }
 }

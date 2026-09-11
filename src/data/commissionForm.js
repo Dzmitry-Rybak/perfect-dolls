@@ -1,11 +1,10 @@
 /**
- * Анкета на заказ куклы.
+ * Анкеты на заказ. Куклы и портреты — разные формы: вопросы почти
+ * не пересекаются, и ответы уходят на разные почты.
  *
- * Вопросы вынесены сюда, чтобы формулировки правились в одном месте,
- * без залезания в компоненты. Порядок шагов = порядок в массиве.
+ * Формулировки и варианты правятся здесь, без залезания в компоненты.
  *
- * Типы полей: text · email · textarea · select · chips (множественный) · files
- * required: true — шаг не пропустит дальше, пока поле не заполнено.
+ * Типы полей: text · email · textarea · select · chips · files
  */
 
 export const MAX_FILES = 5;
@@ -13,138 +12,135 @@ export const MAX_FILE_MB = 8;
 export const MAX_TOTAL_MB = 20;
 export const ACCEPT = 'image/jpeg,image/png,image/webp,image/heic,application/pdf';
 
-export const steps = [
-  {
-    id: 'who',
-    title: 'Кто это будет',
-    hint: 'Начнём с главного — кого вы хотите увидеть.',
-    fields: [
-      {
-        name: 'kind', label: 'Что шьём', type: 'select', required: true,
-        options: [
-          { value: 'doll',    label: 'Куклу' },
-          { value: 'arttoy',  label: 'Art toy' },
-          { value: 'clothes', label: 'Одежду для куклы' },
-          { value: 'unsure',  label: 'Пока не знаю' },
-        ],
-      },
-      {
-        name: 'height', label: 'Примерный рост', type: 'select',
-        options: [
-          { value: 'mini',   label: 'До 15 см' },
-          { value: 'small',  label: '15–25 см' },
-          { value: 'medium', label: '25–35 см' },
-          { value: 'large',  label: 'Больше 35 см' },
-          { value: 'unsure', label: 'На ваше усмотрение' },
-        ],
-      },
-      {
-        name: 'idea', label: 'Расскажите про неё', type: 'textarea', required: true,
-        placeholder: 'Кто она, откуда, какой у неё характер. Можно одним предложением, можно историей — Рите важнее настроение, чем точность.',
-        rows: 5,
-      },
-    ],
-  },
+const contactStep = (extra = []) => ({
+  id: 'you',
+  title: 'Dates and you',
+  hint: 'So I know whether I can make it in time, and where it goes afterwards.',
+  fields: [
+    { name: 'name',  label: 'What should I call you', type: 'text',  required: true, placeholder: 'Your name' },
+    { name: 'email', label: 'Email for my reply',     type: 'email', required: true, placeholder: 'you@example.com' },
+    { name: 'deadline', label: 'Needed by', type: 'text',
+      placeholder: 'e.g. before 12 March, it’s a gift. Or "no rush"' },
+    { name: 'place', label: 'Where it ships', type: 'text', placeholder: 'City and country' },
+    ...extra,
+  ],
+});
 
-  {
-    id: 'look',
-    title: 'Как она выглядит',
-    hint: 'Если чего-то не знаете — оставьте пустым, обсудим потом.',
-    fields: [
-      {
-        name: 'eyes', label: 'Глаза-пуговицы', type: 'select',
-        options: [
-          { value: 'pearl',    label: 'Перламутровые' },
-          { value: 'jet',      label: 'Гагат, чёрные' },
-          { value: 'rose',     label: 'Розовые' },
-          { value: 'mismatch', label: 'Разные' },
-          { value: 'trust',    label: 'Доверяю Рите' },
-        ],
-      },
-      {
-        name: 'hair', label: 'Волосы', type: 'select',
-        options: [
-          { value: 'bob',   label: 'Каре' },
-          { value: 'long',  label: 'Длинные пряди' },
-          { value: 'wax',   label: 'Восковые потёки' },
-          { value: 'none',  label: 'Без волос' },
-          { value: 'trust', label: 'Доверяю Рите' },
-        ],
-      },
-      {
-        name: 'palette', label: 'Цвета, которые нравятся', type: 'chips',
-        hint: 'Можно выбрать несколько',
-        options: [
-          { value: 'black',  label: 'Чёрный' },
-          { value: 'rose',   label: 'Нежно-розовый' },
-          { value: 'plum',   label: 'Слива' },
-          { value: 'bone',   label: 'Костяной' },
-          { value: 'gold',   label: 'Приглушённое золото' },
-          { value: 'teal',   label: 'Тёмная бирюза' },
-          { value: 'lilac',  label: 'Сирень' },
-          { value: 'rust',   label: 'Ржавый' },
-        ],
-      },
-      {
-        name: 'companion', label: 'Спутник', type: 'select',
-        options: [
-          { value: 'none',  label: 'Никого' },
-          { value: 'bat',   label: 'Летучая мышь' },
-          { value: 'cat',   label: 'Чёрный кот' },
-          { value: 'moon',  label: 'Луна на нити' },
-          { value: 'other', label: 'Другое — напишу ниже' },
-        ],
-      },
-      {
-        name: 'avoid', label: 'Чего точно не хочется', type: 'textarea', rows: 3,
-        placeholder: 'Иногда это важнее пожеланий. Например: без блёсток, без красного, не страшную.',
-      },
-    ],
-  },
+const refsStep = {
+  id: 'refs',
+  title: 'References',
+  hint: 'Pictures say more than words. Pinterest screenshots, photos, scribbles — anything works.',
+  fields: [
+    { name: 'files', label: 'Attach files', type: 'files' },
+    { name: 'links', label: 'Or links', type: 'textarea', rows: 3,
+      placeholder: 'Pinterest, Instagram — one link per line' },
+  ],
+};
 
-  {
-    id: 'when',
-    title: 'Сроки и вы',
-    hint: 'Чтобы Рита понимала, успевает ли она и куда потом отправлять.',
-    fields: [
-      { name: 'name',  label: 'Как к вам обращаться', type: 'text', required: true,
-        placeholder: 'Имя' },
-      { name: 'email', label: 'Почта для ответа', type: 'email', required: true,
-        placeholder: 'you@example.com' },
-      { name: 'deadline', label: 'Нужна к дате', type: 'text',
-        placeholder: 'Например: к 12 марта, подарок. Или «не горит»' },
-      {
-        name: 'budget', label: 'Бюджет', type: 'select',
-        hint: 'Ориентир, не обязательство',
+/* ---------------- КУКЛЫ ---------------- */
+export const dollForm = {
+  kind: 'doll',
+  title: 'Order a doll',
+  steps: [
+    {
+      id: 'who',
+      title: 'Who she will be',
+      hint: 'Start with the important part — who you want to see.',
+      fields: [
+        { name: 'height', label: 'Rough height', type: 'select',
+          options: [
+            { value: 'small',  label: 'Up to 25 cm' },
+            { value: 'medium', label: '25–35 cm' },
+            { value: 'large',  label: 'Over 35 cm' },
+            { value: 'unsure', label: 'Your call' },
+          ] },
+        { name: 'idea', label: 'Tell me about her', type: 'textarea', required: true, rows: 5,
+          placeholder: 'Who she is, where she came from, what she is like. One sentence or a whole story — mood matters more to me than precision.' },
+      ],
+    },
+    {
+      id: 'look',
+      title: 'How she looks',
+      hint: 'Leave anything blank if you do not know — we can work it out later.',
+      fields: [
+        { name: 'eyes', label: 'Button eyes', type: 'select',
+          options: [
+            { value: 'pearl',    label: 'Pearl' },
+            { value: 'jet',      label: 'Jet black' },
+            { value: 'rose',     label: 'Pink' },
+            { value: 'mismatch', label: 'Mismatched' },
+            { value: 'trust',    label: 'You choose' },
+          ] },
+        { name: 'hair', label: 'Hair', type: 'select',
+          options: [
+            { value: 'bob',   label: 'Bob' },
+            { value: 'long',  label: 'Long strands' },
+            { value: 'wax',   label: 'Wax drips' },
+            { value: 'none',  label: 'No hair' },
+            { value: 'trust', label: 'You choose' },
+          ] },
+        { name: 'palette', label: 'Colours you like', type: 'chips', hint: 'Pick as many as you want',
+          options: [
+            { value: 'black', label: 'Black' }, { value: 'rose', label: 'Soft pink' },
+            { value: 'plum',  label: 'Plum' },  { value: 'bone', label: 'Bone' },
+            { value: 'gold',  label: 'Muted gold' }, { value: 'teal', label: 'Dark teal' },
+            { value: 'lilac', label: 'Lilac' }, { value: 'rust', label: 'Rust' },
+          ] },
+        { name: 'avoid', label: 'What you definitely do not want', type: 'textarea', rows: 3,
+          placeholder: 'Sometimes this matters more. No glitter, no red, not too scary.' },
+      ],
+    },
+    contactStep([
+      { name: 'budget', label: 'Budget', type: 'select', hint: 'A guide, not a promise',
         options: [
-          { value: 'to150',  label: 'До 150 €' },
-          { value: '150300', label: '150–300 €' },
-          { value: '300500', label: '300–500 €' },
-          { value: 'over500',label: 'Больше 500 €' },
-          { value: 'ask',    label: 'Назовите сами' },
-        ],
-      },
-      { name: 'place', label: 'Куда отправлять', type: 'text',
-        placeholder: 'Город и страна' },
-    ],
-  },
+          { value: 'to200',  label: 'Up to $200' },
+          { value: '200350', label: '$200–350' },
+          { value: '350500', label: '$350–500' },
+          { value: 'over500',label: 'Over $500' },
+          { value: 'ask',    label: 'You tell me' },
+        ] },
+    ]),
+    refsStep,
+  ],
+};
 
-  {
-    id: 'refs',
-    title: 'Референсы',
-    hint: 'Картинки говорят лучше слов. Скриншоты из Pinterest, фото, наброски — всё подойдёт.',
-    fields: [
-      { name: 'files', label: 'Прикрепите файлы', type: 'files' },
-      { name: 'links', label: 'Или ссылки', type: 'textarea', rows: 3,
-        placeholder: 'Pinterest, Instagram — по одной ссылке на строку' },
-    ],
-  },
-];
+/* ---------------- ПОРТРЕТЫ ---------------- */
+export const portraitForm = {
+  kind: 'portrait',
+  title: 'Order a portrait',
+  steps: [
+    {
+      id: 'who',
+      title: 'Who is in it',
+      hint: 'Numbers first — they decide how long it takes.',
+      fields: [
+        { name: 'people', label: 'How many people', type: 'select', required: true,
+          options: [
+            { value: '1', label: 'One' }, { value: '2', label: 'Two' },
+            { value: '3', label: 'Three' }, { value: '4+', label: 'Four or more' },
+          ] },
+        { name: 'pets', label: 'Any animals', type: 'select',
+          options: [
+            { value: '0', label: 'None' }, { value: '1', label: 'One' },
+            { value: '2', label: 'Two' }, { value: '3+', label: 'Three or more' },
+          ] },
+        { name: 'idea', label: 'Anything I should know', type: 'textarea', rows: 4,
+          placeholder: 'A mood, a setting, a joke only they would get.' },
+      ],
+    },
+    contactStep(),
+    {
+      ...refsStep,
+      hint: 'Reference photos, please — bad lighting is fine, I am after the face, not the shot.',
+    },
+  ],
+};
 
-/** Пустое состояние формы, собранное из описания полей. */
-export function emptyValues() {
+export const FORMS = { doll: dollForm, portrait: portraitForm };
+
+export function emptyValues(form) {
   const v = {};
-  for (const step of steps) {
+  for (const step of form.steps) {
     for (const f of step.fields) {
       v[f.name] = f.type === 'chips' ? [] : f.type === 'files' ? [] : '';
     }

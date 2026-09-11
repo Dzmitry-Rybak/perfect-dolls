@@ -32,7 +32,7 @@
 
 .title {
   margin-top: var(--sp-3);
-  font-size: clamp(3.8rem, 2.6rem + 5.2vw, 7rem);
+  font-size: var(--step-5);
 }
 /* «и» выпадает из строки — рукописная вставка на полях */
 .and {

@@ -2,6 +2,7 @@ import PageShell from '../components/layout/PageShell.jsx';
 import Loader from '../components/ui/Loader.jsx';
 import Button from '../components/ui/Button.jsx';
 import { getFaq } from '../lib/api.js';
+import { EMAIL } from '../data/site.js';
 import useAsync from '../lib/useAsync.js';
 import styles from './Faq.module.css';
 
@@ -10,11 +11,11 @@ export default function Faq() {
 
   return (
     <PageShell
-      eyebrow="Вопросы"
-      title="То, что спрашивают чаще всего"
-      lead="Если ответа здесь нет — напишите, отвечаю обычно в тот же день."
+      eyebrow="Questions"
+      title="Things people ask"
+      lead="If the answer is not here, write to me — I usually reply the same day."
     >
-      {loading ? <Loader label="Вспоминаю ответы…" /> : (
+      {loading ? <Loader label="Digging out the answers…" /> : (
         <ul className={styles.list}>
           {items.map((item, i) => (
             <li key={item.q}>
@@ -33,11 +34,15 @@ export default function Faq() {
       )}
 
       <div className={styles.contact}>
-        <h2 className={styles.contactTitle}>Остались вопросы?</h2>
+        <h2 className={styles.contactTitle}>Still wondering?</h2>
         <p className={`prose ${styles.contactText}`}>
-          Про сроки, ткани, доставку или конкретную идею — пишите напрямую.
+          Timings, fabrics, shipping, or one specific idea — write to me directly.
+          Doll questions go to the first address, everything else to the second.
         </p>
-        <Button href="mailto:hello@ritadolls.example">Написать письмо</Button>
+        <div className={styles.mails}>
+          <Button href={`mailto:${EMAIL.dolls}`} variant="stitched">Dolls · {EMAIL.dolls}</Button>
+          <Button href={`mailto:${EMAIL.main}`}>Everything else · {EMAIL.main}</Button>
+        </div>
       </div>
     </PageShell>
   );

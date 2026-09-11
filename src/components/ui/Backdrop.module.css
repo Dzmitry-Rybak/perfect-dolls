@@ -1,0 +1,140 @@
+.wrap {
+  /* Ширина свободного поля сбоку от колонки контента.
+     От неё считаются все боковые элементы. */
+  --gutter: max(0px, (100vw - var(--page-max)) / 2);
+
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  /* Отдельный слой: анимация фона не должна заставлять браузер
+     перерисовывать текст над ним */
+  contain: strict;
+}
+
+.el {
+  position: absolute;
+  height: auto;
+  opacity: var(--op);
+  filter: blur(var(--blur));
+  transform: rotate(var(--rot));
+  animation: drift var(--dur) ease-in-out var(--delay) infinite alternate;
+  will-change: transform;
+  /* Включается медиазапросом по data-min ниже */
+  display: none;
+}
+
+/* ---- в поле сбоку: размер и место — доли поля ---- */
+.left, .right {
+  /* Нижнего зажима нет намеренно: элемент сходит на нет вместе
+     с полем, а не застревает на фиксированной ширине в тесноте */
+  --w: min(calc(var(--gutter) * var(--k)), 360px);
+  width: var(--w);
+  /* Ограничение по высоте обязательно: вытянутые элементы (двери
+     236×420) при ширине 360px вырастают до 640px и накрывают
+     вертикальных соседей. Браузер сам пересчитает ширину,
+     пропорция сохранится. */
+  max-height: 42vh;
+  top: var(--y);
+}
+.left  { left:  calc(var(--gutter) * var(--px)); margin-left:  calc(var(--w) / -2); }
+.right { right: calc(var(--gutter) * var(--px)); margin-right: calc(var(--w) / -2); }
+
+/* ---- углы: крупные, уходят за край, виден фрагмент ---- */
+.corner { width: var(--vmin); }
+.c_tl { top: var(--oy);    left: var(--ox); }
+.c_tr { top: var(--oy);    right: var(--ox); }
+.c_bl { bottom: var(--oy); left: var(--ox); }
+.c_br { bottom: var(--oy); right: var(--ox); }
+
+/* ---- свободные: в процентах вьюпорта, могут заходить на колонку ----
+   Единственный тип без привязки к полю сбоку, поэтому единственный,
+   который наполняет 14-дюймовый экран. Зажим по высоте тот же, что
+   у боковых: вытянутые элементы (ключ 391×520, гирлянда из глаз
+   243×479) иначе перекрывают соседей по вертикали. */
+.free {
+  --w: clamp(38px, var(--vmin), 260px);
+  width: var(--w);
+  max-height: 34vh;
+  top: var(--y);
+  left: var(--x);
+  margin-left: calc(var(--w) / -2);
+}
+
+/* ---- сверху и снизу ---- */
+.band {
+  --w: clamp(46px, var(--vw), 150px);
+  width: var(--w);
+  top: var(--y);
+  left: var(--x);
+  margin-left: calc(var(--w) / -2);
+}
+
+/* Едва заметное дыхание. Сдвиг маленький намеренно: крупное движение
+   на фоне под текстом читается как дефект вёрстки. */
+@keyframes drift {
+  from { transform: rotate(var(--rot)) translate3d(0, 0, 0); }
+  to   { transform: rotate(calc(var(--rot) + 3deg)) translate3d(0, -12px, 0); }
+}
+
+/* ============================================================
+   ПОРОГИ ВИДИМОСТИ
+   Пропорциональный размер решает масштаб, но не количество:
+   слоты включаются по одному, по мере появления места.
+   Значения выведены из формулы в data/backdrop.js.
+   ============================================================ */
+@media (min-width:  900px) { .el[data-min="900"]  { display: block; } }
+@media (min-width: 1100px) { .el[data-min="1100"] { display: block; } }
+@media (min-width: 1200px) { .el[data-min="1200"] { display: block; } }
+@media (min-width: 1240px) { .el[data-min="1240"] { display: block; } }
+@media (min-width: 1300px) { .el[data-min="1300"] { display: block; } }
+@media (min-width: 1400px) { .el[data-min="1400"] { display: block; } }
+@media (min-width: 1500px) { .el[data-min="1500"] { display: block; } }
+@media (min-width: 1560px) { .el[data-min="1560"] { display: block; } }
+@media (min-width: 1580px) { .el[data-min="1580"] { display: block; } }
+@media (min-width: 1620px) { .el[data-min="1620"] { display: block; } }
+@media (min-width: 1660px) { .el[data-min="1660"] { display: block; } }
+@media (min-width: 1700px) { .el[data-min="1700"] { display: block; } }
+@media (min-width: 1740px) { .el[data-min="1740"] { display: block; } }
+@media (min-width: 1800px) { .el[data-min="1800"] { display: block; } }
+@media (min-width: 1860px) { .el[data-min="1860"] { display: block; } }
+
+/* ============================================================
+   ТЕЛЕФОН
+   Колонка текста во всю ширину, свободных полей по бокам нет —
+   поэтому side и band тут не работают в принципе. Зато работает
+   free: он считается от вьюпорта, а не от поля. Показываем
+   помеченные mob:1 — они расставлены по краям (x 9–17% и 84–92%),
+   то есть попадают на поля отступов, а не в середину строки.
+   Глушение 0.55 вместо 0.4 у углов: с поправкой на яркость (GAIN)
+   элементы больше не выпадают из диапазона, и запас по контрасту
+   считается честно, а не берётся с потолка.
+   ============================================================ */
+@media (max-width: 900px) {
+  .corner {
+    display: block;
+    /* Нижний предел: слот с op 0.11 и мелким gain давал 0.03 —
+       картинка грузилась и не была видна вообще */
+    opacity: max(0.1, calc(var(--op) * 0.6));
+    /* Не меньше 34px: фрагмент в 19 пикселей читается как мусор,
+       а не как деталь */
+    width: max(34px, calc(var(--vmin) * 0.7));
+  }
+  .c_tr { display: none; }
+
+  .el[data-mob="1"] {
+    display: block;
+    opacity: calc(var(--op) * 0.55);
+  }
+  /* На узком экране vmin маленький, и элемент схлопывается:
+     15vmin от 375px — это 56px. Поднимаем нижнюю границу. */
+  .free[data-mob="1"] {
+    --w: clamp(46px, calc(var(--vmin) * 1.5), 132px);
+    max-height: 26vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .el { animation: none; }
+}

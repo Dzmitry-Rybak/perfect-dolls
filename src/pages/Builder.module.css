@@ -1,0 +1,287 @@
+/* Схема — главный герой страницы, панель справа узкая и спокойная */
+.desk {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+}
+
+/* ---------- тетрадный лист ---------- */
+.sheetWrap { position: sticky; top: 92px; }
+
+.sheet {
+  position: relative;
+  /* Лист по ширине схемы: иначе вокруг сквида оставались
+     широкие пустые поля клетчатой бумаги */
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  padding: var(--sp-6) var(--sp-5) var(--sp-5);
+  background: #F2EDE3;
+  border-radius: 2px;
+  rotate: -0.6deg;
+  box-shadow: var(--shadow-pin);
+  /* Поля — тоже фоновым слоем, а не отдельным элементом: у позиционированного
+     элемента нет способа уйти под обычное содержимое, и линия резала схему */
+  background-image:
+    linear-gradient(to right, transparent 0 36px,
+                    rgba(200, 70, 90, 0.4) 36px 37px, transparent 37px),
+    repeating-linear-gradient(to right,  rgba(90, 120, 160, 0.2) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(to bottom, rgba(90, 120, 160, 0.2) 0 1px, transparent 1px 24px);
+  background-repeat: no-repeat, repeat, repeat;
+}
+.tapeL, .tapeR {
+  position: absolute; top: -12px;
+  width: 84px; height: 24px;
+  background: rgb(237 230 220 / 0.55);
+  border-inline: 1px dashed rgb(120 110 130 / 0.4);
+}
+.tapeL { left: -18px;  rotate: -30deg; }
+.tapeR { right: -18px; rotate: 30deg; }
+
+.sheetTitle {
+  font-family: var(--font-hand);
+  font-size: var(--step-0);
+  color: #5A6B86;
+  margin-left: 20px;
+  margin-bottom: var(--sp-2);
+  rotate: -0.8deg;
+}
+
+/* ---------- панель ---------- */
+.panel { min-width: 0; display: grid; gap: var(--sp-6); }
+
+.block { display: grid; gap: var(--sp-3); }
+
+.legend {
+  position: relative;
+  width: fit-content;
+  font-family: var(--font-hand);
+  font-size: var(--step-1);
+  font-weight: 700;
+  color: var(--rose);
+}
+.legend::after {
+  content: '';
+  position: absolute; left: -2px; right: -2px; bottom: -3px;
+  height: 3px; background: var(--rose); opacity: 0.28;
+  border-radius: 2px; rotate: -0.6deg;
+}
+
+.help {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.45;
+  max-width: 46ch;
+}
+.help b { color: var(--lilac); font-style: normal; font-weight: 600; }
+
+.row { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+
+.chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  padding: 0.36rem 0.8rem;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  color: var(--lilac);
+  background: var(--ink);
+  border: 2px dashed var(--fog);
+  border-radius: var(--r-pill);
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+.chip:hover { color: var(--bone); border-color: var(--muted); }
+.chipOn {
+  color: var(--ink); background: var(--rose);
+  border-color: var(--rose); border-style: solid; font-weight: 600;
+}
+.chipNote { font-size: 0.68rem; opacity: 0.75; }
+.delta {
+  font-size: 0.7rem;
+  color: var(--moon);
+  font-variant-numeric: tabular-nums;
+}
+.chipOn .delta, .chipOn .chipNote { color: rgb(21 19 26 / 0.7); }
+
+/* ---------- переключатель «микс» ---------- */
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  font-size: var(--step--1);
+  color: var(--lilac);
+  background: var(--ink);
+  border: 2px dashed var(--fog);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+}
+.toggle:hover { border-color: var(--muted); color: var(--bone); }
+.toggle:has(:focus-visible) { outline: 2px solid var(--rose); outline-offset: 2px; }
+.toggleOn {
+  border-style: solid; border-color: var(--rose);
+  background: rgb(255 150 201 / 0.1); color: var(--bone);
+}
+
+/* Ползунок — пуговица на нитке */
+.knob {
+  position: relative;
+  flex: none;
+  width: 40px; height: 22px;
+  border-radius: var(--r-pill);
+  background: var(--ink-sunken);
+  border: 1px solid var(--fog);
+}
+.knob::after {
+  content: '';
+  position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--fog);
+  transition: translate var(--t-mid) var(--ease-out), background var(--t-fast);
+}
+.toggleOn .knob { border-color: var(--rose); }
+.toggleOn .knob::after { translate: 18px 0; background: var(--rose); }
+
+
+/* ---------- образцы ---------- */
+.swatches { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.swatch {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--c);
+  border: 2px solid rgb(21 19 26 / 0.7);
+  box-shadow: inset 0 -2px 4px rgb(0 0 0 / 0.3);
+  transition: transform var(--t-fast) var(--ease-out);
+}
+.swatch:hover { transform: translateY(-2px); }
+.swatch:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; }
+.swatchOn { box-shadow: 0 0 0 2px var(--ink), 0 0 0 4px var(--rose); }
+
+.patternColor, .sub { display: grid; gap: var(--sp-2); }
+
+/* ---------- поля ---------- */
+.field { display: grid; gap: var(--sp-2); }
+.fieldLabel {
+  display: flex; align-items: baseline; gap: var(--sp-2);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lilac);
+}
+.panel textarea {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  font-family: var(--font-ui);
+  font-size: var(--step-0);
+  color: var(--bone);
+  background: var(--ink);
+  border: 2px dashed var(--fog);
+  border-radius: var(--r-md);
+  resize: vertical;
+  line-height: 1.5;
+}
+.panel textarea::placeholder {
+  color: var(--muted); font-family: var(--font-body); font-style: italic;
+}
+.panel textarea:focus {
+  outline: none; border-style: solid; border-color: var(--rose);
+  background: rgb(255 150 201 / 0.05);
+}
+
+/* ---------- итог ---------- */
+.total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding-top: var(--sp-5);
+  border-top: 2px dashed var(--fog);
+}
+.totalTag {
+  position: relative;
+  display: flex; flex-direction: column; gap: 2px;
+  padding: var(--sp-3) var(--sp-5) var(--sp-3) var(--sp-7);
+  background: rgb(232 196 106 / 0.5);
+  clip-path: polygon(1rem 0, 100% 0, 100% 100%, 1rem 100%, 0 50%);
+}
+.totalTag::before {
+  content: ''; position: absolute; inset: 1px;
+  background: var(--ink-sunken);
+  clip-path: polygon(1rem 0, 100% 0, 100% 100%, 1rem 100%, 0 50%);
+}
+.totalTag::after {
+  content: ''; position: absolute; z-index: 1;
+  left: 1.15rem; top: 50%; translate: 0 -50%;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ink); box-shadow: 0 0 0 1px rgb(232 196 106 / 0.55);
+}
+.totalTag > * { position: relative; z-index: 1; }
+.totalLabel {
+  font-size: 0.68rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted);
+}
+.totalValue {
+  font-family: var(--font-accent);
+  font-size: var(--step-3);
+  color: var(--moon);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.totalActions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); }
+.reset {
+  font-family: var(--font-hand);
+  font-size: var(--step-0);
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-underline-offset: 4px;
+}
+.reset:hover { color: var(--rose); }
+
+.disclaimer {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  color: var(--muted);
+  max-width: 52ch;
+}
+
+@media (max-width: 940px) {
+  .desk { grid-template-columns: 1fr; }
+  .sheetWrap { position: static; max-width: 460px; margin-inline: auto; }
+  .sheet { rotate: 0deg; }
+  .tapeL { left: -8px; } .tapeR { right: -8px; }
+}
+
+/* Свободный выбор цвета в ряду образцов — та же лунка, что и у
+   готовых, но с системным виджетом внутри. */
+.swatchFree {
+  position: relative;
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: 50%;
+  border: 1px dashed var(--fog);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+.swatchFree input[type="color"] {
+  inline-size: 34px;
+  block-size: 34px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+.swatchFree input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.swatchFree input[type="color"]::-webkit-color-swatch { border: none; border-radius: 50%; }
+.swatchFree input[type="color"]::-moz-color-swatch { border: none; border-radius: 50%; }

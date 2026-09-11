@@ -153,7 +153,18 @@
 .burgerOpen i:nth-child(2) { opacity: 0; }
 .burgerOpen i:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-@media (max-width: 860px) {
+/* Порог бургера — 1040, а не 860, как было. Меню из семи пунктов плюс
+   кнопка заказа занимает 719px, логотип ~230px: вместе с отступами они
+   перестают помещаться уже на 1040. При пороге 860 в зазоре 861–1039
+   шапка вылезала за экран и появлялся горизонтальный скролл — на 861px
+   на 74 пикселя. Проверки этого не ловили, потому что стандартные
+   контрольные ширины (768 и 1024) приходятся на края зазора.
+
+   Потом в шапку добавился переключатель приёма заказов, и строка снова
+   перестала помещаться: замеры дают перелив 24px на 1110, 9px на 1130,
+   2px на 1140 и ноль с 1150. Порог поднят до 1149 — на 1150 строка уже
+   влезает целиком. */
+@media (max-width: 1149px) {
   /* Меню выносим из потока целиком. Пока оно было флекс-элементом,
      раскладка ломалась дважды: с flex-basis:100% без переноса оно
      съедало всё место и прижимало бургер к логотипу, а с переносом
@@ -169,21 +180,37 @@
     top: 100%;
     left: 0;
     right: 0;
-    display: grid;
-    grid-template-rows: 0fr;
-    /* Меню почти непрозрачно: сквозь 0.94 читался текст страницы
-       и пункты становились нечитаемыми. Блюр оставляем — он держит
-       ощущение материала и мягкий край. */
-    background: rgb(14 13 16 / 0.985);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-bottom: 1px solid rgb(81 76 88 / 0.4);
-    transition: grid-template-rows var(--t-mid) var(--ease-out);
+    /* Раскрытие через max-height, а не через grid-template-rows: 0fr→1fr.
+       Тот приём здесь молча не работал: класс navOpen стоял, а трек
+       оставался 0px — Chrome не пересчитывал fr у grid-контейнера
+       с неопределённой высотой, пока что-нибудь не дёрнет раскладку.
+       Меню открывалось «пустым», и сквозь него был виден текст страницы.
+       Потолок с запасом: девять пунктов ≈ 418px, что не влезло —
+       прокручивается. */
+    display: block;
+    overflow: hidden auto;
+    overscroll-behavior: contain;
+    max-height: 0;
+    visibility: hidden;
+    /* Фон без прозрачности. Даже на 0.985 сквозь меню проступал
+       крупный заголовок страницы, а блюр его ещё и размазывал —
+       под непрозрачной заливкой он всё равно не работает. */
+    background: var(--ink);
+    /* Рамку держим только у раскрытого: у закрытого она осталась бы
+       полоской под шапкой. */
+    border-bottom: 0 solid rgb(81 76 88 / 0.4);
+    transition: max-height var(--t-mid) var(--ease-out),
+                visibility var(--t-mid) step-end;
   }
-  .navOpen { grid-template-rows: 1fr; }
+  .navOpen {
+    max-height: min(80vh, 640px);
+    border-bottom-width: 1px;
+    visibility: visible;
+    transition: max-height var(--t-mid) var(--ease-out),
+                visibility 0s;
+  }
 
   .list {
-    overflow: hidden;
     flex-direction: column;
     align-items: stretch;
     gap: 0;
@@ -203,6 +230,10 @@
   .list li:last-child .link { border-bottom: none; }
 
   .order {
+    /* Строчный по умолчанию: его вертикальные поля не влияли на высоту
+       строки, и розовая кнопка налезала на соседние пункты. */
+    display: block;
+    text-align: center;
     width: 100%;
     margin-block: var(--sp-4) var(--sp-4);
     padding-block: 0.7rem;
@@ -210,3 +241,27 @@
   }
 }
 
+/* ---------- переключатель приёма заказов ---------- */
+.gate {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  padding: 6px 12px 6px 6px;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  color: var(--muted);
+  background: transparent;
+  border: 1px dashed var(--fog);
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: color var(--t-fast), border-color var(--t-fast);
+}
+.gate:hover, .gate:focus-visible { color: var(--bone); border-color: var(--muted); }
+.gateKnob {
+  width: 22px; height: 22px; flex: none;
+  border-radius: 50%;
+  background: var(--fog);
+  box-shadow: inset 0 -2px 4px rgb(0 0 0 / 0.35);
+  transition: background var(--t-fast), transform var(--t-fast);
+}
+.gateOn { color: var(--moon); border-color: var(--moon); border-style: solid; }
+.gateOn .gateKnob { background: var(--moon); }
+@media (prefers-reduced-motion: reduce) { .gate, .gateKnob { transition: none } }

@@ -60,6 +60,10 @@
   text-decoration: none;
   font-size: var(--step--1);
   transition: color var(--t-fast) var(--ease-soft);
+  /* Почты — длинные неразрывные строки (30 символов, 212px).
+     В колонке minmax(140px, 1fr) они не помещались и давали
+     горизонтальный скролл всей странице на 600–1000px. */
+  overflow-wrap: anywhere;
 }
 .cols a:hover { color: var(--rose); }
 

@@ -12,7 +12,7 @@
   rotate: -2deg;
   opacity: 0.85;
 }
-.title { font-size: clamp(2.8rem, 2.1rem + 3vw, 4.4rem); margin-top: var(--sp-2); }
+.title { font-size: var(--step-4); margin-top: var(--sp-2); }
 .text { margin-block: var(--sp-4) var(--sp-6); }
 .actions { display: flex; flex-wrap: wrap; gap: var(--sp-4); }
 

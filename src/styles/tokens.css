@@ -29,17 +29,15 @@
   --thread:         #EDE6DC;  /* цвет нитки/стежка */
 
   /* --- Шрифты ---
-     ВАЖНО: сайт на русском, поэтому все шрифты обязаны иметь кириллицу.
-     Mystery Quest, ButtonsPatches, floozy, WizardsMagic — только латиница,
-     на кириллице они молча падают в системный serif и вся декоративность
-     теряется. Поэтому они применяются ТОЛЬКО к латинице (логотип).
-     Подмена на собственные .ttf = правка этого блока. */
-  --font-display: 'Amatic SC', 'Alice', cursive;                   /* заголовки, кириллица */
-  --font-latin:   'Mystery Quest', 'Amatic SC', cursive;           /* ТОЛЬКО латиница: логотип */
-  --font-accent:  'Alice', Georgia, serif;                         /* H3, ярлыки */
-  --font-body:    'Cormorant Garamond', Georgia, serif;            /* описания */
-  --font-ui:      'Rubik', -apple-system, 'Segoe UI', sans-serif;  /* кнопки, цены */
-  --font-hand:    'Caveat', 'Comic Sans MS', cursive;              /* конструктор, маркер */
+     Сайт на английском, поэтому ограничение по кириллице снято и
+     фирменный Mystery Quest наконец идёт в заголовки. Griffy держит
+     ту же кривую линию на подзаголовках.
+     Когда придут .ttf Риты — подменяются здесь. */
+  --font-display: 'Mystery Quest', cursive;                        /* → ButtonsPatches */
+  --font-accent:  'Griffy', 'Mystery Quest', cursive;              /* → WizardsMagic */
+  --font-body:    'Cormorant Garamond', Georgia, serif;
+  --font-ui:      'Karla', -apple-system, 'Segoe UI', sans-serif;
+  --font-hand:    'Shantell Sans', 'Comic Sans MS', cursive;       /* → floozy */
 
   /* --- Типографическая шкала (1.25 major third) --- */
   --step--1: clamp(0.79rem, 0.77rem + 0.11vw, 0.85rem);

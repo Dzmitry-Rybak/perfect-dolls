@@ -1,0 +1,70 @@
+.card { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+
+.media {
+  position: relative;
+  border-bottom: var(--stitch);
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  display: grid;
+  place-items: center;
+}
+.media svg { width: 100%; height: 100%; object-fit: contain; animation: fade var(--t-mid) var(--ease-soft); }
+@keyframes fade { from { opacity: 0 } }
+@media (prefers-reduced-motion: reduce) { .media svg { animation: none } }
+
+.arrow {
+  position: absolute;
+  top: 50%; translate: 0 -50%;
+  display: grid; place-items: center;
+  width: 34px; height: 34px;
+  font-size: 1.4rem; line-height: 1;
+  color: var(--bone);
+  background: rgb(8 8 10 / 0.6);
+  border: 1px solid rgb(237 230 220 / 0.2);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity var(--t-fast), background var(--t-fast);
+}
+.prev { left: var(--sp-2); }
+.next { right: var(--sp-2); }
+.card:hover .arrow, .arrow:focus-visible { opacity: 1; }
+.arrow:hover { background: var(--rose); color: var(--ink); }
+
+/* На тач-устройствах наведения нет — стрелки видны всегда */
+@media (hover: none) { .arrow { opacity: 1; } }
+
+.dots {
+  position: absolute;
+  bottom: var(--sp-3); left: 50%; translate: -50% 0;
+  display: flex; gap: var(--sp-2);
+  padding: 0.3rem 0.5rem;
+  background: rgb(8 8 10 / 0.55);
+  border-radius: var(--r-pill);
+}
+.dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: rgb(237 230 220 / 0.4);
+  transition: background var(--t-fast), scale var(--t-fast);
+}
+.dot:hover { background: var(--rose-soft); }
+.dotOn { background: var(--rose); scale: 1.25; }
+
+.count {
+  position: absolute;
+  top: var(--sp-3); right: var(--sp-3);
+  padding: 0.1rem 0.45rem;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--bone);
+  background: rgb(8 8 10 / 0.6);
+  border-radius: var(--r-pill);
+}
+
+.caption { padding: var(--sp-3) var(--sp-4) var(--sp-4); }
+.title { font-family: var(--font-display); font-size: var(--step-1); color: var(--bone); }
+.note {
+  display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-1);
+  font-family: var(--font-body); font-size: var(--step--1);
+  font-style: italic; color: var(--muted);
+}

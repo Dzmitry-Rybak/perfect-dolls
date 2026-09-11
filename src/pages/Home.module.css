@@ -1,26 +1,207 @@
-.section { padding-block: var(--sp-8); }
+/* ---------- hero ---------- */
+.hero { position: relative; overflow: hidden; padding-block: var(--sp-9) var(--sp-7); }
 
-.head {
+.bleed { position: absolute; inset: 0; pointer-events: none; }
+.blobA, .blobB { position: absolute; border-radius: 50%; filter: blur(90px); }
+.blobA {
+  width: 44vw; height: 44vw; max-width: 600px; max-height: 600px;
+  top: -14%; right: -8%;
+  background: radial-gradient(circle, rgb(165 103 126 / 0.5), transparent 70%);
+}
+.blobB {
+  width: 36vw; height: 36vw; max-width: 460px; max-height: 460px;
+  bottom: -22%; left: -10%;
+  background: radial-gradient(circle, rgb(42 27 51 / 0.9), transparent 70%);
+}
+
+.heroInner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.4fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 4rem);
+}
+
+.avatar {
+  position: relative;
+  margin: 0;
+  padding: var(--sp-3);
+  background: var(--ink-raised);
+  border: var(--stitch);
+  border-radius: var(--r-md);
+  rotate: -2deg;
+  box-shadow: var(--shadow-pin);
+}
+.tape {
+  position: absolute; top: -12px; left: 50%; translate: -50% 0;
+  width: 92px; height: 24px;
+  background: rgb(237 230 220 / 0.14);
+  border-inline: 1px dashed rgb(237 230 220 / 0.25);
+  rotate: -3deg;
+}
+
+.title { margin-top: var(--sp-3); font-size: var(--step-5); }
+.and {
+  display: block;
+  font-family: var(--font-hand);
+  font-size: 0.4em;
+  color: var(--rose);
+  margin-left: 0.15em;
+  line-height: 1.5;
+}
+.lead { margin-top: var(--sp-5); }
+.actions { display: flex; flex-wrap: wrap; gap: var(--sp-4); margin-top: var(--sp-6); }
+
+/* ---------- разделы ---------- */
+.section { padding-block: var(--sp-8); position: relative; z-index: 1; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+  gap: var(--sp-5);
+}
+.grid > li { display: flex; }
+.grid > li > * { width: 100%; }
+
+.divider { margin: var(--sp-6) auto; opacity: 0.5; }
+
+/* ---------- available now ---------- */
+.availHead { margin-bottom: var(--sp-5); }
+
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-8) var(--sp-5);
+  text-align: center;
+  border: 2px dashed var(--fog);
+  border-radius: var(--r-lg);
+}
+.emptyText {
+  font-family: var(--font-body);
+  font-size: var(--step-1);
+  color: var(--lilac);
+  max-width: 52ch;
+  line-height: 1.55;
+}
+.emptyHint { font-size: var(--step--1); color: var(--muted); }
+
+/* ---------- полка готовых вещей ----------
+   Вещи приколоты к листу в клетку — тот же язык, что у листа
+   в конструкторе. Это единственное место на сайте, где можно
+   купить прямо сейчас, поэтому блок намеренно выпадает из общего
+   тёмного строя: светлая бумага среди тёмной страницы читается
+   как отдельная вещь, а не как ещё одна секция.               */
+.board {
+  position: relative;
+  padding: var(--sp-7) var(--sp-6) var(--sp-8);
+  background: #F2EDE3;
+  background-image:
+    repeating-linear-gradient(to right,  rgba(90, 120, 160, 0.2) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(to bottom, rgba(90, 120, 160, 0.2) 0 1px, transparent 1px 24px);
+  border-radius: 2px;
+  /* Лист лежит чуть криво — как приколотый, а не свёрстанный. */
+  rotate: -0.4deg;
+  box-shadow: var(--shadow-pin);
+}
+/* Красное поле слева — как в школьной тетради. */
+.boardMargin {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 34px;
+  width: 1px;
+  background: rgba(200, 70, 90, 0.4);
+}
+
+.shelf {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  /* Сверху воздух под булавки, снизу — под тени наклонённых карточек. */
+  gap: var(--sp-8) var(--sp-6);
+  padding-top: var(--sp-2);
+}
+
+.pinned {
+  position: relative;
+  rotate: var(--tilt);
+  transition: rotate var(--t-mid) var(--ease-out);
+}
+/* При наведении вещь выравнивается — как будто её поправили. */
+.pinned:hover { rotate: 0deg; }
+
+/* Булавка. Блик смещён влево-вверх, тень вправо-вниз — иначе
+   головка читается плоским кружком, а не объёмом. */
+.pin {
+  position: absolute;
+  z-index: 2;
+  top: -9px;
+  left: 50%;
+  width: 17px;
+  height: 17px;
+  margin-left: -8.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #FFF0F6 0 10%, #FF9DCC 34%, #C4568C 68%, #8E3763 100%);
+  box-shadow:
+    0 2px 4px rgb(0 0 0 / 0.45),
+    inset 0 -2px 3px rgb(0 0 0 / 0.35);
+}
+
+.shelfCard {
+  overflow: hidden;
+  /* Тень поднимает карточку над бумагой: без неё наклон читается
+     как перекос вёрстки, а не как приколотая фотография. */
+  box-shadow: 0 12px 26px rgb(20 15 25 / 0.42);
+}
+/* Портрет 200×260 растягивается на всю колонку и делает карточку
+   выше экрана — блок перестаёт читаться целиком. */
+.shelfCard > :first-child { max-height: 210px; object-fit: cover; }
+.shelfBody { display: grid; gap: var(--sp-1); padding: var(--sp-4); }
+.shelfName {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  color: var(--bone);
+}
+.shelfNote { font-size: var(--step--1); color: var(--muted); }
+.shelfFoot {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: var(--sp-4);
-  margin-bottom: var(--sp-6);
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
 }
 
-.all {
-  font-family: var(--font-ui);
-  font-size: var(--step--1);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-decoration: none;
-  white-space: nowrap;
+@media (prefers-reduced-motion: reduce) {
+  .pinned, .pinned:hover { transition: none; }
 }
-.all:hover { color: var(--rose-soft); }
 
-.divider {
-  margin: var(--sp-7) auto;
-  opacity: 0.5;
+/* ---------- полоса конструктора ---------- */
+.strip {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.75rem, 5vw, 3.5rem);
+  background: var(--plum-deep);
+  border: var(--stitch-rose);
+  border-radius: var(--r-lg);
+}
+.stripPaper {
+  position: absolute; inset: 0; opacity: 0.14;
+  background-image:
+    repeating-linear-gradient(to right,  rgb(201 191 214 / 0.5) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(to bottom, rgb(201 191 214 / 0.5) 0 1px, transparent 1px 26px);
+}
+.stripBody { position: relative; max-width: 56ch; }
+.scribble {
+  font-family: var(--font-hand); font-size: var(--step-1);
+  color: var(--rose); rotate: -3deg; margin-bottom: var(--sp-2);
+}
+.stripTitle { margin-bottom: var(--sp-4); }
+.stripLead { margin-bottom: var(--sp-6); color: var(--lilac); }
+
+@media (max-width: 860px) {
+  .heroInner { grid-template-columns: 1fr; }
+  .avatar { max-width: 220px; rotate: 0deg; }
+  .hero { padding-block: var(--sp-7) var(--sp-5); }
 }

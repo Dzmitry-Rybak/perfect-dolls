@@ -1,30 +1,34 @@
 export const faqItems = [
   {
-    q: 'Сколько ждать куклу на заказ?',
-    a: 'От четырёх до восьми недель. Точный срок называю после того, как мы согласуем эскиз — он зависит от того, есть ли нужная ткань в запасах или её придётся искать.',
+    q: 'How long does a commission take?',
+    a: 'Squids take two to four weeks. Dolls take four to eight, depending on whether the fabric is already in my drawers or has to be hunted down. I tell you the real date once we have agreed on the sketch.',
   },
   {
-    q: 'Можно ли выбрать другие цвета, если в конструкторе их нет?',
-    a: 'Да. Конструктор показывает то, что лежит на полке прямо сейчас. Если хочется чего-то своего — напишите, обсудим. Иногда ради нужного оттенка я крашу ткань сама.',
+    q: 'Can I pick colours that are not in the builder?',
+    a: 'Fur comes in six shades and that list is fixed — it is what I actually keep in stock. Buttons are different: I paint those myself, so they can be any colour at all. If you want something specific, just ask.',
   },
   {
-    q: 'Куклы подходят детям?',
-    a: 'Нет. Это интерьерные и коллекционные работы: в них есть проволочный каркас, мелкие пуговицы и бисер. Детям до пяти лет их точно не стоит давать.',
+    q: 'Are these safe for children?',
+    a: 'No. They are display and collector pieces: there is wire inside, small buttons and beads. Please keep them away from children under five.',
   },
   {
-    q: 'Как за ними ухаживать?',
-    a: 'Не мыть и не стирать. Пыль снимать мягкой кистью, держать подальше от прямого солнца — краски выгорают, а мохер желтеет. Если что-то оторвалось, пришлите фото: чиню свои работы бесплатно.',
+    q: 'How do I look after one?',
+    a: 'Do not wash it. Brush dust off with a soft brush and keep it out of direct sun — paint fades and mohair yellows. If something comes loose, send me a photo: I repair my own work for free.',
   },
   {
-    q: 'Вы отправляете за границу?',
-    a: 'Отправляю по всему миру. Кукла едет в коробке с мягкой прокладкой, крупные работы — в деревянном ящике. Трек-номер присылаю в день отправки.',
+    q: 'Do you ship internationally?',
+    a: 'Everywhere. Pieces travel in a padded box, large ones in a wooden crate. You get a tracking number the day it goes out.',
   },
   {
-    q: 'Что если кукла придёт повреждённой?',
-    a: 'Снимите распаковку на видео и пришлите мне. Всё, что можно починить, чиню за свой счёт, включая обратную пересылку. Если работа не подлежит восстановлению — возвращаю деньги полностью.',
+    q: 'What if it arrives damaged?',
+    a: 'Film the unboxing and send it to me. Anything repairable I fix at my own cost, return postage included. If it cannot be saved, you get a full refund.',
   },
   {
-    q: 'Можно сшить куклу по фотографии?',
-    a: 'Портретное сходство не обещаю — это не то, чем я занимаюсь. Но передать характер, любимый свитер или конкретную собаку рядом — вполне могу.',
+    q: 'Can you make one from a photo?',
+    a: 'I will not promise a likeness — that is not really what I do. But the character, a favourite jumper, or one specific dog beside them? That I can manage.',
+  },
+  {
+    q: 'Why are there three different email addresses?',
+    a: 'Because when orders open the inbox floods. Doll questions go to one address, squids and everything else to another, and anything commercial to a third. It is the only way I stay on top of it.',
   },
 ];

@@ -6,18 +6,18 @@ export default function NotFound() {
   return (
     <div className={`page ${styles.wrap}`}>
       <div className={styles.figure}>
-        <DollPortrait seed="lost-doll" accent="#8E8496" alt="Потерявшаяся кукла" />
+        <DollPortrait seed="lost-one" accent="#8E8496" alt="" />
       </div>
       <div className={styles.copy}>
-        <p className="eyebrow">Страница 404</p>
-        <h1 className={styles.title}>Здесь никого нет</h1>
+        <p className="eyebrow">Page 404</p>
+        <h1 className={styles.title}>Nobody here</h1>
         <p className={`prose ${styles.text}`}>
-          Либо страницу убрали, либо кукла ушла сама. Она это иногда делает —
-          мы стараемся не думать об этом слишком часто.
+          Either the page was taken down, or something wandered off on its own.
+          They do that occasionally — we try not to dwell on it.
         </p>
         <div className={styles.actions}>
-          <Button to="/">На главную</Button>
-          <Button to="/catalog" variant="stitched">В каталог</Button>
+          <Button to="/">Back home</Button>
+          <Button to="/builder" variant="stitched">Build a squid</Button>
         </div>
       </div>
     </div>

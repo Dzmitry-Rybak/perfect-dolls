@@ -55,3 +55,31 @@
 }
 .contactTitle { font-family: var(--font-display); font-size: var(--step-2); }
 .contactText { margin-block: var(--sp-3) var(--sp-5); }
+
+.mails { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+
+/* На узком экране адрес squids.cutesmokeyart@gmail.com сам по себе
+   шире строки: одним неразрывным словом он занимает 279px при 279px
+   доступных внутри карточки, и кнопка с отступами по 24px вылезала
+   за экран — отсюда горизонтальный скролл на 2 пикселя при 375px.
+   Отдаём кнопкам всю ширину, ужимаем отступы и шрифт, а на крайний
+   случай разрешаем адресу переноситься. */
+@media (max-width: 520px) {
+  .contact { padding: var(--sp-5); }
+  .mails { gap: var(--sp-2); }
+  .mails > * {
+    width: 100%;
+    min-width: 0;
+    padding-inline: var(--sp-3);
+    font-size: var(--step--1);
+    overflow-wrap: anywhere;
+  }
+}
+
+/* На 320px даже этого мало — адресу не хватало 11px и он рвался
+   посреди слова. Поджимаем карточку и кнопку ещё, чтобы он влез
+   в одну строку целиком. */
+@media (max-width: 360px) {
+  .contact { padding: var(--sp-4); }
+  .mails > * { padding-inline: var(--sp-2); }
+}

@@ -35,7 +35,7 @@ export default function Hero() {
 
         <div className={styles.figure}>
           <div className={styles.tape} aria-hidden="true" />
-          <DollPortrait seed="hero-doll" accent="#FF96C9" alt="Кукла мастерской Rita Dolls" />
+          <DollPortrait seed="hero-doll" accent="#FF96C9" alt="A doll from Margarita's workshop" />
         </div>
       </div>
     </section>
