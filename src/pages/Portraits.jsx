@@ -1,15 +1,16 @@
 import PageShell from '../components/layout/PageShell.jsx';
 import OrderGate from '../components/ui/OrderGate.jsx';
-import DollPortrait from '../components/ui/DollPortrait.jsx';
+import Button from '../components/ui/Button.jsx';
+import Photo from '../components/ui/Photo.jsx';
 import StitchCard from '../components/ui/StitchCard.jsx';
+import { worksOf } from '../data/gallery.js';
 import styles from './Section.module.css';
 
-/** TODO: заменить на настоящие примеры работ */
-const EXAMPLES = [
-  { id: 'p1', accent: '#F0A9C6' },
-  { id: 'p2', accent: '#8FB3AE' },
-  { id: 'p3', accent: '#E8C46A' },
-];
+/* Три работы из архива, тем же порядком. */
+const SHOWN = 3;
+const EXAMPLES = worksOf('portrait', SHOWN);
+/* Кнопку показываем, только если в архиве и правда осталось что-то ещё. */
+const MORE = worksOf('portrait').length > SHOWN;
 
 export default function Portraits() {
   return (
@@ -25,11 +26,18 @@ export default function Portraits() {
           {EXAMPLES.map((e) => (
             <li key={e.id}>
               <StitchCard seed={e.id} className={styles.tile}>
-                <DollPortrait seed={e.id} accent={e.accent} alt="" />
+                <Photo src={e.shots[0].src} alt={e.shots[0].alt} />
+                <p className={styles.tileName}>{e.title}</p>
               </StitchCard>
             </li>
           ))}
         </ul>
+
+        {MORE && (
+          <div className={styles.more}>
+            <Button to="/gallery?kind=portrait" variant="stitched">See the rest →</Button>
+          </div>
+        )}
       </section>
     </PageShell>
   );

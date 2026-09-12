@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import PageShell from '../components/layout/PageShell.jsx';
 import GalleryCard from '../components/gallery/GalleryCard.jsx';
 import Loader from '../components/ui/Loader.jsx';
@@ -9,7 +9,16 @@ import styles from './Gallery.module.css';
 
 export default function Gallery() {
   const { data: items, loading } = useAsync(() => getGallery(), []);
-  const [filter, setFilter] = useState('all');
+
+  /* Фильтр живёт в адресе, а не в состоянии: со страниц разделов сюда
+     ведут ссылки вида /gallery?kind=doll, да и просто пересланная
+     ссылка открывает то же, что видел отправитель.
+     Незнакомое значение в адресе не ломает страницу — показываем всё. */
+  const [params, setParams] = useSearchParams();
+  const asked = params.get('kind');
+  const filter = GALLERY_FILTERS.some((f) => f.id === asked) ? asked : 'all';
+  const setFilter = (id) =>
+    setParams(id === 'all' ? {} : { kind: id }, { replace: true });
 
   const shown = items?.filter((i) => filter === 'all' || i.kind === filter);
 

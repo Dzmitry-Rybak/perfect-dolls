@@ -1,0 +1,10 @@
+.photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Та же пропорция, что у viewBox заглушки DollPortrait, — иначе
+     при подмене плитки прыгали бы по высоте. */
+  aspect-ratio: 200 / 260;
+  object-fit: cover;
+  background: var(--plum-deep);
+}

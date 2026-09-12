@@ -1,4 +1,37 @@
-.card { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  /* Отдельное свойство scale, а не transform: у StitchCard в transform
+     уже сидит наклон карточки, и перезаписывать его нельзя. Они
+     складываются сами. */
+  transition: scale var(--t-mid) var(--ease-out),
+              box-shadow var(--t-mid) var(--ease-out);
+}
+
+/* Карточку можно открыть крупно — при наведении она чуть подаётся
+   вперёд. z-index нужен, чтобы увеличенная карточка легла поверх
+   соседних, а не под них: в сетке они идут следом и выигрывают
+   порядок отрисовки. */
+.card:hover {
+  scale: 1.03;
+  z-index: 1;
+  box-shadow: var(--shadow-lift);
+}
+
+/* Отдельным правилом и через :has(:focus-visible), а не :focus-within.
+   С :focus-within карточка залипала увеличенной: после клика мышью по
+   стрелке фокус остаётся на кнопке, и стоит увести курсор — наведения
+   уже нет, а фокус ещё есть. :focus-visible на клик мышью не
+   срабатывает, только на клавиатуру, — ровно то, что нужно.
+   Правило отдельное намеренно: в старом браузере без :has() весь
+   список селекторов был бы отброшен вместе с :hover. */
+.card:has(:focus-visible) {
+  scale: 1.03;
+  z-index: 1;
+  box-shadow: var(--shadow-lift);
+}
 
 .media {
   position: relative;
@@ -9,10 +42,45 @@
   place-items: center;
 }
 .media svg { width: 100%; height: 100%; object-fit: contain; animation: fade var(--t-mid) var(--ease-soft); }
+/* Фото кадрируется по рамке 4/5, а не вписывается: снимки вертикальные
+   3:4, при contain по бокам оставались бы поля. */
+.photo {
+  /* Кладём поверх рамки, а не в поток грида. Как элемент грида картинка
+     сама растягивала строку под свои родные 3:4 (352px против 330px
+     у рамки 4:5) и вылезала за край — обрезал её уже overflow, а
+     object-fit при этом простаивал. align-self: stretch не помогал:
+     тянулся элемент, но трек всё равно мерился по содержимому. */
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  background: var(--plum-deep);
+  animation: fade var(--t-mid) var(--ease-soft);
+  user-select: none;
+}
 @keyframes fade { from { opacity: 0 } }
-@media (prefers-reduced-motion: reduce) { .media svg { animation: none } }
+@media (prefers-reduced-motion: reduce) {
+  .media svg, .photo { animation: none }
+  .card { transition: none }
+  .card:hover, .card:has(:focus-visible) { scale: 1 }
+}
+
+/* Кнопка «открыть крупно» на весь кадр. z-index 1 — ниже стрелок
+   и точек (у них 2), иначе она перехватывала бы листание. */
+.zoom {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: transparent;
+}
+.zoom:focus-visible {
+  outline: 2px solid var(--rose);
+  outline-offset: -4px;
+}
 
 .arrow {
+  z-index: 2;
   position: absolute;
   top: 50%; translate: 0 -50%;
   display: grid; place-items: center;
@@ -34,6 +102,7 @@
 @media (hover: none) { .arrow { opacity: 1; } }
 
 .dots {
+  z-index: 2;
   position: absolute;
   bottom: var(--sp-3); left: 50%; translate: -50% 0;
   display: flex; gap: var(--sp-2);
@@ -50,6 +119,7 @@
 .dotOn { background: var(--rose); scale: 1.25; }
 
 .count {
+  z-index: 2;
   position: absolute;
   top: var(--sp-3); right: var(--sp-3);
   padding: 0.1rem 0.45rem;

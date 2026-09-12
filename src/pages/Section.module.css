@@ -75,12 +75,54 @@
   gap: var(--sp-5);
 }
 .tile { overflow: hidden; }
+
+/* Ссылка в архив под витриной. Справа, потому что читается как «дальше»,
+   и на узком экране растягивается во всю ширину — иначе кнопка жалась
+   бы к краю и в неё было трудно попасть пальцем. */
+.more {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--sp-5);
+}
+@media (max-width: 520px) {
+  .more { justify-content: stretch; }
+  .more > * { width: 100%; }
+}
 .tileName {
   padding: var(--sp-3) var(--sp-4);
   font-family: var(--font-display);
   font-size: var(--step-1);
   color: var(--bone);
   border-top: var(--stitch);
+}
+
+/* --- сквид справа от заголовка на /squids --- */
+.peek { display: grid; gap: var(--sp-3); justify-items: end; }
+/* Потолок нужен с обеих сторон: без него на широком экране снимок
+   разрастался до 496px — и спорил с заголовком за внимание, и запас
+   разрешения падал до 1.4× (файл 675px). На 300px он 2.3×. */
+.peekTile { overflow: hidden; width: 100%; max-width: 300px; }
+.peekLink {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  letter-spacing: 0.04em;
+  color: var(--lilac);
+  text-decoration: none;
+  border-bottom: 1px dashed rgb(201 191 214 / 0.45);
+  transition: color var(--t-fast) var(--ease-out),
+              border-color var(--t-fast) var(--ease-out);
+}
+.peekLink:hover, .peekLink:focus-visible {
+  color: var(--rose);
+  border-color: var(--rose);
+}
+
+/* Ниже 860 боковой блок уходит под текст и становится во всю ширину.
+   Снимок во всю ширину телефона был бы великоват для подводки —
+   ограничиваем и прижимаем к левому краю, под текст. */
+@media (max-width: 860px) {
+  .peek { justify-items: start; }
+  .peekTile { max-width: 320px; }
 }
 
 /* --- пусто --- */

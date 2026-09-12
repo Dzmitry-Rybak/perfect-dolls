@@ -1,8 +1,58 @@
 .card { display: flex; flex-direction: column; overflow: hidden; height: 100%; }
 
-.media { border-bottom: var(--stitch); overflow: hidden; }
-.media svg { transition: scale var(--t-slow) var(--ease-out); }
-.card:hover .media svg { scale: 1.05; }
+/* Своя длительность и кривая, не общие токены.
+   --ease-out это cubic-bezier(0.22, 1, 0.36, 1): она проходит 69% пути
+   за первые 100мс и 93% за 200мс, поэтому подмена читалась как рывок,
+   хотя формально длилась 480мс. Симметричная синусоида набирает те же
+   проценты ровно: 13% на 100мс, 46% на 200мс, половину на середине.
+   Длительность подбиралась на глаз: 800мс тянулось, 500мс всё ещё
+   медленно, остановились на 400мс. Ниже примерно 300мс ровная кривая
+   перестаёт спасать и наплыв снова читается как щелчок.
+   Наплыв и приближение идут одним темпом — иначе картинка домасштабируется
+   раньше, чем проявится, и движение распадается на два. */
+.media {
+  position: relative;
+  border-bottom: var(--stitch);
+  overflow: hidden;
+  --swap-t: 400ms;
+  --swap-ease: cubic-bezier(0.37, 0, 0.63, 1);
+}
+/* Оба свойства объявляем здесь, а не в .swap ниже.
+   .media img весит больше голого .swap (класс + тип против класса),
+   и его transition затирал бы соседний целиком — opacity менялась
+   мгновенно, плавным оставалось только приближение. */
+.media svg, .media img {
+  transition: scale var(--swap-t) var(--swap-ease),
+              opacity var(--swap-t) var(--swap-ease);
+}
+/* focus-within наравне с hover: наплыв второго кадра уже так работал,
+   а приближение — нет, и с клавиатуры выходила половина эффекта. */
+.card:hover .media svg, .card:hover .media img,
+.card:focus-within .media svg, .card:focus-within .media img { scale: 1.05; }
+
+/* Вторая работа раздела: лежит поверх первой и проявляется при
+   наведении. inset вместо потока — чтобы обе занимали одно место
+   и высота карточки не зависела от того, какая сейчас видна.
+   height: 100% перебивает height: auto из Photo, иначе inset снизу
+   не удержал бы картинку в рамке. */
+.swap {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  opacity: 0;
+}
+.card:hover .swap,
+.card:focus-within .swap { opacity: 1; }
+
+/* Подмена картинки — украшение. Тем, кто просил меньше движения,
+   не показываем её вовсе: мгновенный скачок кадра раздражает
+   сильнее, чем отсутствие эффекта. */
+@media (prefers-reduced-motion: reduce) {
+  .media svg, .media img { transition: none; }
+  .card:hover .media svg, .card:hover .media img,
+  .card:focus-within .media svg, .card:focus-within .media img { scale: 1; }
+  .card:hover .swap, .card:focus-within .swap { opacity: 0; }
+}
 
 .body {
   display: flex; flex-direction: column; gap: var(--sp-2);

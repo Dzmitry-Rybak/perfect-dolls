@@ -1,9 +1,21 @@
 import PageShell from '../components/layout/PageShell.jsx';
 import Button from '../components/ui/Button.jsx';
 import ButtonEye from '../components/ui/ButtonEye.jsx';
+import Photo from '../components/ui/Photo.jsx';
+import StitchCard from '../components/ui/StitchCard.jsx';
+import { Link } from 'react-router-dom';
+import { worksOf } from '../data/gallery.js';
 import { BASE_PRICE } from '../data/squidBuilder.js';
 import { EMAIL } from '../data/site.js';
 import styles from './Section.module.css';
+
+/* Сквид справа от заголовка: раньше страница про сквидов была
+   единственной без единого сквида на ней. Кадр берём из архива,
+   отдельного списка не заводим.
+   Выбран s5: общий план во весь рост на пустой стене — на нём видно
+   ровно то, что перечислено в подводке рядом (уши, пуговица вместо
+   лица, семь щупалец). На остальных или крупный план, или пёстрый фон. */
+const PEEK = worksOf('squid').find((w) => w.id === 's5');
 
 const FACTS = [
   ['Standard size', '~75 cm / 30 in'],
@@ -18,6 +30,16 @@ export default function Squids() {
       eyebrow="Plush squids"
       title="Squids"
       lead="Soft, heavy, slightly unsettling — a round head with cat ears, a button sewn where a face should be, and seven tentacles. They sit in armchairs and stare."
+      aside={
+        <div className={styles.peek}>
+          <StitchCard seed={PEEK.id} className={styles.peekTile}>
+            <Photo src={PEEK.shots[0].src} alt={PEEK.shots[0].alt} />
+          </StitchCard>
+          <Link to="/gallery?kind=squid" className={styles.peekLink}>
+            See all squids →
+          </Link>
+        </div>
+      }
     >
       <section className={styles.cta}>
         <div className={styles.ctaPaper} aria-hidden="true" />
