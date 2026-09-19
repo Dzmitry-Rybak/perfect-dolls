@@ -8,7 +8,10 @@
  * Контракт REST-эндпоинтов описан в /api/CONTRACT.md.
  */
 
-import { client, cardUrl, tileUrl, fullUrl } from './sanity.js';
+import {
+  client, cardUrl, tileUrl, fullUrl,
+  cardSrcSet, tileSrcSet, CARD_SIZES, TILE_SIZES,
+} from './sanity.js';
 import { galleryItems } from '../data/gallery.js';
 import { ORDERS } from '../data/shopState.js';
 import { faqItems } from '../data/faq.js';
@@ -144,6 +147,13 @@ const mapShot = (s) => ({
   tile: tileUrl(s),
   full: fullUrl(s),
   alt:  s.alt ?? '',
+  /* Наборы ширин: браузер сам возьмёт файл под размер ячейки.
+     Одного кадра на все экраны не хватало — телефон качал вчетверо
+     больше, чем показывал. */
+  srcSet:     cardSrcSet(s),
+  sizes:      CARD_SIZES,
+  tileSrcSet: tileSrcSet(s),
+  tileSizes:  TILE_SIZES,
   /* Размеры и крошечная размытая копия (её сервис делает сам).
      Нужны окну: по размерам оно сразу знает, какой формы будет кадр,
      и не схлопывается в пустую коробку, пока грузится снимок,
@@ -155,7 +165,10 @@ const mapShot = (s) => ({
 });
 
 /** Одиночная картинка (главная, полка) — та же рамка, что у плитки. */
-const mapPhoto = (p) => (p?.asset ? { src: tileUrl(p), alt: p.alt ?? '' } : null);
+const mapPhoto = (p) =>
+  (p?.asset
+    ? { src: tileUrl(p), srcSet: tileSrcSet(p), sizes: TILE_SIZES, alt: p.alt ?? '' }
+    : null);
 
 /**
  * Список работ кешируется на минуту.
@@ -195,8 +208,12 @@ export async function getGallery() {
  * и она должна появляться, когда в архиве и правда есть ещё.
  */
 export async function getWorks(kind, n) {
-  const all = (await getGallery()).filter((w) => w.kind === kind);
-  const chosen = (await getPicks())[kind]
+  /* Оба запроса разом: раньше архив и выбор работ уходили друг за
+     другом, и второй ждал первого без всякой причины — лишний круг
+     до сервиса на каждой странице раздела. */
+  const [works, picks] = await Promise.all([getGallery(), getPicks()]);
+  const all = works.filter((w) => w.kind === kind);
+  const chosen = picks[kind]
     .map((id) => all.find((w) => w.id === id))
     .filter(Boolean);            // выбранную работу могли удалить из архива
   const shown = chosen.length ? chosen : all;
@@ -272,10 +289,14 @@ export async function getHome() {
          перетекала бы с картинки из сборки на выбранную — это две
          разные работы, и подмена читалась бы как ошибка. */
       if (photo) {
+        const hover = mapPhoto(home[id].photoHover);
         cards[id] = {
           photo: photo.src,
+          photoSrcSet: photo.srcSet,
+          photoSizes: photo.sizes,
           photoAlt: photo.alt,
-          photoHover: mapPhoto(home[id].photoHover)?.src,
+          photoHover: hover?.src,
+          photoHoverSrcSet: hover?.srcSet,
         };
       }
     }

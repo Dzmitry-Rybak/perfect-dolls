@@ -32,11 +32,18 @@ export default function SectionCard({ section }) {
       <div className={styles.media}>
         {section.photo ? (
           <>
-            <Photo src={section.photo} alt={section.photoAlt ?? ''} />
+            <Photo
+              src={section.photo}
+              srcSet={section.photoSrcSet}
+              sizes={section.photoSizes}
+              alt={section.photoAlt ?? ''}
+            />
             {hoverable && section.photoHover && (
               <Photo
                 className={styles.swap}
                 src={section.photoHover}
+                srcSet={section.photoHoverSrcSet}
+                sizes={section.photoSizes}
                 alt=""
                 aria-hidden="true"
               />

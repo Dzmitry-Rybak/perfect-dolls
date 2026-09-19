@@ -33,7 +33,12 @@ export default function Dolls() {
               {data.shown.map((d) => (
                 <li key={d.id}>
                   <StitchCard seed={d.id} className={styles.tile}>
-                    <Photo src={d.shots[0].tile ?? d.shots[0].src} alt={d.shots[0].alt} />
+                    <Photo
+                      src={d.shots[0].tile ?? d.shots[0].src}
+                      srcSet={d.shots[0].tileSrcSet}
+                      sizes={d.shots[0].tileSizes}
+                      alt={d.shots[0].alt}
+                    />
                     <p className={styles.tileName}>{d.title}</p>
                   </StitchCard>
                 </li>

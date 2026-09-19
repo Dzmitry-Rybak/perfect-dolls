@@ -72,7 +72,12 @@ export default function Squids() {
               {data.shown.map((w) => (
                 <li key={w.id}>
                   <StitchCard seed={w.id} className={styles.tile}>
-                    <Photo src={w.shots[0].tile ?? w.shots[0].src} alt={w.shots[0].alt} />
+                    <Photo
+                      src={w.shots[0].tile ?? w.shots[0].src}
+                      srcSet={w.shots[0].tileSrcSet}
+                      sizes={w.shots[0].tileSizes}
+                      alt={w.shots[0].alt}
+                    />
                     <p className={styles.tileName}>{w.title}</p>
                   </StitchCard>
                 </li>

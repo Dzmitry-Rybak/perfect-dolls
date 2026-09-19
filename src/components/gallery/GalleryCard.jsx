@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import StitchCard from '../ui/StitchCard.jsx';
 import GalleryLightbox from './GalleryLightbox.jsx';
 import DollPortrait from '../ui/DollPortrait.jsx';
@@ -18,6 +18,34 @@ export default function GalleryCard({ item }) {
   const shot = item.shots[i];
 
   /**
+   * Карточка близко к экрану?
+   *
+   * От этого зависит, тянуть ли соседние кадры. Раньше предзагрузка
+   * ниже срабатывала у всех пятнадцати карточек сразу, как только
+   * страница отрисовалась, — тридцать запросов улетали разом, включая
+   * карточки далеко внизу, и отбирали канал ровно у тех трёх кадров,
+   * которые человек видит. Считаем «близко» за 300px до появления:
+   * этого хватает, чтобы к моменту прокрутки кадр уже был.
+   */
+  const mediaRef = useRef(null);
+  const [near, setNear] = useState(false);
+
+  useEffect(() => {
+    const el = mediaRef.current;
+    if (!el) return;
+    /* Старые браузеры без наблюдателя ничего не теряют: там
+       предзагрузка просто включается сразу, как было раньше. */
+    if (typeof IntersectionObserver !== 'function') { setNear(true); return; }
+
+    const io = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setNear(true); io.disconnect(); } },
+      { rootMargin: '300px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  /**
    * Соседние кадры подтягиваем заранее.
    *
    * Каждый кадр — отдельный <img>, который создаётся в момент показа,
@@ -26,13 +54,19 @@ export default function GalleryCard({ item }) {
    * уже держит в кеше, так что запрос уходит ровно один — за соседним.
    */
   useEffect(() => {
-    if (!many) return;
+    if (!many || !near) return;
     const n = item.shots.length;
     for (const j of [(i + 1) % n, (i - 1 + n) % n]) {
-      const src = item.shots[j]?.src;
-      if (src) { const img = new Image(); img.src = src; }
+      const next = item.shots[j];
+      if (!next?.src) continue;
+      const img = new Image();
+      /* Низкий приоритет: соседний кадр нужен на будущее и не должен
+         конкурировать с тем, что показано прямо сейчас. */
+      img.fetchPriority = 'low';
+      if (next.srcSet) { img.sizes = next.sizes; img.srcset = next.srcSet; }
+      img.src = next.src;
     }
-  }, [i, item.shots, many]);
+  }, [i, item.shots, many, near]);
 
   /**
    * Полный кадр тянем заранее — по наведению или фокусу.
@@ -62,6 +96,7 @@ export default function GalleryCard({ item }) {
   return (
     <StitchCard as="article" seed={item.id} className={styles.card}>
       <div
+        ref={mediaRef}
         className={styles.media}
         onTouchStart={(e) => setTouch(e.touches[0].clientX)}
         onTouchEnd={onTouchEnd}
@@ -73,9 +108,18 @@ export default function GalleryCard({ item }) {
             key={i}
             className={styles.photo}
             src={shot.src}
+            /* Набор ширин: в ячейку на телефоне уезжает кадр на 340px,
+               а не тот же самый на 700px, что и на большом экране. */
+            srcSet={shot.srcSet}
+            sizes={shot.sizes}
             alt={`${shot.alt}. Photo ${i + 1} of ${item.shots.length}`}
             width="675"
             height="900"
+            /* Крошечная размытая копия (около килобайта) приходит вместе
+               с текстом и занимает место кадра сразу — до этого рамка
+               стояла пустой всё время загрузки. Полный снимок ложится
+               поверх и перекрывает её. */
+            style={shot.blur ? { backgroundImage: `url(${shot.blur})` } : undefined}
             /* lazy у всех: те карточки, что попали на первый экран,
                браузер грузит сразу, остальные — когда до них доскроллят.
                Кадры внутри карточки берёт на себя предзагрузка выше. */

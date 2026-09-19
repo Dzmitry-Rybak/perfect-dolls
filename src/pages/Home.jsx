@@ -60,7 +60,7 @@ export default function Home() {
             {loading ? (
               <span className={styles.avatarWait} aria-hidden="true" />
             ) : hero ? (
-              <Photo src={hero.src} alt={hero.alt || 'cutesmokey'} />
+              <Photo src={hero.src} srcSet={hero.srcSet} sizes={hero.sizes} alt={hero.alt || 'cutesmokey'} />
             ) : (
               <DollPortrait seed="cutesmokey" accent="#FF96C9" alt="cutesmokey" />
             )}
@@ -115,7 +115,12 @@ export default function Home() {
                 <li key={it.id} className={styles.pinned} style={{ '--tilt': `${TILTS[i % TILTS.length]}deg` }}>
                   <span className={styles.pin} aria-hidden="true" />
                   <StitchCard seed={it.id} tilt={false} className={styles.shelfCard}>
-                    <Photo src={it.photo.src} alt={it.photo.alt || it.name} />
+                    <Photo
+                      src={it.photo.src}
+                      srcSet={it.photo.srcSet}
+                      sizes={it.photo.sizes}
+                      alt={it.photo.alt || it.name}
+                    />
                     <div className={styles.shelfBody}>
                       {it.kind && <p className="eyebrow">{it.kind}</p>}
                       <p className={styles.shelfName}>{it.name}</p>

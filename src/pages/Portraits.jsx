@@ -33,7 +33,12 @@ export default function Portraits() {
               {data.shown.map((e) => (
                 <li key={e.id}>
                   <StitchCard seed={e.id} className={styles.tile}>
-                    <Photo src={e.shots[0].tile ?? e.shots[0].src} alt={e.shots[0].alt} />
+                    <Photo
+                      src={e.shots[0].tile ?? e.shots[0].src}
+                      srcSet={e.shots[0].tileSrcSet}
+                      sizes={e.shots[0].tileSizes}
+                      alt={e.shots[0].alt}
+                    />
                     <p className={styles.tileName}>{e.title}</p>
                   </StitchCard>
                 </li>

@@ -22,6 +22,18 @@ export const client = createClient({
   dataset: 'production',
   apiVersion: '2024-01-01',
   useCdn: true,
+
+  /* Быстро сдаваться важнее, чем упорствовать.
+     По умолчанию клиент повторяет неудачный запрос пять раз с
+     растущими паузами. Для мигнувшей сети это правильно, но самая
+     частая поломка здесь другая — домен не внесён в разрешённые
+     (CORS), и тогда повторы бессмысленны: браузер запретит все пять
+     одинаково. Стоило это шести секунд спиннера на каждой странице,
+     после которых всё равно показывались данные из сборки.
+     Одна повторная попытка ловит случайный сбой, дальше — откат. */
+  maxRetries: 1,
+  retryDelay: () => 300,
+  timeout: 5000,
 });
 
 const builder = createImageUrlBuilder(client);
@@ -47,3 +59,25 @@ export const tileUrl = (source, w = 620) =>
 /** Модалка — целиком, без обрезки. */
 export const fullUrl = (source, w = 1800) =>
   img(source).width(w).fit('max').url();
+
+/**
+ * Набор ширин для srcset.
+ *
+ * Без него телефон качал кадр в 700px в ячейку шириной ~170px —
+ * вчетверо больше нужного. Браузер сам выберет подходящий файл,
+ * зная ширину ячейки из sizes ниже.
+ */
+const srcSet = (make, widths) =>
+  widths.map((w) => `${make(w)} ${w}w`).join(', ');
+
+export const cardSrcSet = (source) =>
+  srcSet((w) => cardUrl(source, w), [340, 480, 700, 900]);
+
+export const tileSrcSet = (source) =>
+  srcSet((w) => tileUrl(source, w), [300, 420, 620, 840]);
+
+/* Сколько места кадр занимает на экране — по сетке из Gallery.module.css
+   (две колонки на телефоне) и Section.module.css (колонки от 210px).
+   Числа должны меняться вместе с теми сетками. */
+export const CARD_SIZES = '(max-width: 700px) 46vw, (max-width: 1100px) 30vw, 280px';
+export const TILE_SIZES = '(max-width: 700px) 92vw, (max-width: 1100px) 44vw, 300px';

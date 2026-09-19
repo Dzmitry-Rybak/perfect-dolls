@@ -8,6 +8,12 @@
 
     <link rel="icon" href="/button-eye.svg" type="image/svg+xml" />
 
+    <!-- Снимки и контент едут с этих двух адресов. Соединение
+         (DNS + TLS) занимает пару сотен миллисекунд, и без подсказки
+         браузер тратит их в тот момент, когда картинки уже нужны. -->
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
+    <link rel="preconnect" href="https://jfxrdzrs.apicdn.sanity.io" crossorigin />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

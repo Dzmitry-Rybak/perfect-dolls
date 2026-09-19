@@ -52,6 +52,10 @@
      тянулся элемент, но трек всё равно мерился по содержимому. */
   position: absolute;
   inset: 0;
+  /* Размытая копия кадра подставляется фоном из GalleryCard.jsx —
+     тянем её по всей рамке, иначе она легла бы плиткой в углу. */
+  background-size: cover;
+  background-position: center;
   width: 100%; height: 100%;
   object-fit: cover;
   display: block;
