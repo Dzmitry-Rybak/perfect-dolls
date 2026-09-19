@@ -3,17 +3,20 @@ import OrderGate from '../components/ui/OrderGate.jsx';
 import Button from '../components/ui/Button.jsx';
 import Photo from '../components/ui/Photo.jsx';
 import StitchCard from '../components/ui/StitchCard.jsx';
-import { worksOf } from '../data/gallery.js';
+import Loader from '../components/ui/Loader.jsx';
+import { getWorks } from '../lib/api.js';
+import useAsync from '../lib/useAsync.js';
 import styles from './Section.module.css';
 
-/* Три работы из архива, тем же порядком. Здесь витрина, а не листалка:
-   показываем один кадр, за остальными — в галерею. */
+/* Три работы из архива. Здесь витрина, а не листалка: показываем
+   один кадр, за остальными — в галерею.
+   Какие именно три, выбирается в админке («Страницы разделов»);
+   ничего не выбрано — берутся первые три по полю «Порядок в галерее». */
 const SHOWN = 3;
-const PAST = worksOf('doll', SHOWN);
-/* Кнопку показываем, только если в архиве и правда осталось что-то ещё. */
-const MORE = worksOf('doll').length > SHOWN;
 
 export default function Dolls() {
+  const { data, loading } = useAsync(() => getWorks('doll', SHOWN), []);
+
   return (
     <PageShell
       eyebrow="Collectible dolls"
@@ -23,21 +26,27 @@ export default function Dolls() {
     >
       <section>
         <h2 className={styles.gridTitle}>Dolls that already found homes</h2>
-        <ul className={styles.tiles}>
-          {PAST.map((d) => (
-            <li key={d.id}>
-              <StitchCard seed={d.id} className={styles.tile}>
-                <Photo src={d.shots[0].src} alt={d.shots[0].alt} />
-                <p className={styles.tileName}>{d.title}</p>
-              </StitchCard>
-            </li>
-          ))}
-        </ul>
 
-        {MORE && (
-          <div className={styles.more}>
-            <Button to="/gallery?kind=doll" variant="stitched">See the rest →</Button>
-          </div>
+        {loading ? <Loader label="Opening the drawers…" /> : (
+          <>
+            <ul className={styles.tiles}>
+              {data.shown.map((d) => (
+                <li key={d.id}>
+                  <StitchCard seed={d.id} className={styles.tile}>
+                    <Photo src={d.shots[0].tile ?? d.shots[0].src} alt={d.shots[0].alt} />
+                    <p className={styles.tileName}>{d.title}</p>
+                  </StitchCard>
+                </li>
+              ))}
+            </ul>
+
+            {/* Ссылку показываем, только если в архиве и правда осталось ещё. */}
+            {data.total > SHOWN && (
+              <div className={styles.more}>
+                <Button to="/gallery?kind=doll" variant="stitched">See the rest →</Button>
+              </div>
+            )}
+          </>
         )}
       </section>
     </PageShell>

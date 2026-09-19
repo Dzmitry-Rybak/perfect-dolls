@@ -40,6 +40,16 @@
   rotate: -3deg;
 }
 
+/* Пустая рамка, пока едет снимок из админки. Держит ровно то же
+   место, что и картинка (200×260, как у заглушки DollPortrait), —
+   поэтому заголовок не прыгает, когда снимок приезжает. */
+.avatarWait {
+  display: block;
+  width: 100%;
+  aspect-ratio: 200 / 260;
+  background: var(--plum-deep);
+}
+
 .title { margin-top: var(--sp-3); font-size: var(--step-5); }
 .and {
   display: block;

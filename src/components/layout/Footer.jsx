@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import ButtonEye from '../ui/ButtonEye.jsx';
 import { SOCIAL, EMAIL } from '../../data/site.js';
+import { TRADER } from '../../data/legal.js';
 import styles from './Footer.module.css';
 
 export default function Footer() {
@@ -54,7 +55,28 @@ export default function Footer() {
 
       <div className={`page ${styles.base}`}>
         <span>© {new Date().getFullYear()} cutesmokey</span>
+
+        {/* Правовые страницы должны открываться с любой страницы сайта,
+            поэтому они здесь, а не в шапке: подвал есть везде. */}
+        <nav className={styles.legal} aria-label="Legal">
+          <Link to="/privacy">Privacy</Link>
+          <Link to="/terms">Commission terms</Link>
+          <Link to="/copyright">Copyright</Link>
+        </nav>
+
         <span className={styles.stitchNote}>Sewn by hand · stitch by stitch</span>
+
+        {/* Реквизиты предпринимателя — отдельной строкой во всю ширину.
+            Пока не заполнены, строки нет вовсе: пустая полоса под
+            подвалом выглядела бы поломкой (см. src/data/legal.js). */}
+        {(TRADER.name || TRADER.regNumber) && (
+          <span className={styles.trader}>
+            {[TRADER.name, TRADER.address, TRADER.country,
+              TRADER.regNumber && `reg. ${TRADER.regNumber}`,
+              TRADER.vat && `VAT ${TRADER.vat}`]
+              .filter(Boolean).join(' · ')}
+          </span>
+        )}
       </div>
     </footer>
   );

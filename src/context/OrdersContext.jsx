@@ -1,43 +1,35 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext } from 'react';
+import { getSettings } from '../lib/api.js';
+import useAsync from '../lib/useAsync.js';
 import { ORDERS } from '../data/shopState.js';
 
 /**
- * Открыты ли заказы прямо сейчас.
+ * Открыты ли заказы — по разделам.
  *
- * Значения по умолчанию лежат в data/shopState.js, а переключатель в
- * шапке их перебивает. Выбор хранится в браузере, поэтому переживает
- * перезагрузку, но остаётся у того, кто переключил: это ещё не админка,
- * а ручка для самой мастерской. Настоящее управление приедет с бэкендом.
+ * Значения приходят из админки (документ «Настройки» в Sanity).
+ * Раньше здесь был переключатель в шапке, писавший в localStorage:
+ * он менял картину только у того, кто его нажал, и был виден всем
+ * посетителям. Теперь это настоящее управление, и ручка ровно одна —
+ * в админке.
+ *
+ * Пока настройки едут, показываем то, что вшито в сборку: иначе на
+ * долю секунды мелькал бы неверный ответ на вопрос «принимаете ли
+ * заказы», а это худшее, чем можно ошибиться на этой странице.
  */
-const KEY = 'cs-orders-open';
 const OrdersContext = createContext(null);
 
-/** Из файла: открыты ли заказы хотя бы на что-то, кроме сквидов. */
-const defaultOpen = ORDERS.dolls.open || ORDERS.portraits.open;
-
 export function OrdersProvider({ children }) {
-  const [open, setOpen] = useState(() => {
-    try {
-      const saved = localStorage.getItem(KEY);
-      return saved === null ? defaultOpen : saved === '1';
-    } catch {
-      return defaultOpen;   // приватный режим — просто берём значение из файла
-    }
-  });
-
-  useEffect(() => {
-    try { localStorage.setItem(KEY, open ? '1' : '0'); } catch { /* не критично */ }
-  }, [open]);
-
+  const { data } = useAsync(() => getSettings(), []);
   return (
-    <OrdersContext.Provider value={{ open, setOpen, toggle: () => setOpen((v) => !v) }}>
+    <OrdersContext.Provider value={data ?? ORDERS}>
       {children}
     </OrdersContext.Provider>
   );
 }
 
-export function useOrders() {
+/** Настройки раздела: { open, window, note }. */
+export function useOrders(topic) {
   const ctx = useContext(OrdersContext);
   if (!ctx) throw new Error('useOrders вне OrdersProvider');
-  return ctx;
+  return topic ? ctx[topic] : ctx;
 }

@@ -165,6 +165,16 @@
   color: var(--lilac);
 }
 
+/* Подпись под заголовком блока файлов: что станет с чужими фото.
+   Мелкая и приглушённая — это не предупреждение, а спокойный факт. */
+.fileHint {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  color: var(--muted);
+  margin-top: -2px;
+}
+
 /* --- низ --- */
 .foot {
   flex: none;

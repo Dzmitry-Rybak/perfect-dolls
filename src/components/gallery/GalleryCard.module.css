@@ -111,12 +111,34 @@
   border-radius: var(--r-pill);
 }
 .dot {
-  width: 9px; height: 9px; border-radius: 50%;
+  /* padding: 0 обязателен: у кнопки остаётся служебный отступ браузера
+     (1px 6px), и при box-sizing: border-box он распирал точку до 12x9 —
+     вместо кружка выходил овал. */
+  width: 9px; height: 9px; padding: 0; border-radius: 50%;
   background: rgb(237 230 220 / 0.4);
   transition: background var(--t-fast), scale var(--t-fast);
 }
 .dot:hover { background: var(--rose-soft); }
 .dotOn { background: var(--rose); scale: 1.25; }
+
+/* В двухколоночной раскладке (тот же порог 559, что и у сетки в
+   Gallery.module.css) стрелки убираем: на 320px кадр всего 135px,
+   две кнопки по 34px съедали бы 51% ширины, а на сенсорном экране
+   они показываются всегда. Листание остаётся свайпом и точками,
+   заодно освобождается место, чтобы попасть по кадру и открыть
+   работу крупно.
+   Точкам там же увеличиваем область нажатия до 25px, не меняя вида:
+   9px — это меньше, чем можно уверенно попасть пальцем. */
+@media (max-width: 559px) {
+  .arrow { display: none; }
+  .dots { gap: 0; padding: 0.15rem 0.25rem; }
+  .dot {
+    width: 25px; height: 25px;
+    padding: 8px;
+    background-clip: content-box;
+  }
+}
+
 
 .count {
   z-index: 2;

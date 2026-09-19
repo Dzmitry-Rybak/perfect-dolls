@@ -17,6 +17,45 @@ export default function Field({ field, value, error, onChange }) {
     onChange: (e) => onChange(field.name, e.target.value),
   };
 
+  /* Галочка устроена наоборот: подпись справа от квадратика и она же
+     кликабельная, поэтому общий заголовок поля сверху ей не нужен —
+     он повторял бы ту же фразу дважды. */
+  if (field.type === 'checkbox') {
+    return (
+      <div className={styles.field}>
+        <label className={`${styles.check} ${error ? styles.checkBad : ''}`}>
+          <input
+            type="checkbox"
+            id={id}
+            name={field.name}
+            checked={!!value}
+            aria-invalid={error ? 'true' : undefined}
+            aria-describedby={describedBy}
+            onChange={(e) => onChange(field.name, e.target.checked)}
+          />
+          <span className={styles.checkText}>
+            {field.label}
+            {field.required && <span className={styles.req} aria-hidden="true"> *</span>}
+            {field.required && <span className="visually-hidden"> — required</span>}
+            {/* Ссылка открывается в новой вкладке намеренно: уход со
+                страницы посреди заполненной анкеты стоил бы ответов. */}
+            {field.link && (
+              <>
+                {' '}
+                <a href={field.link.href} target="_blank" rel="noreferrer noopener">
+                  {field.link.label}
+                </a>
+              </>
+            )}
+          </span>
+        </label>
+
+        {field.hint && <p id={hintId} className={styles.checkHint}>{field.hint}</p>}
+        {error && <p id={errId} className={styles.error} role="alert">{error}</p>}
+      </div>
+    );
+  }
+
   return (
     <div className={styles.field}>
       <label className={styles.label} htmlFor={field.type === 'chips' ? undefined : id}>

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './GalleryLightbox.module.css';
 
@@ -7,23 +7,32 @@ const FOCUSABLE = 'button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 /**
  * Работа во весь экран.
  *
- * Индекс кадра не свой, а тот же, что у карточки: пролистал здесь —
- * закрыл — карточка осталась на том же снимке. Поэтому окно рисует
- * сама карточка, а не страница галереи: состояние уже под рукой,
- * прокидывать его через два уровня незачем.
+ * Счётчик кадров свой, а не общий с карточкой. Сначала он был общий —
+ * казалось удобным, что закрыл окно и карточка осталась на том же
+ * снимке. На деле выходило наоборот: листаешь в окне, а под ним
+ * молча перелистывается страница. Окно открывается на том кадре,
+ * который был виден в карточке, и дальше живёт отдельно.
  *
  * Снимок вписывается целиком (contain), а не обрезается по рамке, как
  * в карточке: сюда приходят именно затем, чтобы разглядеть работу, и
  * широкие рисунки портретов должны быть видны от края до края.
  */
-export default function GalleryLightbox({ item, i, setI, onClose }) {
+export default function GalleryLightbox({ item, start = 0, onClose }) {
+  const [i, setI] = useState(start);
+  /* Загрузился ли текущий кадр. Пока нет — на его месте стоит
+     размытая копия, и она уже видна: место под неё известно заранее
+     из размеров снимка, поэтому окно не схлопывается. */
+  const [ready, setReady] = useState(false);
   const trapRef = useRef(null);
   const closeRef = useRef(null);
   const touch = useRef(null);
   const many = item.shots.length > 1;
   const shot = item.shots[i];
 
-  const go = (d) => setI((v) => (v + d + item.shots.length) % item.shots.length);
+  const go = (d) => {
+    setReady(false);
+    setI((v) => (v + d + item.shots.length) % item.shots.length);
+  };
 
   /* Escape закрывает, стрелки листают, Tab не выпускает фокус наружу. */
   useEffect(() => {
@@ -58,7 +67,8 @@ export default function GalleryLightbox({ item, i, setI, onClose }) {
     if (!many) return;
     const n = item.shots.length;
     for (const j of [(i + 1) % n, (i - 1 + n) % n]) {
-      const src = item.shots[j]?.src;
+      const s = item.shots[j];
+      const src = s?.full ?? s?.src;
       if (src) { const img = new Image(); img.src = src; }
     }
   }, [i, item.shots, many]);
@@ -104,14 +114,30 @@ export default function GalleryLightbox({ item, i, setI, onClose }) {
           onTouchStart={(e) => { touch.current = e.touches[0].clientX; }}
           onTouchEnd={onTouchEnd}
         >
+          {/* Рамка под снимок: пропорции известны из данных, поэтому
+              место занимается сразу, а размытая копия делает его не
+              пустым. Когда придёт настоящий кадр — проявится поверх. */}
+          <div
+            className={styles.frame}
+            style={{
+              aspectRatio: shot.w && shot.h ? `${shot.w} / ${shot.h}` : '3 / 4',
+              backgroundImage: shot.blur ? `url(${shot.blur})` : undefined,
+            }}
+          >
           <img
             key={i}
-            className={styles.shot}
-            src={shot.src}
+            className={`${styles.shot} ${ready ? styles.shotReady : ''}`}
+            onLoad={() => setReady(true)}
+            /* full — та же работа без обрезки и покрупнее: в карточке
+               кадр режется под 4:5 и уменьшен под сетку. Приходит из
+               Sanity; у встроенных в сборку данных его нет, тогда
+               показываем то же, что и в карточке. */
+            src={shot.full ?? shot.src}
             alt={`${shot.alt}. Photo ${i + 1} of ${item.shots.length}`}
             decoding="async"
             draggable="false"
           />
+          </div>
 
           {many && (
             <>
@@ -148,7 +174,7 @@ export default function GalleryLightbox({ item, i, setI, onClose }) {
                   aria-selected={n === i}
                   aria-label={`Photo ${n + 1}`}
                   className={`${styles.dot} ${n === i ? styles.dotOn : ''}`}
-                  onClick={() => setI(n)}
+                  onClick={() => { setReady(false); setI(n); }}
                 />
               ))}
             </div>

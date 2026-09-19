@@ -1,0 +1,27 @@
+# Обычным поисковикам — всё можно: сайт для того и сделан.
+User-agent: *
+Allow: /
+
+# Сборщикам данных для обучения моделей — нельзя. Это не просьба
+# «на всякий случай»: на страницах прямо оговорено, что права по
+# статье 4(3) Директивы (ЕС) 2019/790 сохраняются за автором,
+# а robots.txt — то место, где это читают машины.
+# Список пополняется: имена меняются чаще, чем правила.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: Bytespider
+User-agent: Amazonbot
+User-agent: FacebookBot
+User-agent: meta-externalagent
+User-agent: PerplexityBot
+User-agent: Diffbot
+User-agent: ImagesiftBot
+User-agent: Omgilibot
+Disallow: /

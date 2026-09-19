@@ -2,14 +2,12 @@ import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { NAV } from '../../data/nav.js';
 import ButtonEye from '../ui/ButtonEye.jsx';
-import { useOrders } from '../../context/OrdersContext.jsx';
 import styles from './Header.module.css';
 
 
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const orders = useOrders();
 
   return (
     <>
@@ -63,22 +61,6 @@ export default function Header() {
               >
                 Build a squid
               </NavLink>
-            </li>
-            {/* Ручка мастерской: открывает и закрывает приём заказов.
-                Выбор запоминается в браузере до появления админки. */}
-            <li>
-              <button
-                type="button"
-                className={`${styles.gate} ${orders.open ? styles.gateOn : ''}`}
-                role="switch"
-                aria-checked={orders.open}
-                onClick={orders.toggle}
-              >
-                <span className={styles.gateKnob} aria-hidden="true" />
-                <span className={styles.gateText}>
-                  Orders {orders.open ? 'open' : 'closed'}
-                </span>
-              </button>
             </li>
           </ul>
         </nav>

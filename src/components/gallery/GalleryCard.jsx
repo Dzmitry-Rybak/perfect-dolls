@@ -34,6 +34,20 @@ export default function GalleryCard({ item }) {
     }
   }, [i, item.shots, many]);
 
+  /**
+   * Полный кадр тянем заранее — по наведению или фокусу.
+   *
+   * В карточке лежит снимок на 700px, обрезанный под 4:5; окно просит
+   * другой файл — 1800px и без обрезки, — и его в кеше нет. Поэтому
+   * окно открывалось пустым на время загрузки. Наведение опережает
+   * нажатие на доли секунды, и этого хватает, чтобы кадр успел прийти.
+   * На сенсорном экране наведения нет — там выручает размытая подложка.
+   */
+  const warm = () => {
+    const src = item.shots[i]?.full;
+    if (src) { const img = new Image(); img.src = src; }
+  };
+
   const go = (d) => setI((v) => (v + d + item.shots.length) % item.shots.length);
 
   // Свайп: порог 40px, иначе обычная прокрутка страницы срабатывала
@@ -81,7 +95,12 @@ export default function GalleryCard({ item }) {
         {/* Прозрачная кнопка на весь кадр — открывает работу крупно.
             Лежит ПОД стрелками и точками (см. z-index в стилях), иначе
             перехватывала бы листание. */}
-        <button className={styles.zoom} onClick={() => setZoom(true)}>
+        <button
+          className={styles.zoom}
+          onClick={() => setZoom(true)}
+          onPointerEnter={warm}
+          onFocus={warm}
+        >
           <span className="visually-hidden">Open {item.title} larger</span>
         </button>
 
@@ -114,8 +133,11 @@ export default function GalleryCard({ item }) {
         )}
       </div>
 
+      {/* start, а не общий счётчик: окно открывается на том кадре, что
+          виден в карточке, и дальше листается само по себе — иначе
+          вместе с ним перелистывалась страница под окном. */}
       {zoom && (
-        <GalleryLightbox item={item} i={i} setI={setI} onClose={() => setZoom(false)} />
+        <GalleryLightbox item={item} start={i} onClose={() => setZoom(false)} />
       )}
 
       <div className={styles.caption}>

@@ -65,23 +65,39 @@
   min-height: 0;
 }
 
-/* Вписываем целиком, а не обрезаем: в карточке кадр режется по рамке
-   4:5, и у широких рисунков пропадают края — сюда как раз приходят их
-   досмотреть.
+/* Рамка под снимок.
+   Пропорции приходят из данных, поэтому место занимается до того, как
+   картинка скачается, — иначе панель схлопывалась в пустую коробку и
+   прыгала, когда кадр наконец приезжал. Внутри лежит размытая копия
+   в килобайт: она видна мгновенно, вместе с текстом.
+
    Высоту ограничиваем в dvh, а не процентами от родителя: панель
    меряется по ширине снимка (fit-content), и процентная высота внутри
    такой раскладки не разрешалась. Вычитаем поля окна и панели,
    подпись сверху и подпись снизу. */
-.shot {
+.frame {
+  position: relative;
   max-width: 100%;
   max-height: calc(100dvh - 230px);
-  object-fit: contain;
   border: var(--stitch);
   border-radius: var(--r-md);
-  background: var(--ink);
-  animation: fade var(--t-mid) var(--ease-out);
+  background: var(--ink) center / cover no-repeat;
+  overflow: hidden;
+}
+
+/* Настоящий кадр поверх размытого. Вписывается целиком, а не
+   обрезается: в карточке он режется по рамке 4:5, и у широких
+   рисунков пропадают края — сюда как раз приходят их досмотреть. */
+.shot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity var(--t-mid) var(--ease-out);
   user-select: none;
 }
+.shotReady { opacity: 1; }
 
 /* Сидит верхом на углу панели: так его видно сразу, в отличие от
    прежнего варианта в углу экрана. */
@@ -173,6 +189,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .overlay, .panel, .shot { animation: none; }
+  .overlay, .panel { animation: none; }
+  .shot { transition: none; }
   .close:hover, .close:focus-visible { rotate: none; }
 }

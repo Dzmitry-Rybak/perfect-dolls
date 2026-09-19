@@ -6,42 +6,24 @@ import DollPortrait from '../components/ui/DollPortrait.jsx';
 import SectionCard from '../components/home/SectionCard.jsx';
 import StitchCard from '../components/ui/StitchCard.jsx';
 import PriceTag from '../components/ui/PriceTag.jsx';
+import Photo from '../components/ui/Photo.jsx';
+import Loader from '../components/ui/Loader.jsx';
+import { getHome } from '../lib/api.js';
+import useAsync from '../lib/useAsync.js';
 import { SECTIONS } from '../data/nav.js';
 import { EMAIL } from '../data/site.js';
 import styles from './Home.module.css';
 
 /**
  * Полка готовых вещей: то, что можно забрать сразу, без анкеты и
- * ожидания. Обычно пусто — почти всё разбирают до того, как дошито.
+ * ожидания. Обычно пуста — почти всё разбирают до того, как дошито.
  *
- * Чтобы выставить вещь, добавь сюда запись:
- *   { id, name, kind, price, accent, note }
- * id     — любой уникальный ярлык, от него зависит наклон карточки
- * kind   — подпись сверху: 'Doll', 'Squid', 'Portrait', что угодно
- * price  — число, валюта подставится сама
- * accent — цвет заглушки-портрета, пока нет фото
- * note   — необязательная строка: «one of a kind», «ready to ship»
- *
- * Убрать вещь — удалить запись. Пустой список сам вернёт заглушку.
- * TODO: переедет в админку вместе с окнами заказов.
- *
- * ЗАПОЛНЕНО РЫБОЙ — чтобы Рита видела, как полка выглядит непустой.
- * Заменить на настоящие вещи или очистить список перед запуском.
+ * Содержимое приезжает из админки, раздел «В наличии»: снимок,
+ * название, что это, цена и строчка о том, почему вещь свободна.
+ * Продали — Маргарита удаляет запись, и полка сама возвращает
+ * приписку вместо карточек. В коде списка больше нет: держать
+ * рядом два источника значило бы, что однажды они разойдутся.
  */
-const AVAILABLE = [
-  {
-    id: 'av-wren', name: 'Wren', kind: 'Doll', price: 195,
-    accent: '#C9BFD6', note: 'one of a kind · ready to ship',
-  },
-  {
-    id: 'av-inkling', name: 'Little Inkling', kind: 'Squid', price: 120,
-    accent: '#A5677E', note: 'came out too small to sell as standard',
-  },
-  {
-    id: 'av-hollow', name: 'Hollow', kind: 'Doll', price: 210,
-    accent: '#E8C46A', note: 'someone changed their mind',
-  },
-];
 
 /**
  * Наклоны приколотых вещей. Заданы списком, а не случайно: список
@@ -50,6 +32,16 @@ const AVAILABLE = [
 const TILTS = [-2.2, 1.6, -1.1, 2.4, -1.8, 1.2];
 
 export default function Home() {
+  /* Картинки главной и полка — одним запросом, см. getHome(). */
+  const { data, loading } = useAsync(getHome, []);
+  const hero = data?.hero;
+  const available = data?.available ?? [];
+
+  /* Снимки разделов из админки перекрывают вшитые в сборку. Берём
+     карточку целиком, а не по полю: второй кадр без первого — это
+     наплыв с одной работы на другую, и выглядел бы он как ошибка. */
+  const sections = SECTIONS.map((s) => ({ ...s, ...(data?.cards[s.id] ?? {}) }));
+
   return (
     <>
       <section className={styles.hero}>
@@ -61,8 +53,17 @@ export default function Home() {
         <div className={`page ${styles.heroInner}`}>
           <figure className={styles.avatar}>
             <span className={styles.tape} aria-hidden="true" />
-            {/* TODO: заменить на аватарку Риты */}
-            <DollPortrait seed="cutesmokey" accent="#FF96C9" alt="cutesmokey" />
+            {/* Пока снимок едет — пустая рамка той же формы, а не
+                рисованная кукла: подмена одного лица на другое прямо
+                под носом читается хуже, чем секунда ожидания.
+                Не выбран в админке — остаётся заглушка. */}
+            {loading ? (
+              <span className={styles.avatarWait} aria-hidden="true" />
+            ) : hero ? (
+              <Photo src={hero.src} alt={hero.alt || 'cutesmokey'} />
+            ) : (
+              <DollPortrait seed="cutesmokey" accent="#FF96C9" alt="cutesmokey" />
+            )}
           </figure>
 
           <div className={styles.heroCopy}>
@@ -88,7 +89,7 @@ export default function Home() {
       <section className={`page ${styles.section}`}>
         <h2 className="visually-hidden">What I make</h2>
         <ul className={styles.grid}>
-          {SECTIONS.map((s) => (
+          {sections.map((s) => (
             <li key={s.id}><SectionCard section={s} /></li>
           ))}
         </ul>
@@ -104,15 +105,17 @@ export default function Home() {
           </div>
         </div>
 
-        {AVAILABLE.length > 0 ? (
+        {/* Полка почти всегда пуста, поэтому ожидание показываем честно:
+            без него пустая приписка успевала мелькнуть перед карточками. */}
+        {loading ? <Loader label="Looking on the shelf…" /> : available.length > 0 ? (
           <div className={styles.board}>
             <span className={styles.boardMargin} aria-hidden="true" />
             <ul className={styles.shelf}>
-              {AVAILABLE.map((it, i) => (
+              {available.map((it, i) => (
                 <li key={it.id} className={styles.pinned} style={{ '--tilt': `${TILTS[i % TILTS.length]}deg` }}>
                   <span className={styles.pin} aria-hidden="true" />
                   <StitchCard seed={it.id} tilt={false} className={styles.shelfCard}>
-                    <DollPortrait seed={it.id} accent={it.accent} alt={it.name} />
+                    <Photo src={it.photo.src} alt={it.photo.alt || it.name} />
                     <div className={styles.shelfBody}>
                       {it.kind && <p className="eyebrow">{it.kind}</p>}
                       <p className={styles.shelfName}>{it.name}</p>

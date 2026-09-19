@@ -19,6 +19,7 @@ import Gallery from './pages/Gallery.jsx';
 import Workshop from './pages/Workshop.jsx';
 import Faq from './pages/Faq.jsx';
 import Pr from './pages/Pr.jsx';
+import Legal from './pages/Legal.jsx';
 import NotFound from './pages/NotFound.jsx';
 
 /** Прокрутка наверх при смене маршрута — иначе новая страница
@@ -48,6 +49,13 @@ export default function App() {
           <Route path="/workshop"   element={<Workshop />} />
           <Route path="/faq"        element={<Faq />} />
           <Route path="/pr"         element={<Pr />} />
+
+          {/* Три правовые страницы — один компонент, разный текст.
+              Ссылки на них обязаны быть с любой страницы, поэтому
+              живут в подвале, а не в шапке. */}
+          <Route path="/privacy"    element={<Legal doc="privacy" />} />
+          <Route path="/terms"      element={<Legal doc="terms" />} />
+          <Route path="/copyright"  element={<Legal doc="copyright" />} />
           <Route path="*"           element={<NotFound />} />
         </Routes>
       </main>

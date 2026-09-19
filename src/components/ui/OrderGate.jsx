@@ -1,7 +1,6 @@
 import Button from './Button.jsx';
 import ButtonEye from './ButtonEye.jsx';
 import Spiral from './Spiral.jsx';
-import { ORDERS } from '../../data/shopState.js';
 import { useCommission } from '../../context/CommissionContext.jsx';
 import { useOrders } from '../../context/OrdersContext.jsx';
 import styles from './OrderGate.module.css';
@@ -12,10 +11,9 @@ import styles from './OrderGate.module.css';
  * Открыты  → открывает анкету.
  * Закрыты  → показывает примерный срок, а не мёртвую кнопку.
  *
- * Состояние берётся из переключателя в шапке, а значения из
- * data/shopState.js служат ему значением по умолчанию.
- *
- * Состояние правится в data/shopState.js, позже переедет в админку.
+ * Открыты или нет, срок и приписка приходят из админки. Значения
+ * в data/shopState.js остались запасным вариантом на случай, если
+ * сервис недоступен.
  */
 /** Приглашение под заголовком: у кукол шьют, у портретов рисуют. */
 const OPEN_LEAD = {
@@ -24,11 +22,10 @@ const OPEN_LEAD = {
 };
 
 export default function OrderGate({ topic, label, kind }) {
-  const state = ORDERS[topic];
+  /* Всё про раздел — из админки: открыты ли заказы, срок и приписка. */
+  const state = useOrders(topic);
   const { open } = useCommission();
-  /* Переключатель в шапке перебивает значение из файла. */
-  const orders = useOrders();
-  const isOpen = orders.open || state?.open;
+  const isOpen = !!state?.open;
 
   if (isOpen) {
     return (

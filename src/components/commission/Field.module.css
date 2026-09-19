@@ -83,3 +83,45 @@ select.control option { background: var(--ink-raised); color: var(--bone); }
   border-style: solid;
   font-weight: 600;
 }
+
+/* --- галочки согласия ---
+   Квадратик крупный (18px) и не прижат к тексту: по нему промахиваются
+   пальцем чаще, чем по любому другому элементу анкеты. Вся строка —
+   один <label>, поэтому нажатие по тексту тоже срабатывает. */
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  cursor: pointer;
+  padding: var(--sp-3);
+  border: 1px dashed rgb(81 76 88 / 0.5);
+  border-radius: var(--r-md);
+  transition: border-color var(--t-fast) var(--ease-soft);
+}
+.check:hover { border-color: rgb(201 191 214 / 0.5); }
+.check input {
+  flex: none;
+  width: 18px; height: 18px;
+  margin-top: 2px;         /* на строку текста, а не на её верх */
+  accent-color: var(--rose);
+  cursor: pointer;
+}
+/* Непоставленная обязательная галочка — единственное поле, где ошибку
+   не видно по самому полю: подсвечиваем рамку целиком. */
+.checkBad { border-color: var(--rose); border-style: solid; }
+
+.checkText {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--lilac);
+}
+.checkText a { color: var(--rose); }
+
+.checkHint {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  color: var(--muted);
+  padding-left: calc(18px + var(--sp-3) + var(--sp-3));
+}

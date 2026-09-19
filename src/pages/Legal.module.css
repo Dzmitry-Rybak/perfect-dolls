@@ -1,0 +1,104 @@
+/* Правовые страницы: длинный текст, который читают по одному пункту.
+   Колонка узкая (66ch) — не из любви к типографике, а потому что
+   такие страницы читают внимательно, а строка в 120 символов на
+   внимательном чтении теряется. */
+
+.toc {
+  max-width: 66ch;
+  margin-bottom: var(--sp-7);
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px dashed rgb(81 76 88 / 0.45);
+  border-radius: var(--r-md);
+}
+.toc ol {
+  display: grid;
+  gap: var(--sp-2);
+  margin: 0;
+  padding-left: var(--sp-5);
+  list-style: decimal;
+}
+.toc li { color: var(--muted); }
+.toc a {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  color: var(--lilac);
+  text-decoration: none;
+  border-bottom: 1px dashed transparent;
+  transition: color var(--t-fast) var(--ease-out),
+              border-color var(--t-fast) var(--ease-out);
+}
+.toc a:hover, .toc a:focus-visible { color: var(--rose); border-color: var(--rose); }
+
+.section {
+  max-width: 66ch;
+  padding-block: var(--sp-5);
+  /* Якорь из оглавления не должен ставить заголовок вплотную
+     к верхнему краю — под шапкой его было бы не видно. */
+  scroll-margin-top: var(--sp-8);
+}
+.section + .section { border-top: 1px dashed rgb(81 76 88 / 0.3); }
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  color: var(--bone);
+  margin-bottom: var(--sp-3);
+}
+
+.p + .p { margin-top: var(--sp-3); }
+
+.list {
+  display: grid;
+  gap: var(--sp-2);
+  margin: var(--sp-3) 0;
+  padding-left: var(--sp-5);
+  list-style: disc;
+  color: var(--lilac);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+}
+.list li::marker { color: var(--rose); }
+
+/* Реквизиты: подпись — мелкая и приглушённая, значение — обычным
+   текстом. На узком экране пара переносится на две строки. */
+.trader {
+  margin: var(--sp-4) 0;
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--ink-raised);
+  border: var(--stitch);
+  border-radius: var(--r-md);
+}
+.traderRow { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3); }
+.traderRow + .traderRow { margin-top: var(--sp-2); }
+.traderRow dt {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  min-width: 11ch;
+}
+.traderRow dd { margin: 0; color: var(--bone); font-family: var(--font-body); }
+.traderRow a { color: var(--rose); }
+
+.updated {
+  max-width: 66ch;
+  margin-top: var(--sp-7);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+/* Напоминание разработчику — на боевом сайте его не существует. */
+.todo {
+  max-width: 66ch;
+  margin-bottom: var(--sp-6);
+  padding: var(--sp-4);
+  border: 2px dashed #E86A6A;
+  border-radius: var(--r-md);
+  color: #FFD2D2;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  line-height: 1.6;
+}
+.todo code { color: #FFF; }

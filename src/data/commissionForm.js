@@ -4,8 +4,13 @@
  *
  * Формулировки и варианты правятся здесь, без залезания в компоненты.
  *
- * Типы полей: text · email · textarea · select · chips · files
+ * Типы полей: text · email · textarea · select · chips · files · checkbox
  */
+
+/* Срок хранения референсов повторяется и здесь, и на странице
+   приватности. Берём его оттуда, чтобы две цифры не разъехались. */
+import { POLICY } from './legal.js';
+const KEEP_REFS = POLICY.keepRefs;
 
 export const MAX_FILES = 5;
 export const MAX_FILE_MB = 8;
@@ -26,14 +31,35 @@ const contactStep = (extra = []) => ({
   ],
 });
 
+/**
+ * Последний шаг: референсы и две галочки.
+ *
+ * Первая обязательна и закрывает сразу две вещи — согласие на
+ * обработку и подтверждение прав на присланные фото. Отдельными
+ * галочками это выглядело бы как бюрократия ради бюрократии, а
+ * смысл один: «эти снимки мои, и я знаю, что с ними будет».
+ *
+ * Вторая — от противного: по умолчанию работу показывать можно,
+ * галочка это запрещает. Наоборот было бы честнее на бумаге, но
+ * тогда пустая галочка запрещала бы показывать почти всё, включая
+ * то, о чём никто не возражал, — а галерея и есть витрина.
+ * Кто не хочет видеть свою куклу в интернете, тот галочку поставит.
+ */
 const refsStep = {
   id: 'refs',
   title: 'References',
   hint: 'Pictures say more than words. Pinterest screenshots, photos, scribbles — anything works.',
   fields: [
-    { name: 'files', label: 'Attach files', type: 'files' },
+    { name: 'files', label: 'Attach files', type: 'files',
+      hint: `Used only to make your piece, never published, and deleted ${KEEP_REFS} after it ships.` },
     { name: 'links', label: 'Or links', type: 'textarea', rows: 3,
       placeholder: 'Pinterest, Instagram — one link per line' },
+    { name: 'consent', type: 'checkbox', required: true,
+      label: 'These photos are mine to send — anyone recognisable in them is fine with it — and I have read how my data is handled.',
+      link: { href: '/privacy', label: 'Privacy' } },
+    { name: 'noShow', type: 'checkbox',
+      label: 'Please do not show the finished piece in the gallery or on social media.',
+      hint: 'Leave this alone if you do not mind — most people like seeing theirs there. You can change your mind later by email.' },
   ],
 };
 
@@ -142,7 +168,10 @@ export function emptyValues(form) {
   const v = {};
   for (const step of form.steps) {
     for (const f of step.fields) {
-      v[f.name] = f.type === 'chips' ? [] : f.type === 'files' ? [] : '';
+      v[f.name] =
+        f.type === 'chips' || f.type === 'files' ? []
+        : f.type === 'checkbox' ? false
+        : '';
     }
   }
   return v;

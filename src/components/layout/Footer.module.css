@@ -80,6 +80,27 @@
 }
 .stitchNote { font-family: var(--font-hand); }
 
+/* Правовые ссылки посреди нижней строки. На узком экране переносятся
+   вместе, а не по одной: три коротких слова в столбик выглядели бы
+   как ещё одно меню. */
+.legal { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4); }
+.legal a {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px dashed rgb(129 122 138 / 0.4);
+  transition: color var(--t-fast) var(--ease-soft),
+              border-color var(--t-fast) var(--ease-soft);
+}
+.legal a:hover, .legal a:focus-visible { color: var(--rose); border-color: var(--rose); }
+
+/* Реквизиты — во всю ширину под остальным, самым мелким кеглем:
+   их положено показывать, но читают их раз в жизни. */
+.trader {
+  flex-basis: 100%;
+  font-size: var(--step--2, 0.75rem);
+  color: rgb(129 122 138 / 0.8);
+}
+
 @media (max-width: 720px) {
   .inner { grid-template-columns: 1fr; gap: var(--sp-6); }
 }

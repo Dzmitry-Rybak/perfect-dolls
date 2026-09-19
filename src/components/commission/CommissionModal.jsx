@@ -89,7 +89,11 @@ export default function CommissionModal() {
     const next = {};
     for (const f of current.fields) {
       const v = values[f.name];
-      if (f.required && (Array.isArray(v) ? !v.length : !String(v).trim())) {
+      if (f.type === 'checkbox') {
+        /* У галочки «заполнено» — это true, а не непустая строка:
+           общая проверка ниже считала бы false заполненным. */
+        if (f.required && v !== true) next[f.name] = 'This one has to be ticked';
+      } else if (f.required && (Array.isArray(v) ? !v.length : !String(v).trim())) {
         next[f.name] = 'This one is needed';
       } else if (f.type === 'email' && String(v).trim() && !isEmail(v)) {
         next[f.name] = 'Check the address — the reply has to land';
@@ -181,6 +185,9 @@ export default function CommissionModal() {
                 f.type === 'files' ? (
                   <div key={f.name} className={styles.fileBlock}>
                     <span className={styles.fileLabel}>{f.label}</span>
+                    {/* Что будет с чужими фотографиями — сказано там, где
+                        их отдают, а не только на странице приватности. */}
+                    {f.hint && <p className={styles.fileHint}>{f.hint}</p>}
                     <FileField files={values.files} onChange={(v) => set('files', v)} />
                   </div>
                 ) : (

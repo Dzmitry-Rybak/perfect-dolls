@@ -1,0 +1,18 @@
+{
+  "name": "cutesmokey-studio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Админка сайта cutesmokey. Отдельное приложение: у неё свои зависимости и своя версия React, поэтому сайт не приходится тянуть за ней следом.",
+  "scripts": {
+    "dev": "sanity dev",
+    "build": "sanity build",
+    "deploy": "sanity deploy"
+  },
+  "dependencies": {
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
+    "sanity": "^5.31.2",
+    "styled-components": "^6.1.15"
+  }
+}

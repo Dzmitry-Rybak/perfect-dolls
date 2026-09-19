@@ -29,3 +29,7 @@ dist
 /squidy/
 /dolls/
 /portrsits/
+
+# Служебная папка админки: Sanity пересобирает её при каждом запуске
+# studio (npm run dev), к содержимому сайта отношения не имеет.
+/studio/.sanity/
