@@ -123,6 +123,7 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
      меха, — одна кривая на обе детали. */
   const heartBtn = build.buttonShape === 'heart';
   const HEART_D = heart(...HEART_BOX.button);
+  const HEART_IN_D = heart(...HEART_BOX.button, 0.72);
 
   /**
    * ОПИСАНИЕ ПУГОВИЦЫ — ЕДИНСТВЕННЫЙ ИСТОЧНИК.
@@ -155,7 +156,13 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
            там же (см. ButtonGroup). Иначе узор ложится поверх неё
            и вылезает крапинами за край. */
         ...(heartBtn
-          ? [{ d: HEART_D, fill: btn }]
+          ? [{ d: HEART_D, fill: btn },
+             /* Внутренний контур — только ради подсветки, сам не
+                рисуется (его линию кладёт ButtonGroup поверх узора).
+                У круглой btnOuter — это СРАЗУ два кольца, и бегущий
+                стежок обводит оба; сердцу собираем такую же пару,
+                иначе загоралась бы одна внешняя линия. */
+             { d: HEART_IN_D, invisible: true }]
           : [{ d: PATH.btnOuter, fill: btn },
              { d: PATH.btnInner, fill: btn, halo: false }]),
       ] },
@@ -194,8 +201,8 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
         <g fill="none" stroke={INK} pointerEvents="none">
           {/* Край сердца — здесь, а не в заливке: поверх узора,
               как общий контур делает это круглой. */}
-          <path d={HEART_D} strokeWidth="4" strokeLinejoin="round" />
-          <path d={heart(...HEART_BOX.button, 0.72)} strokeWidth="3" strokeLinejoin="round" />
+          <path d={HEART_D} strokeWidth="5" strokeLinejoin="round" />
+          <path d={HEART_IN_D} strokeWidth="3" strokeLinejoin="round" />
         </g>
       ) : (
         <path d={PATH.threadRing} fill={INK} pointerEvents="none" />
