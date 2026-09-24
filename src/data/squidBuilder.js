@@ -121,7 +121,6 @@ export const BUTTON_PATTERNS = [
   { id: 'hearts', label: 'Hearts' },
   { id: 'stars',  label: 'Stars' },
   { id: 'dots',   label: 'Dots' },
-  { id: 'cross',  label: 'Crosses' },
   { id: 'stripe', label: 'Stripes' },
 ];
 

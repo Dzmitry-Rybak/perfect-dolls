@@ -554,11 +554,6 @@ function ButtonPattern({ id, color, clipD = PATH.btnDisc }) {
                             L${x + 2.6 * S} ${y + 2.6 * S} L${x} ${y + 9 * S} L${x - 2.6 * S} ${y + 2.6 * S}
                             L${x - 9 * S} ${y} L${x - 2.6 * S} ${y - 2.6 * S} Z`} {...P} />
         ))}
-        {id === 'cross' && grid(26 * S).map(([x, y], i) => (
-          <path key={i} d={`M${x - 6 * S} ${y - 6 * S} L${x + 6 * S} ${y + 6 * S}
-                            M${x + 6 * S} ${y - 6 * S} L${x - 6 * S} ${y + 6 * S}`}
-                stroke={color} strokeWidth={3 * S} strokeLinecap="round" fill="none" />
-        ))}
         {id === 'stripe' && [...Array(Math.ceil((R * 2) / (13 * S)) + 1)].map((_, i) => (
           <rect key={i} x={CX - R - 4} y={CY - R + i * 13 * S} width={R * 2 + 8} height={6 * S} {...P} />
         ))}
