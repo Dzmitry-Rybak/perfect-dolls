@@ -380,8 +380,12 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
               {/* Капли — под швами: нитка лежит поверх раны, а не наоборот */}
               <path d={WOUND_SPECKS[i]} fill={BLOOD} />
               {/* Швы. Идут ВМЕСТЕ с раной, отдельной добавкой не бывают:
-                  на рисунке Риты рваный край всегда прихвачен ниткой. */}
-              <path d={w.seam} fill="none" stroke={INK} strokeWidth="2.4"
+                  на рисунке Риты рваный край всегда прихвачен ниткой.
+                  Две толщины: одинаковая у всех читается как машинная
+                  строчка, даже когда сами штрихи кривые. */}
+              <path d={w.seam} fill="none" stroke={INK} strokeWidth="2.2"
+                    strokeLinecap="round" />
+              <path d={w.seamBold} fill="none" stroke={INK} strokeWidth="3.4"
                     strokeLinecap="round" />
             </g>
           ))}
