@@ -119,6 +119,11 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
     };
   };
 
+  /* Форма пуговицы. Сердце строится тем же heart(), что и сердце из
+     меха, — одна кривая на обе детали. */
+  const heartBtn = build.buttonShape === 'heart';
+  const HEART_D = heart(...HEART_BOX.button);
+
   /**
    * ОПИСАНИЕ ПУГОВИЦЫ — ЕДИНСТВЕННЫЙ ИСТОЧНИК.
    *
@@ -142,9 +147,17 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
     const thrRim = rimFor(thr, btn);
     return [
       { id: 'button', shapes: [
-        ...(btnRim ? [{ d: PATH.btnOuter, ...btnRim, width: btnRim.strokeWidth, halo: false }] : []),
-        { d: PATH.btnOuter, fill: btn },
-        { d: PATH.btnInner, fill: btn, halo: false },
+        ...(btnRim ? [{ d: heartBtn ? HEART_D : PATH.btnOuter, ...btnRim,
+                       width: btnRim.strokeWidth, halo: false }] : []),
+        /* Круглая набрана из двух колец, сердце — одной сплошной
+           заливкой. Обводка тут НЕ ставится: у круглой её рисует
+           общий контур уже после узора, и сердцу обводка кладётся
+           там же (см. ButtonGroup). Иначе узор ложится поверх неё
+           и вылезает крапинами за край. */
+        ...(heartBtn
+          ? [{ d: HEART_D, fill: btn }]
+          : [{ d: PATH.btnOuter, fill: btn },
+             { d: PATH.btnInner, fill: btn, halo: false }]),
       ] },
       /* Крестик заливается СПЛОШНЫМ: threadCross нарисован обводкой
          с дырками внутри, и заливка целиком давала полый крестик. */
@@ -169,12 +182,24 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
         <ButtonPattern
           id={build.pattern}
           color={build.patternColor}
+          clipD={heartBtn ? HEART_D : PATH.btnDisc}
         />
       )}
-      {/* Контурный круг — рисованная деталь пуговицы, не красится и
+      {/* Внутренний ободок — рисованная деталь пуговицы, не красится и
           событий не ловит: клик по нему проходит на пуговицу под ним.
-          Идёт ПОСЛЕ узора, иначе узор его закрашивает. */}
-      <path d={PATH.threadRing} fill={INK} pointerEvents="none" />
+          Идёт ПОСЛЕ узора, иначе узор его закрашивает.
+          У круглой он нарисован Ритой (threadRing), сердцу строим
+          такое же — сердце поменьше, одной линией. */}
+      {heartBtn ? (
+        <g fill="none" stroke={INK} pointerEvents="none">
+          {/* Край сердца — здесь, а не в заливке: поверх узора,
+              как общий контур делает это круглой. */}
+          <path d={HEART_D} strokeWidth="4" strokeLinejoin="round" />
+          <path d={heart(...HEART_BOX.button, 0.72)} strokeWidth="3" strokeLinejoin="round" />
+        </g>
+      ) : (
+        <path d={PATH.threadRing} fill={INK} pointerEvents="none" />
+      )}
       {PARTS.filter((p) => p.id === 'thread').map((p) => <Part key={p.id} part={p} />)}
     </>
   );
@@ -296,8 +321,9 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
         </g>
       )}
 
-      {/* ---- пуговица (и сердце под ней): под линией, обод в ней и нарисован ---- */}
-      <ButtonGroup />
+      {/* ---- пуговица: под линией, обод в ней и нарисован ----
+           Только круглая. Сердце идёт ПОСЛЕ линии — почему, см. ниже. */}
+      {!heartBtn && <ButtonGroup />}
 
       {/* ---- добавки: под линией, чтобы обводка легла поверх ---- */}
       {has('wounds') && (
@@ -314,6 +340,26 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
 
       {/* ---- ЛИНИЯ: поверх заливок, событий не ловит ---- */}
       <path d={PATH.line} fill={INK} pointerEvents="none" />
+
+      {/* ---- пуговица-сердце: ПОВЕРХ линии ----
+           Чёрный ободок круглой пуговицы нарисован не самой пуговицей,
+           а общим контуром (PATH.line) — он же вырезан дыркой в заливке
+           головы. Для сердца и то и другое лишнее: круг остался бы
+           обводкой вокруг сердца, а дырка — просветом до листа.
+           Поэтому сперва заплатка цветом головы на всё место круглой
+           (btnDisc, увеличенный от центра — чтобы накрыть и саму
+           линию ободка), а сердце уже на неё. */}
+      {heartBtn && (
+        <>
+          <path
+            d={PATH.btnDisc}
+            transform="translate(196.1 212.45) scale(1.09) translate(-196.1 -212.45)"
+            fill={colorOf('head', 'head')}
+            pointerEvents="none"
+          />
+          <ButtonGroup />
+        </>
+      )}
 
       {/* ---- добавки поверх линии ---- */}
       {/* Шнуровка — поверх линии: под ней обводка головы резала люверсы пополам */}
@@ -447,20 +493,20 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
 /**
  * Простые узоры на пуговице.
  *
- * Обрезаются по СПЛОШНОМУ кругу пуговицы (btnDisc), а не по её
- * внутреннему кругу: раньше рисунок сидел пятачком в середине и не
- * доходил до края. Именно btnDisc, а не btnOuter — у того внутри
- * дырка под ободок нитки, и узор ложился кольцом.
+ * Обрезаются по СПЛОШНОЙ форме пуговицы, а не по её внутреннему
+ * кругу: раньше рисунок сидел пятачком в середине и не доходил до
+ * края. Для круглой это btnDisc, а не btnOuter — у того внутри дырка
+ * под ободок нитки, и узор ложился кольцом; для сердца форму
+ * передаёт clipD.
  * Сетка строится от радиуса, поэтому при любом шаге накрывает
  * пуговицу целиком, а лишнее срезает обрезка.
  *
  * Крестик нитки рисуется ПОСЛЕ узора — узор уходит под него.
  */
-function ButtonPattern({ id, color }) {
+function ButtonPattern({ id, color, clipD = PATH.btnDisc }) {
   const CX = 196, CY = 212;                 // центр пуговицы
   const R = 70;                             // её радиус
   const clip = 'squid-btn-clip';
-  const clipD = PATH.btnDisc;
   const P = { fill: color, stroke: 'none' };
 
   /** Узлы сетки, накрывающей пуговицу целиком. */

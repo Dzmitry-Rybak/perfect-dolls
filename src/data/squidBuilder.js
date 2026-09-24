@@ -101,6 +101,21 @@ export const FUR_PARTS = [
   { id: 'tentacleInner', label: 'Tentacle undersides', pieces: 7 },
 ];
 
+/**
+ * Форма пуговицы.
+ *
+ * Круглая — та, что на всех листах Риты. Сердце она лепит отдельно,
+ * поэтому за него доплата: это не выбор из готовых, а другая работа.
+ * Узор, блёстки и цвет работают с обеими формами одинаково.
+ */
+export const BUTTON_SHAPES = [
+  { id: 'round', label: 'Round' },
+  { id: 'heart', label: 'Heart' },
+];
+
+/** Доплата за форму. */
+export const SHAPE_PRICE = { round: 0, heart: 5 };   // PLACEHOLDER-PRICE
+
 /** Простые паттерны на пуговице. ВРЕМЕННЫЕ — ждём финальный список. */
 export const BUTTON_PATTERNS = [
   { id: 'hearts', label: 'Hearts' },
@@ -204,6 +219,7 @@ export const defaultBuild = {
   },
   pieces: {},              // поштучные цвета в режиме «микс»
   button: BLANK,
+  buttonShape: 'round',
   glitter: false,          // блёстки поверх пуговицы — на схеме не показываем
   /* Нитка остаётся чёрной: крестик на пуговице нарисован чернилами,
      как и весь контур, и цветом его никто не выбирал. */

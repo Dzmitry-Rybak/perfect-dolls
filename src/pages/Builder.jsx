@@ -5,7 +5,8 @@ import ColorPopover from '../components/squid/ColorPopover.jsx';
 import Button from '../components/ui/Button.jsx';
 import {
   BASE_PRICE, SIZES, FUR_COLORS, BUTTON_COLORS,
-  BUTTON_PATTERNS, ADDONS, RIBBON_COLORS, RIBBON_KINDS, PATTERN_PRICE, PATTERN_PRESETS,
+  BUTTON_PATTERNS, BUTTON_SHAPES, SHAPE_PRICE,
+  ADDONS, RIBBON_COLORS, RIBBON_KINDS, PATTERN_PRICE, PATTERN_PRESETS,
   GLITTER_PRICE,
   defaultBuild, ADDON_COLORS,
 } from '../data/squidBuilder.js';
@@ -69,6 +70,7 @@ export default function Builder() {
     let sum = BASE_PRICE;
     sum += SIZES.find((s) => s.id === build.size)?.priceDelta ?? 0;
     for (const id of build.addons) sum += ADDONS.find((a) => a.id === id)?.price ?? 0;
+    sum += SHAPE_PRICE[build.buttonShape] ?? 0;
     if (build.glitter) sum += GLITTER_PRICE;
     if (build.pattern) sum += PATTERN_PRICE.simple;
     if (build.complexNote.trim()) sum += PATTERN_PRICE.complex;
@@ -156,6 +158,24 @@ export default function Builder() {
               Buttons are hand-painted, so the colour is not limited to samples —
               tap the button or its thread on the sketch and pick any shade.
             </p>
+
+            {/* Форма. Идёт первой в блоке: от неё зависит, как будут
+                выглядеть узор и цвет, которые выбирают ниже. */}
+            <div className={styles.row}>
+              {BUTTON_SHAPES.map((sh) => (
+                <button
+                  key={sh.id}
+                  className={`${styles.chip} ${build.buttonShape === sh.id ? styles.chipOn : ''}`}
+                  aria-pressed={build.buttonShape === sh.id}
+                  onClick={() => setBuild((b) => ({ ...b, buttonShape: sh.id }))}
+                >
+                  {sh.label}
+                  {SHAPE_PRICE[sh.id] > 0 && (
+                    <span className={styles.delta}>+{usd(SHAPE_PRICE[sh.id])}</span>
+                  )}
+                </button>
+              ))}
+            </div>
 
             {/* Блёстки на схеме не показываем: на превью 1–3 см их
                 всё равно не видно, а в заявку они уходят. */}
