@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { PATH, VIEW, GROUPS } from '../../data/squidArt.js';
-import { PART, HORNS, WOUNDS, WOUND_SPECKS, COLLAR, BOW, SAFETY_PIN, CLAY, PIERCE, CORSET, heart, HEART_BOX } from '../../data/squidParts.js';
+import { PART, HORNS, WINGS, WING_RIBS, WOUNDS, WOUND_SPECKS, COLLAR, BOW, SAFETY_PIN, CLAY, PIERCE, CORSET, heart, HEART_BOX } from '../../data/squidParts.js';
 import styles from './SquidCanvas.module.css';
 
 /**
@@ -265,6 +265,21 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
       role="img"
       aria-label="Your plush squid preview"
     >
+      {/* ---- крылья: ДО головы, чтобы уйти под неё внутренним краем ----
+           Цвет не выбирается: они всегда чёрные, как рожки.
+           Обводка той же краской сглаживает стыки кривых — светлая
+           кромка здесь не нужна, холст лежит на светлом листе, и
+           чёрное на нём и так читается. Жилки, наоборот, светлые:
+           внутри чёрной перепонки другого способа их показать нет. */}
+      {has('wings') && (
+        <g pointerEvents="none">
+          <path d={WINGS} fill={INK} stroke={INK} strokeWidth="2"
+                strokeLinejoin="round" />
+          <path d={WING_RIBS} fill="none" stroke="#ECE8DF" strokeOpacity="0.28"
+                strokeWidth="1.5" strokeLinecap="round" />
+        </g>
+      )}
+
       {/* ---- заливки ---- */}
       <path {...zone('head')} />
       {GROUPS.ear.map((id) => <path key={id} {...zone(id)} />)}

@@ -124,6 +124,7 @@ export const BUTTON_PATTERNS = [
 export const ADDONS = [
   // свой цвет: чёрные, кровь, стразы — красить нечего
   { id: 'horns',        label: 'Black horns',              price: 5,  group: null },
+  { id: 'wings',        label: 'Black bat wings',          price: 15, group: null },   // PLACEHOLDER-PRICE
   { id: 'stitches',     label: 'Scars',                    price: 5,  group: null },
   { id: 'wounds',       label: 'Bloody wounds',            price: 5,  group: null },
   { id: 'rhinestones',  label: 'Rhinestones',              price: 10, group: null },   // PLACEHOLDER-PRICE
