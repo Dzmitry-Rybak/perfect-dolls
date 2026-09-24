@@ -377,9 +377,14 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
             <g key={i}>
               <path d={w.outer} fill={BLOOD} stroke={INK} strokeWidth="2.4" strokeLinejoin="round" />
               <path d={w.inner} fill={BLOOD_DEEP} />
+              {/* Капли — под швами: нитка лежит поверх раны, а не наоборот */}
+              <path d={WOUND_SPECKS[i]} fill={BLOOD} />
+              {/* Швы. Идут ВМЕСТЕ с раной, отдельной добавкой не бывают:
+                  на рисунке Риты рваный край всегда прихвачен ниткой. */}
+              <path d={w.seam} fill="none" stroke={INK} strokeWidth="2.4"
+                    strokeLinecap="round" />
             </g>
           ))}
-          {WOUND_SPECKS.map((d, i) => <path key={i} d={d} fill={BLOOD} />)}
         </g>
       )}
 
