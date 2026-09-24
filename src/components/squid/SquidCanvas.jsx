@@ -104,7 +104,11 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
   const zone = (id) => {
     const group = groupOf[id];
     return {
-      d: PATH[id],
+      /* Голова вырезана дыркой под КРУГЛУЮ пуговицу. При сердце дырка
+         не та: кольцо между сердцем и старым кругом переставало
+         кликаться, хотя на вид это обычный мех. Берём голову целиком —
+         пуговица нарисована поверх и клики внутри себя ловит сама. */
+      d: id === 'head' && heartBtn ? PATH.headSolid : PATH[id],
       fill: colorOf(id, group),
       className: styles.zone,
       tabIndex: 0,
@@ -274,6 +278,12 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
     const part = PARTS.find((p) => p.id === id);
     if (part) return part.shapes.filter((sh) => sh.halo !== false).map((sh) => sh.d).join('');
     if (ADDON_PATH[id]) return ADDON_PATH[id]();
+
+    /* Подсветка головы обводит её край И вырез под пуговицу — он у
+       неё внутренний контур. В PATH.head вырез круглый, поэтому при
+       сердце загорался круг от пуговицы, которой на схеме уже нет.
+       Собираем пару сами: сплошная голова плюс само сердце. */
+    if (id === 'head' && heartBtn) return PATH.headSolid + HEART_D;
 
     return PATH[OWN_PATH[id] ?? id];
   };
