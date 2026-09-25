@@ -445,13 +445,33 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
       {/* Шнуровка — поверх линии: под ней обводка головы резала люверсы пополам */}
       {has('corset') && (
         <g {...addon('corset')}>
-          {/* Обводка 3, а не 1.6: на листе бант обведён тем же пером,
-              что и всё остальное, а тонкий контур делал его блёклым
-              рядом с головой и люверсами. */}
-          {ribbonRim && <path d={corset.bows} {...ribbonRim} strokeWidth="5" fillRule="evenodd" strokeLinejoin="round" />}
+          {/* КОНТУР РИСУЕТСЯ ОДИН РАЗ.
+              Раньше их было два: обводка силуэта и поверх неё
+              обведённые чернила карандашной линии. Это разные кривые,
+              они не совпадают, и край выходил двойным и рваным —
+              чем толще обводка, тем заметнее. Проверено раскраской
+              подпутей: 49% точек чернильного штриха лежат ближе 2.5
+              единицы к силуэту, то есть он его дублирует.
+
+              Теперь край даёт только обводка силуэта, а от чернил
+              остаётся лишь то, что дальше 6 единиц от края, — складки
+              внутри банта. Вырезает их маска ниже. */}
+          <mask id="squid-corset-inner" maskUnits="userSpaceOnUse"
+                x="-60" y="-60" width="520" height="1000">
+            <path d={corset.bows} fill="#fff" fillRule="evenodd" />
+            <path d={corset.bows} fill="none" stroke="#000" strokeWidth="12"
+                  strokeLinejoin="round" />
+          </mask>
+          {ribbonRim && <path d={corset.bows} {...ribbonRim} strokeWidth="6" fillRule="evenodd" strokeLinejoin="round" />}
           <path d={corset.bows} fill={build.ribbonColor} fillRule="evenodd"
-                stroke={INK} strokeWidth="3" strokeLinejoin="round" />
-          <path d={corset.line} fill={INK} fillRule="evenodd" />
+                stroke={INK} strokeWidth="4" strokeLinejoin="round" />
+          {/* Штрих складки местами сходит на волос и рвётся — это
+              карандаш, обведённый как есть. Подращиваем его обводкой
+              собственным цветом: тонкие места набирают тело, толстые
+              почти не меняются. */}
+          <path d={corset.line} fill={INK} fillRule="evenodd"
+                stroke={INK} strokeWidth="1.4" strokeLinejoin="round"
+                mask="url(#squid-corset-inner)" />
           {/* Кольца — поверх бантов и своим путём: в общем они выедались evenodd.
               Обводка у них меньше, чем у банта: люверс всего 8 единиц
               в поперечнике, при 3 он затекал чернилами. */}
