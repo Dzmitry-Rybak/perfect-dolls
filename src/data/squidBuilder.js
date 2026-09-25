@@ -89,7 +89,12 @@ export const ADDON_COLORS = [
   { addon: 'corset',   key: 'ribbonColor',   label: 'Ribbon colour',    palette: 'ribbon' },
   { addon: 'collar',   key: 'collarColor',   label: 'Collar colour',    palette: 'ribbon' },
   { addon: 'bow',      key: 'bowColor',      label: 'Bow colour',       palette: 'ribbon' },
-  { addon: 'furHeart', key: 'furHeartColor', label: 'Fur heart colour', palette: 'fur' },
+  /* У всех трёх нашивок ОДИН ключ цвета: они занимают одно место и
+     взаимоисключающие, так что выбранный мех не должен пропадать,
+     когда человек переключает форму. */
+  { addon: 'furHeart', key: 'patchColor', label: 'Fur heart colour', palette: 'fur' },
+  { addon: 'furSkull', key: 'patchColor', label: 'Fur skull colour', palette: 'fur' },
+  { addon: 'furStar',  key: 'patchColor', label: 'Fur star colour',  palette: 'fur' },
 ];
 
 /** Пять красящихся зон меха. Порядок = порядок в подсказке. */
@@ -152,7 +157,11 @@ export const ADDONS = [
   { id: 'corset',       label: 'Corset-style ribbon',      price: 10, group: null, customizable: 'ribbon' },
   { id: 'collar',       label: 'Collar',                   price: 10, group: null, customizable: 'trim' },   // PLACEHOLDER-PRICE
   { id: 'bow',          label: 'Bow + charm',              price: 10, group: null, customizable: 'bow' },    // PLACEHOLDER-PRICE
-  { id: 'furHeart',     label: 'Fur heart',                price: 10, group: null, customizable: 'fur' },    // PLACEHOLDER-PRICE
+  /* Нашивка под пуговицей. Форм три, но место одно — поэтому группа:
+     выбрать можно только одну. */
+  { id: 'furHeart',     label: 'Fur heart',                price: 10, group: 'patch', customizable: 'fur' },  // PLACEHOLDER-PRICE
+  { id: 'furSkull',     label: 'Fur skull',                price: 10, group: 'patch', customizable: 'fur' },  // PLACEHOLDER-PRICE
+  { id: 'furStar',      label: 'Fur star',                 price: 10, group: 'patch', customizable: 'fur' },  // PLACEHOLDER-PRICE
   { id: 'safetyPin',    label: 'Safety pin + pendant',     price: 5,  group: null, customizable: 'charm' },
 ];
 
@@ -232,6 +241,6 @@ export const defaultBuild = {
   collarColor: '#F9F8F6',
   bowColor: '#F3B4D4',
   bowCharm: null,
-  furHeartColor: '#E2A7C1',
+  patchColor: '#E2A7C1',      // мех нашивки — общий для сердца, черепа и звезды
   notes: '',
 };

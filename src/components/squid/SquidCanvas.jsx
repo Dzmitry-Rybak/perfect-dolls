@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { PATH, VIEW, GROUPS } from '../../data/squidArt.js';
-import { PART, HORNS, WINGS, WING_RIBS, WOUNDS, WOUND_SPECKS, COLLAR, BOW, SAFETY_PIN, CLAY, PIERCE, CORSET, heart, HEART_BOX } from '../../data/squidParts.js';
+import { PART, HORNS, WINGS, WING_RIBS, WOUNDS, WOUND_SPECKS, COLLAR, BOW, SAFETY_PIN, CLAY, PIERCE, CORSET, heart, star, HEART_BOX, FUR_PATCH } from '../../data/squidParts.js';
 import styles from './SquidCanvas.module.css';
 
 /**
@@ -300,7 +300,9 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
     collar: () => COLLAR.frill,
     bow: () => BOW.loops + BOW.tails + BOW.knot,
     corset: () => corset.bows + CORSET.rings,
-    furHeart: () => heart(...HEART_BOX.fur),
+    furHeart: () => FUR_PATCH.furHeart.d,
+    furSkull: () => FUR_PATCH.furSkull.d,
+    furStar: () => FUR_PATCH.furStar.d,
   };
 
   const pathFor = (id) => {
@@ -322,7 +324,10 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
   const behindCollar = colorOf('tent0', 'tentacle');
   const collarRim = rimFor(build.collarColor, behindCollar);
   const bowRim = rimFor(build.bowColor, has('collar') ? build.collarColor : behindCollar);
-  const heartRim = rimFor(build.furHeartColor, colorOf('head', 'head'));
+  /* Какая нашивка выбрана — форм три, место одно. */
+  const patchId = Object.keys(FUR_PATCH).find(has);
+  const patch = patchId && FUR_PATCH[patchId];
+  const patchRim = rimFor(build.patchColor, colorOf('head', 'head'));
   const ribbonRim = rimFor(build.ribbonColor, colorOf('head', 'head'));
   const corset = build.ribbonKind === 'lace' ? CORSET.lace : CORSET.satin;
 
@@ -358,12 +363,15 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
       {GROUPS.tentacle.map((id) => <path key={id} {...zone(id)} />)}
       {GROUPS.tentacleInner.map((id) => <path key={id} {...zone(id)} />)}
 
-      {/* ---- сердце из меха: под пуговицей, красится как мех ---- */}
-      {has('furHeart') && (
-        <g {...addon('furHeart')}>
-          {heartRim && <path d={heart(...HEART_BOX.fur)} {...heartRim} strokeWidth="4.6" />}
-          <path d={heart(...HEART_BOX.fur)} fill={INK} />
-          <path d={heart(...HEART_BOX.fur, 0.97)} fill={build.furHeartColor} />
+      {/* ---- нашивка из меха: под пуговицей, красится как мех ----
+           Сердце, череп или звезда — рисуются одинаково: контур
+           чернилами, а поверх та же форма, уменьшенная от центра,
+           мехом. Отсюда ровный кант на любой форме. */}
+      {patch && (
+        <g {...addon(patchId)}>
+          {patchRim && <path d={patch.d} {...patchRim} strokeWidth="4.6" />}
+          <path d={patch.d} fill={INK} />
+          <path d={patch.d} fill={build.patchColor} transform={patch.inset} />
         </g>
       )}
 
@@ -548,28 +556,6 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
   );
 }
 
-/**
- * Пятиконечная звезда с центром в (cx, cy).
- *
- * Раньше в узоре стояла четырёхконечная искра — она читалась бликом,
- * а не звездой. Здесь пять вершин через 72°, между ними впадины,
- * сдвинутые на 36°. Радиус впадины — 0.382 от внешнего: это то самое
- * отношение, при котором звезда выглядит привычно; больше — лучи
- * тупеют, меньше — она превращается в паука.
- * Первый луч смотрит строго вверх.
- */
-const star5 = (cx, cy, R) => {
-  const r = R * 0.382;
-  let d = '';
-  for (let i = 0; i < 10; i++) {
-    const a = (-90 + i * 36) * (Math.PI / 180);
-    const rr = i % 2 ? r : R;
-    d += (i ? 'L' : 'M') +
-         (cx + rr * Math.cos(a)).toFixed(1) + ',' + (cy + rr * Math.sin(a)).toFixed(1);
-  }
-  return d + 'Z';
-};
-
 /** Простые паттерны на пуговице — обрезаны по её внутреннему кругу. */
 /**
  * Простые узоры на пуговице.
@@ -614,7 +600,7 @@ function ButtonPattern({ id, color, clipD = PATH.btnDisc }) {
                             C${x + 2 * S} ${y - 10 * S}, ${x + 9 * S} ${y - 4 * S}, ${x} ${y + 6 * S} Z`} {...P} />
         ))}
         {id === 'stars' && grid(26 * S).map(([x, y], i) => (
-          <path key={i} d={star5(x, y, 9.5 * S)} {...P} />
+          <path key={i} d={star(x, y, 9.5 * S)} {...P} />
         ))}
         {id === 'stripe' && [...Array(Math.ceil((R * 2) / (13 * S)) + 1)].map((_, i) => (
           <rect key={i} x={CX - R - 4} y={CY - R + i * 13 * S} width={R * 2 + 8} height={6 * S} {...P} />
