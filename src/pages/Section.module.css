@@ -88,6 +88,8 @@
   .more { justify-content: stretch; }
   .more > * { width: 100%; }
 }
+/* Подпись под плиткой. Есть у сквидов и кукол; на портретах её нет
+   намеренно — см. комментарий в Portraits.jsx. */
 .tileName {
   padding: var(--sp-3) var(--sp-4);
   font-family: var(--font-display);
