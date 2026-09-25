@@ -519,10 +519,15 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
               Поэтому каждая рисуется отдельно: заливка своим цветом,
               поверх — общий чёрный контур той же толщины, что и весь
               рисунок. */}
-          {/* треугольник */}
+          {/* треугольник: по правому и нижнему ободу — строчка,
+              у колечка внутри — штриховка слева, как на листе */}
           <path d={CLAY.tri} fill={CLAY_COLOR.tri} stroke={INK} strokeWidth="2.6"
                 strokeLinejoin="round" />
-          <path d={CLAY.triHole} fill="none" stroke={INK} strokeWidth="2.2" />
+          <path d={CLAY.triSeam} fill="none" stroke={INK} strokeWidth="0.9"
+                strokeLinecap="round" />
+          <path d={CLAY.triHole} fill="none" stroke={INK} strokeWidth="1.7" />
+          <path d={CLAY.triHatch} fill="none" stroke={INK} strokeWidth="0.9"
+                strokeLinecap="round" />
           {/* звёздная */}
           <path d={CLAY.star} fill={CLAY_COLOR.star} stroke={INK} strokeWidth="2.6"
                 strokeLinejoin="round" />
