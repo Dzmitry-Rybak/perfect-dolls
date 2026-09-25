@@ -303,7 +303,7 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
   const ADDON_PATH = {
     collar: () => COLLAR.frill,
     bow: () => BOW.loops + BOW.tails + BOW.knot,
-    corset: () => corset.bows + CORSET.rings,
+    corset: () => CORSET.bowCells.join('') + CORSET.rings,
     furHeart: () => FUR_PATCH.furHeart.d,
     furSkull: () => FUR_PATCH.furSkull.d,
     furStar: () => FUR_PATCH.furStar.d,
@@ -333,7 +333,6 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
   const patch = patchId && FUR_PATCH[patchId];
   const patchRim = rimFor(build.patchColor, colorOf('head', 'head'));
   const ribbonRim = rimFor(build.ribbonColor, colorOf('head', 'head'));
-  const corset = build.ribbonKind === 'lace' ? CORSET.lace : CORSET.satin;
 
   const lit = hover ?? activePart;
   const litPath = lit ? pathFor(lit) : null;
@@ -445,36 +444,34 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
       {/* Шнуровка — поверх линии: под ней обводка головы резала люверсы пополам */}
       {has('corset') && (
         <g {...addon('corset')}>
-          {/* КОНТУР РИСУЕТСЯ ОДИН РАЗ.
-              Раньше их было два: обводка силуэта и поверх неё
-              обведённые чернила карандашной линии. Это разные кривые,
-              они не совпадают, и край выходил двойным и рваным —
-              чем толще обводка, тем заметнее. Проверено раскраской
-              подпутей: 49% точек чернильного штриха лежат ближе 2.5
-              единицы к силуэту, то есть он его дублирует.
-
-              Теперь край даёт только обводка силуэта, а от чернил
-              остаётся лишь то, что дальше 6 единиц от края, — складки
-              внутри банта. Вырезает их маска ниже. */}
-          <mask id="squid-corset-inner" maskUnits="userSpaceOnUse"
-                x="-60" y="-60" width="520" height="1000">
-            <path d={corset.bows} fill="#fff" fillRule="evenodd" />
-            <path d={corset.bows} fill="none" stroke="#000" strokeWidth="12"
-                  strokeLinejoin="round" />
-          </mask>
-          {ribbonRim && <path d={corset.bows} {...ribbonRim} strokeWidth="6" fillRule="evenodd" strokeLinejoin="round" />}
-          <path d={corset.bows} fill={build.ribbonColor} fillRule="evenodd"
-                stroke={INK} strokeWidth="4" strokeLinejoin="round" />
-          {/* Штрих складки местами сходит на волос и рвётся — это
-              карандаш, обведённый как есть. Подращиваем его обводкой
-              собственным цветом: тонкие места набирают тело, толстые
-              почти не меняются. */}
-          <path d={corset.line} fill={INK} fillRule="evenodd"
-                stroke={INK} strokeWidth="1.4" strokeLinejoin="round"
-                mask="url(#squid-corset-inner)" />
+          {/* Бант — НЕСКОЛЬКО ЯЧЕЕК, а не силуэт со штрихами поверх.
+              Каждая заливается лентой и обводится одной линией; общие
+              границы соседних ячеек их обводки перекрывают, и
+              разделительная линия выходит сама, везде одной толщины.
+              Раньше край рисовался дважды — силуэтом и обведёнными
+              чернилами, — оттого и был рваным. */}
+          {/* ДВА ПРОХОДА, и порядок тут не косметика.
+              Ячейка — это ВНУТРЕННОСТЬ области, чернила лежат снаружи
+              от её границы. Обычная обводка кладёт половину толщины
+              внутрь и съедает ленту: при 7 бант почернел.
+              Поэтому сперва чернила обводкой вдвое шире полосы (10.6
+              при полосе 5.3 — столько занимает линия на листе после
+              пересчёта), а затем заливка ячейки поверх. Внутренняя
+              половина обводки уходит под заливку, наружу остаётся
+              ровно 5.3. У двух соседних ячеек полосы накладываются и
+              дают общую границу той же толщины. */}
+          {ribbonRim && CORSET.bowCells.map((d, i) => (
+            <path key={'rim' + i} d={d} {...ribbonRim} strokeWidth="15" strokeLinejoin="round" />
+          ))}
+          {CORSET.bowCells.map((d, i) => (
+            <path key={'ink' + i} d={d} fill="none" stroke={INK}
+                  strokeWidth="10.6" strokeLinejoin="round" />
+          ))}
+          {CORSET.bowCells.map((d, i) => (
+            <path key={i} d={d} fill={build.ribbonColor} />
+          ))}
           {/* Кольца — поверх бантов и своим путём: в общем они выедались evenodd.
-              Обводка у них меньше, чем у банта: люверс всего 8 единиц
-              в поперечнике, при 3 он затекал чернилами. */}
+              Обводка у них меньше: люверс всего 8 единиц в поперечнике. */}
           {ribbonRim && <path d={CORSET.rings} {...ribbonRim} strokeWidth="4" fillRule="evenodd" strokeLinejoin="round" />}
           <path d={CORSET.rings} fill={build.ribbonColor} fillRule="evenodd"
                 stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
