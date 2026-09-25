@@ -364,14 +364,16 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
       {GROUPS.tentacleInner.map((id) => <path key={id} {...zone(id)} />)}
 
       {/* ---- нашивка из меха: под пуговицей, красится как мех ----
-           Сердце, череп или звезда — рисуются одинаково: контур
-           чернилами, а поверх та же форма, уменьшенная от центра,
-           мехом. Отсюда ровный кант на любой форме. */}
+           Сердце, череп или звезда — одна заливка мехом с чёрной
+           обводкой. Почему именно обводка, а не вторая уменьшенная
+           копия, написано у FUR_PATCH. */}
       {patch && (
         <g {...addon(patchId)}>
-          {patchRim && <path d={patch.d} {...patchRim} strokeWidth="4.6" />}
-          <path d={patch.d} fill={INK} />
-          <path d={patch.d} fill={build.patchColor} transform={patch.inset} />
+          {/* Светлая кромка шире чёрного канта, иначе её не видно
+              из-под него: она нужна, когда мех нашивки совпал с мехом
+              головы и чёрный кант обе стороны не разделяет. */}
+          {patchRim && <path d={patch.d} {...patchRim} strokeWidth="12" />}
+          <path d={patch.d} fill={build.patchColor} stroke={INK} strokeWidth="8" />
         </g>
       )}
 
