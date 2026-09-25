@@ -470,12 +470,14 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
           {CORSET.bowCells.map((d, i) => (
             <path key={i} d={d} fill={build.ribbonColor} />
           ))}
-          {/* Кольца — поверх бантов и своим путём: в общем они выедались evenodd.
-              Обводка у них меньше: люверс всего 8 единиц в поперечнике. */}
-          {ribbonRim && <path d={CORSET.rings} {...ribbonRim} strokeWidth="4" fillRule="evenodd" strokeLinejoin="round" />}
-          <path d={CORSET.rings} fill={build.ribbonColor} fillRule="evenodd"
-                stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
-          <path d={CORSET.ringLine} fill={INK} fillRule="evenodd" />
+          {/* Люверсы — поверх бантов и своим путём. Построены овалами
+              (см. EYELETS), поэтому контур им даёт обводка: отдельного
+              пути чернил больше нет, он и двоил линию.
+              Обводка тоньше, чем у банта: люверс всего 15 единиц в
+              поперечнике, при 5.3 от него осталась бы одна линия. */}
+          {ribbonRim && <path d={CORSET.rings} {...ribbonRim} strokeWidth="6" strokeLinejoin="round" />}
+          <path d={CORSET.rings} fill={build.ribbonColor}
+                stroke={INK} strokeWidth="3.2" strokeLinejoin="round" />
         </g>
       )}
 
