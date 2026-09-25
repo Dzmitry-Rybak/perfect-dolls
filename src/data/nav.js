@@ -1,8 +1,8 @@
 /**
  * Разделы сайта — карточки на главной. Порядок здесь = порядок на
- * ней, и он НЕ связан с порядком в шапке: тот задаётся списком NAV
- * ниже. Раньше они совпадали, и комментарий обещал общий порядок —
- * теперь в шапке первыми идут куклы, а на главной по-прежнему сквиды.
+ * ней и НЕ связан с порядком в шапке: тот задаётся списком NAV ниже.
+ * Сейчас оба начинаются с кукол, но это совпадение, а не правило:
+ * менять их придётся в двух местах.
  */
 /* photo — настоящий снимок для карточки на главной. Где его нет
    (пока это «Other creations»), остаётся процедурная заглушка.
@@ -15,20 +15,20 @@
    галереи весили бы 907 КБ на страницу вместо 584. */
 export const SECTIONS = [
   {
-    id: 'squids', to: '/squids', label: 'Squids',
-    blurb: 'Big plush squids with button faces. Built to your colours.',
-    accent: '#F0A9C6',
-    photo: '/art/home/squids-a.jpg',
-    photoAlt: 'Black horned plush squid with pink-lined tentacles and an iridescent heart button',
-    photoHover: '/art/home/squids-b.jpg',
-  },
-  {
     id: 'dolls', to: '/dolls', label: 'Dolls',
     blurb: 'Collectible cloth dolls, made one at a time.',
     accent: '#C9BFD6',
     photo: '/art/home/dolls-a.jpg',
     photoAlt: 'Two wedding dolls side by side: a bride in a lace gown and veil, a groom in a black tuxedo',
     photoHover: '/art/home/dolls-b.jpg',
+  },
+  {
+    id: 'squids', to: '/squids', label: 'Squids',
+    blurb: 'Big plush squids with button faces. Built to your colours.',
+    accent: '#F0A9C6',
+    photo: '/art/home/squids-a.jpg',
+    photoAlt: 'Black horned plush squid with pink-lined tentacles and an iridescent heart button',
+    photoHover: '/art/home/squids-b.jpg',
   },
   {
     id: 'portraits', to: '/portraits', label: 'Portraits',
@@ -46,8 +46,7 @@ export const SECTIONS = [
 ];
 
 /**
- * Ссылки в шапке. Свой порядок, не общий с SECTIONS: куклы стоят
- * первыми по просьбе Маргариты.
+ * Ссылки в шапке. Свой порядок, не общий с SECTIONS.
  */
 /* Builder в списке нет намеренно: рядом стоит кнопка «Build a squid»,
    которая ведёт туда же, и два входа в одно место только удлиняли
