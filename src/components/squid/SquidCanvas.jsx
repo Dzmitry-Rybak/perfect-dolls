@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { PATH, VIEW, GROUPS } from '../../data/squidArt.js';
-import { PART, HORNS, WINGS, WING_RIBS, WOUNDS, WOUND_SPECKS, COLLAR, BOW, SAFETY_PIN, CLAY, PIERCE, CORSET, heart, star, HEART_BOX, FUR_PATCH } from '../../data/squidParts.js';
+import { PART, HORNS, WINGS, WING_RIBS, WOUNDS, WOUND_SPECKS, COLLAR, BOW, SAFETY_PIN, CLAY, CLAY_COLOR, PIERCE, CORSET, heart, star, HEART_BOX, FUR_PATCH } from '../../data/squidParts.js';
 import styles from './SquidCanvas.module.css';
 
 /**
@@ -514,15 +514,33 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
           светлая кромка, что у рожек. */}
       {has('claySet') && (
         <g pointerEvents="none">
-          {/* светлая кромка: контурные фигурки иначе тонут в чёрном мехе */}
-          <path d={CLAY.line} fill="none" stroke="#ECE8DF" strokeOpacity="0.34"
-                strokeWidth="4.4" strokeLinejoin="round" />
-          <path d={CLAY.spirals} fill="none" stroke="#ECE8DF" strokeOpacity="0.34"
-                strokeWidth="3.8" strokeLinecap="round" />
-          <path d={CLAY.line} fill="none" stroke={INK} strokeWidth="2.6" strokeLinejoin="round" />
-          <path d={CLAY.spirals} fill="none" stroke={INK} strokeWidth="2" strokeLinecap="round" />
-          <path d={CLAY.dark} fill={INK} {...RIM} />
-          <path d={CLAY.darkMark} fill="#ECE8DF" />
+          {/* Сет из глины: шесть пуговок, у каждой своя форма и свой
+              цвет — они не выбираются, это готовый набор Риты.
+              Поэтому каждая рисуется отдельно: заливка своим цветом,
+              поверх — общий чёрный контур той же толщины, что и весь
+              рисунок. */}
+          {/* треугольник */}
+          <path d={CLAY.tri} fill={CLAY_COLOR.tri} stroke={INK} strokeWidth="2.6"
+                strokeLinejoin="round" />
+          <path d={CLAY.triHole} fill="none" stroke={INK} strokeWidth="2.2" />
+          {/* звёздная */}
+          <path d={CLAY.star} fill={CLAY_COLOR.star} stroke={INK} strokeWidth="2.6"
+                strokeLinejoin="round" />
+          <path d={CLAY.starMark} fill={CLAY_COLOR.starMark} stroke={INK}
+                strokeWidth="1.8" strokeLinejoin="round" />
+          {/* тёмная: светлая кромка обязательна — на чёрном мехе она
+              иначе пропадает целиком */}
+          <path d={CLAY.dark} fill={CLAY_COLOR.dark} {...RIM} />
+          <path d={CLAY.darkMark} fill={CLAY_COLOR.darkMark} />
+          {/* завитки: круг своим цветом, спираль поверх чернилами */}
+          {CLAY.swirl.map((d, i) => (
+            <g key={i}>
+              <path d={d} fill={CLAY_COLOR.swirl[i]} stroke={INK} strokeWidth="2.6"
+                    strokeLinejoin="round" />
+              <path d={CLAY.swirlLine[i]} fill="none" stroke={INK} strokeWidth="2"
+                    strokeLinecap="round" />
+            </g>
+          ))}
         </g>
       )}
 
