@@ -165,6 +165,58 @@ export const ADDONS = [
   { id: 'safetyPin',    label: 'Safety pin + pendant',     price: 5,  group: null, customizable: 'charm' },
 ];
 
+/**
+ * ПОДВЕСКИ — каталог Риты, 25 штук.
+ *
+ * Номера её собственные: она заказывает их по этому списку, и в
+ * заявке должен стоять номер, а не только название — иначе придётся
+ * гадать, какой из трёх крестов человек имел в виду.
+ *
+ * Размер 1–3 см и наличие плавает — про это сказано в подсказке под
+ * выбором, как и на её листе.
+ *
+ * На схеме подвеска НЕ рисуется: двадцать пять фигурок размером с
+ * ноготь превратились бы в кляксы. Выбор уходит в заявку текстом.
+ */
+export const CHARMS = [
+  { n: 1,  label: 'Cross' },
+  { n: 2,  label: 'Heart cross' },
+  { n: 3,  label: 'Gothic cross' },
+  { n: 4,  label: 'Coffin' },
+  { n: 5,  label: 'Dagger' },
+  { n: 6,  label: 'Skull & crossbones' },
+  { n: 7,  label: 'Skeleton hand' },
+  { n: 8,  label: 'Skull' },
+  { n: 9,  label: 'Skull key' },
+  { n: 10, label: 'Hanging skeleton' },
+  { n: 11, label: 'Star' },
+  { n: 12, label: 'Star, gold' },
+  { n: 13, label: 'Four-point star' },
+  { n: 14, label: 'Chainsaw' },
+  { n: 15, label: 'Razor blade' },
+  { n: 16, label: 'Winged key' },
+  { n: 17, label: 'Winged heart key, bronze' },
+  { n: 18, label: 'Small key' },
+  { n: 19, label: 'Winged heart lock' },
+  { n: 20, label: 'Octopus' },
+  { n: 21, label: 'Button' },
+  { n: 22, label: 'Button, bronze' },
+  { n: 23, label: 'Pentagram' },
+  { n: 24, label: 'Spiral' },
+  { n: 25, label: 'Dragonfly' },
+];
+
+/**
+ * Куда вешается подвеска. Мест три, и они независимы: на банте своя,
+ * в ушах своя, на булавке своя. Поэтому у каждого своё поле, а не
+ * одно общее — иначе выбор для ушей менял бы бант.
+ */
+export const CHARM_SLOTS = [
+  { addon: 'bow',        key: 'bowCharm',    label: 'Charm on the bow' },
+  { addon: 'pierceFull', key: 'pierceCharm', label: 'Charms in the ears' },
+  { addon: 'safetyPin',  key: 'pinCharm',    label: 'Pendant on the pin' },
+];
+
 /** Блёстки поверх пуговицы. На схеме не показываются. */
 export const GLITTER_PRICE = 5;   // PLACEHOLDER-PRICE
 
@@ -240,7 +292,9 @@ export const defaultBuild = {
   ribbonColor: '#F3B4D4',
   collarColor: '#F9F8F6',
   bowColor: '#F3B4D4',
-  bowCharm: null,
+  bowCharm: null,       // номер подвески из CHARMS, null — не выбрана
+  pierceCharm: null,
+  pinCharm: null,
   patchColor: '#E2A7C1',      // мех нашивки — общий для сердца, черепа и звезды
   notes: '',
 };

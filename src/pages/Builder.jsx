@@ -8,7 +8,7 @@ import {
   BUTTON_PATTERNS, BUTTON_SHAPES, SHAPE_PRICE,
   ADDONS, RIBBON_COLORS, RIBBON_KINDS, PATTERN_PRICE, PATTERN_PRESETS,
   GLITTER_PRICE,
-  defaultBuild, ADDON_COLORS,
+  defaultBuild, ADDON_COLORS, CHARMS, CHARM_SLOTS,
 } from '../data/squidBuilder.js';
 import styles from './Builder.module.css';
 
@@ -278,6 +278,40 @@ export default function Builder() {
                   ))}
                 </div>
               </div>
+            )}
+
+            {/* ПОДВЕСКИ.
+                Выбор показывается только у включённых добавок: пока
+                бант или булавка не выбраны, спрашивать про подвеску
+                не о чем. Мест три и они независимы — на банте своя,
+                в ушах своя, на булавке своя.
+
+                Список, а не плитки: подвесок двадцать пять, плитками
+                они заняли бы пол-экрана. И номер в подписи не для
+                красоты — Рита заказывает их по номерам, в заявке
+                должен стоять он, а не только название. */}
+            {CHARM_SLOTS.filter((s) => build.addons.includes(s.addon)).map((slot) => (
+              <label key={slot.key} className={styles.field}>
+                <span className={styles.fieldLabel}>{slot.label}</span>
+                <select
+                  value={build[slot.key] ?? ''}
+                  onChange={(e) => setBuild((b) => ({
+                    ...b, [slot.key]: e.target.value ? Number(e.target.value) : null,
+                  }))}
+                >
+                  <option value="">Pick one — or leave it to me</option>
+                  {CHARMS.map((c) => (
+                    <option key={c.n} value={c.n}>{c.n}. {c.label}</option>
+                  ))}
+                </select>
+              </label>
+            ))}
+
+            {CHARM_SLOTS.some((s) => build.addons.includes(s.addon)) && (
+              <p className={styles.help}>
+                Charms are small — 1 to 3 cm. The list changes as stock comes
+                and goes, so if yours is gone I'll write and we'll pick another.
+              </p>
             )}
 
             {/* Цвет добавок выбирается кликом по самой детали на схеме —
