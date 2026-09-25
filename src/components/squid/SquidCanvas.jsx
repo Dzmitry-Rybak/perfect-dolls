@@ -445,14 +445,19 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
       {/* Шнуровка — поверх линии: под ней обводка головы резала люверсы пополам */}
       {has('corset') && (
         <g {...addon('corset')}>
-          {ribbonRim && <path d={corset.bows} {...ribbonRim} strokeWidth="4" fillRule="evenodd" strokeLinejoin="round" />}
+          {/* Обводка 3, а не 1.6: на листе бант обведён тем же пером,
+              что и всё остальное, а тонкий контур делал его блёклым
+              рядом с головой и люверсами. */}
+          {ribbonRim && <path d={corset.bows} {...ribbonRim} strokeWidth="5" fillRule="evenodd" strokeLinejoin="round" />}
           <path d={corset.bows} fill={build.ribbonColor} fillRule="evenodd"
-                stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
+                stroke={INK} strokeWidth="3" strokeLinejoin="round" />
           <path d={corset.line} fill={INK} fillRule="evenodd" />
-          {/* Кольца — поверх бантов и своим путём: в общем они выедались evenodd */}
+          {/* Кольца — поверх бантов и своим путём: в общем они выедались evenodd.
+              Обводка у них меньше, чем у банта: люверс всего 8 единиц
+              в поперечнике, при 3 он затекал чернилами. */}
           {ribbonRim && <path d={CORSET.rings} {...ribbonRim} strokeWidth="4" fillRule="evenodd" strokeLinejoin="round" />}
           <path d={CORSET.rings} fill={build.ribbonColor} fillRule="evenodd"
-                stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
+                stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
           <path d={CORSET.ringLine} fill={INK} fillRule="evenodd" />
         </g>
       )}
