@@ -184,18 +184,25 @@ export default function GalleryCard({ item }) {
         <GalleryLightbox item={item} start={i} onClose={() => setZoom(false)} />
       )}
 
-      <div className={styles.caption}>
-        <h3 className={styles.title}>{item.title}</h3>
-        {/* Год и судьба известны не про каждую работу: у сквидов их пока
-            нет, и точку-разделитель между пустотами рисовать незачем. */}
-        {(item.year || item.note) && (
-          <p className={styles.note}>
-            {item.year && <span>{item.year}</span>}
-            {item.year && item.note && <span aria-hidden="true">·</span>}
-            {item.note && <span>{item.note}</span>}
-          </p>
-        )}
-      </div>
+      {/* У ПОРТРЕТОВ ПОДПИСИ НЕТ — так же, как на их странице раздела:
+          Маргарита попросила оставить одни снимки. Проверяем вид
+          работы, а не выбранный фильтр: портрет должен выглядеть
+          одинаково и в своей подборке, и когда показан весь архив.
+          Название не потеряно — оно осталось в alt снимка. */}
+      {item.kind !== 'portrait' && (
+        <div className={styles.caption}>
+          <h3 className={styles.title}>{item.title}</h3>
+          {/* Год и судьба известны не про каждую работу: у сквидов их пока
+              нет, и точку-разделитель между пустотами рисовать незачем. */}
+          {(item.year || item.note) && (
+            <p className={styles.note}>
+              {item.year && <span>{item.year}</span>}
+              {item.year && item.note && <span aria-hidden="true">·</span>}
+              {item.note && <span>{item.note}</span>}
+            </p>
+          )}
+        </div>
+      )}
     </StitchCard>
   );
 }
