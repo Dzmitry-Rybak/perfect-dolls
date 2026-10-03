@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import PageShell from '../components/layout/PageShell.jsx';
+import GalleryLightbox from '../components/gallery/GalleryLightbox.jsx';
 import Button from '../components/ui/Button.jsx';
 import ButtonEye from '../components/ui/ButtonEye.jsx';
 import Photo from '../components/ui/Photo.jsx';
 import StitchCard from '../components/ui/StitchCard.jsx';
 import Loader from '../components/ui/Loader.jsx';
-import { getWorks } from '../lib/api.js';
+import { getWorks, getSquidModels } from '../lib/api.js';
 import useAsync from '../lib/useAsync.js';
 import { BASE_PRICE } from '../data/squidBuilder.js';
 import { EMAIL } from '../data/site.js';
@@ -17,6 +19,20 @@ import styles from './Section.module.css';
    ничего не выбрано — берутся первые три по полю «Порядок в галерее». */
 const SHOWN = 3;
 
+/* Описание раздела — четырьмя абзацами: вопрос, из чего сделано,
+   что приезжает в коробке и подпись в конце. Одним куском это
+   читалось бы как инструкция. */
+const LEAD = [
+  'What if you could bring a creature that exists nowhere else to life?',
+  'Each squid is made entirely by hand, with lots of care put into every little '
+  + 'detail. I use soft faux fur to make them extra cuddly, and even the buttons '
+  + 'are cast from liquid plastic and hand-painted by me.',
+  'Every squid comes with a few little extras: custom stickers, tags, an envelope '
+  + 'with a postcard, and other tiny surprises. For custom squids, you can even '
+  + 'colour in the postcard yourself to match the little creature you created.',
+  'Made slowly, by hand, and packed with love.',
+];
+
 const FACTS = [
   ['Standard size', '~75 cm / 30 in'],
   ['XL size',       '~1 m / 40 in, +$30'],
@@ -24,14 +40,22 @@ const FACTS = [
   ['Made in',       '2–4 weeks'],
 ];
 
+/* Цены на сквидов везде в долларах — и в конструкторе, и в фактах выше. */
+const usd = (n) => `$${n}`;
+
 export default function Squids() {
   const { data, loading } = useAsync(() => getWorks('squid', SHOWN), []);
+  const models = useAsync(() => getSquidModels(), []);
+  /* Какую модель рассматривают. Окно то же, что у архива: ему нужна
+     работа со списком кадров, а у модели кадр один — заворачиваем. */
+  const [shown, setShown] = useState(null);
 
   return (
     <PageShell
       eyebrow="Plush squids"
       title="Squids"
-      lead="Soft, heavy, slightly unsettling — a round head with cat ears, a button sewn where a face should be, and seven tentacles. They sit in armchairs and stare."
+      lead={LEAD}
+      wideLead
     >
       <section className={styles.cta}>
         <div className={styles.ctaPaper} aria-hidden="true" />
@@ -61,6 +85,59 @@ export default function Squids() {
             ))}
           </dl>
         </div>
+      </section>
+
+      {/* Готовые дизайны — между конструктором и архивом намеренно:
+          сначала «собери своего», потом «или возьми готового», и только
+          потом работы, которых уже не купить. */}
+      <section>
+        <h2 className={styles.gridTitle}>Ready-made designs</h2>
+        <p className={`prose ${styles.modelsLead}`}>
+          Eight squids I sew again — same design every time, standard size.
+          Pick one as it is, or open the builder and change it.
+        </p>
+
+        {models.loading ? <Loader label="Getting them off the shelf…" /> : (
+          <ul className={styles.models}>
+            {models.data.map((m) => (
+              <li key={m.id}>
+                <StitchCard seed={m.id} tilt={false} className={styles.model}>
+                  {/* Кнопка — сам снимок, а не вся карточка: внутри
+                      карточки лежат абзацы, а абзац внутри кнопки —
+                      недопустимая вложенность. Да и смысл тот же:
+                      нажимают на картинку, чтобы разглядеть её.
+                      Пока снимка нет — рамка той же формы, чтобы сетка
+                      не переехала, когда он появится, и не кнопка:
+                      открывать нечего. */}
+                  {m.photo ? (
+                    <button
+                      type="button"
+                      className={`${styles.modelShot} ${styles.modelOpen}`}
+                      onClick={() => setShown(m)}
+                      aria-label={`Look closer at ${m.name}`}
+                    >
+                      <Photo
+                        src={m.photo.src}
+                        srcSet={m.photo.srcSet}
+                        sizes={m.photo.sizes}
+                        alt={m.photo.alt || m.name}
+                      />
+                    </button>
+                  ) : (
+                    <div className={styles.modelShot}>
+                      <ButtonEye size={26} holes={2} color="var(--fog)" />
+                    </div>
+                  )}
+                  <div className={styles.modelBody}>
+                    <p className={styles.modelName}>{m.name}</p>
+                    <p className={styles.modelFrom}>{m.collection}</p>
+                    <p className={styles.modelPrice}>{usd(m.price)}</p>
+                  </div>
+                </StitchCard>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section>
@@ -98,6 +175,16 @@ export default function Squids() {
         <ButtonEye size={14} holes={2} color="var(--plum)" />
         Squid orders are open all year — they're built, not batched.
       </p>
+      {shown && (
+        <GalleryLightbox
+          item={{
+            title: shown.name,
+            note: [shown.collection, usd(shown.price)].filter(Boolean).join(' · '),
+            shots: [shown.photo],
+          }}
+          onClose={() => setShown(null)}
+        />
+      )}
     </PageShell>
   );
 }

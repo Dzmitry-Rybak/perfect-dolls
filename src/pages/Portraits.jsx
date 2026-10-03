@@ -20,6 +20,21 @@ import styles from './Section.module.css';
    и по-прежнему видны в галерее. */
 const SHOWN = 3;
 
+/* Описание раздела — четырьмя абзацами: вопрос, как рисуется человек
+   и его зверь, что ещё приходит в наборе и сухие цифры про формат.
+   Цифры нарочно последними: сначала про то, что получится. */
+const LEAD = [
+  'Wanna see what you’d look like as a little doll?',
+  'I draw you as a “mini me” doll, turning your favourite details into a tiny '
+  + 'illustrated version of you. Your hairstyle, clothes, and favourite accessories '
+  + 'all help me capture your personality. And when it comes to your animal, I keep '
+  + 'things more realistic, because they’re already magical creatures on their own.',
+  'I finish each portrait with a background full of fun little details floating '
+  + 'around, and every set comes with a few little extras, too.',
+  'The portraits are a little larger than A5 and drawn in black and white using '
+  + 'markers and black fineliners.',
+];
+
 export default function Portraits() {
   const { data, loading } = useAsync(() => getWorks('portrait', SHOWN), []);
 
@@ -27,7 +42,7 @@ export default function Portraits() {
     <PageShell
       eyebrow="Drawn portraits"
       title="Portraits"
-      lead="Portraits of people and the animals that live with them, drawn in the same slightly haunted register as everything else here."
+      lead={LEAD}
       aside={<OrderGate topic="portraits" kind="portrait" label="Order a portrait" />}
     >
       <section>

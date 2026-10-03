@@ -16,7 +16,7 @@
 export const SECTIONS = [
   {
     id: 'dolls', to: '/dolls', label: 'Dolls',
-    blurb: 'Collectible cloth dolls, made one at a time.',
+    blurb: 'Unique collectible “mini me” dolls with button eyes.',
     accent: '#C9BFD6',
     photo: '/art/home/dolls-a.jpg',
     photoAlt: 'Two wedding dolls side by side: a bride in a lace gown and veil, a groom in a black tuxedo',
@@ -24,7 +24,7 @@ export const SECTIONS = [
   },
   {
     id: 'squids', to: '/squids', label: 'Squids',
-    blurb: 'Big plush squids with button faces. Built to your colours.',
+    blurb: 'Big handmade plush squids. Made from soft faux fur.',
     accent: '#F0A9C6',
     photo: '/art/home/squids-a.jpg',
     photoAlt: 'Black horned plush squid with pink-lined tentacles and an iridescent heart button',
@@ -32,7 +32,7 @@ export const SECTIONS = [
   },
   {
     id: 'portraits', to: '/portraits', label: 'Portraits',
-    blurb: 'Hand-drawn portraits of people and their animals.',
+    blurb: 'Hand-drawn portraits of people as “mini me” dolls, along with their pets.',
     accent: '#E8C46A',
     photo: '/art/home/portraits-a.jpg',
     photoAlt: 'Ink portrait of a girl in glasses holding a toad, framed by drawn vines',
@@ -56,6 +56,8 @@ export const NAV = [
   { to: '/squids',    label: 'Squids' },
   { to: '/portraits', label: 'Portraits' },
   { to: '/gallery',   label: 'Gallery' },
-  { to: '/workshop',  label: 'Workshop' },
+  /* Страница про Риту. Адрес остался /workshop с прежних времён —
+     менять его значило бы ломать уже разосланные ссылки. */
+  { to: '/workshop',  label: 'About' },
   { to: '/faq',       label: 'Q&A' },
 ];

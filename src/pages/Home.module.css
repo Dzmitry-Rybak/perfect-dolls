@@ -50,7 +50,8 @@
   background: var(--plum-deep);
 }
 
-.title { margin-top: var(--sp-3); font-size: var(--step-5); }
+/* Отступа сверху нет: надписи над заголовком больше не стоит. */
+.title { font-size: var(--step-5); }
 .and {
   display: block;
   font-family: var(--font-hand);

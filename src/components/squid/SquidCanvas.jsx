@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { PATH, VIEW, GROUPS } from '../../data/squidArt.js';
-import { PART, HORNS, WINGS, WING_RIBS, WOUNDS, WOUND_SPECKS, COLLAR, BOW, SAFETY_PIN, CLAY, CLAY_COLOR, PIERCE, CORSET, heart, star, HEART_BOX, FUR_PATCH } from '../../data/squidParts.js';
+import { PART, HORNS, WINGS, WING_RIBS, WOUNDS, WOUND_SPECKS, COLLAR, BOW, SAFETY_PIN, CLAY, CLAY_COLOR, PIERCE, CORSET, heart, star, HEART_BOX, FUR_PATCH, SKULL_FUR, beadSpots, BEAD_R, BEAD_FACE, BEAD_SIDE, BEAD_SIDE_DX, BEAD_RIDGES, BEAD_RIDGE_DEPTH } from '../../data/squidParts.js';
 import styles from './SquidCanvas.module.css';
 
 /**
@@ -328,10 +328,22 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
   const behindCollar = colorOf('tent0', 'tentacle');
   const collarRim = rimFor(build.collarColor, behindCollar);
   const bowRim = rimFor(build.bowColor, has('collar') ? build.collarColor : behindCollar);
+  /* Бусины считаем один раз: по ним и рисуется имя, и вырезается
+     просвет в пирсинге со стразами, чтобы кольца уходили ЗА бусину,
+     а не сливались с ней в кашу. Приём тот же, что у линии под
+     нашивкой, — см. маску squid-line-cut ниже. */
+  const beads = has('nameBeads') && build.beadWord
+    ? beadSpots(build.beadWord.length)
+    : null;
+
   /* Какая нашивка выбрана — форм три, место одно. */
   const patchId = Object.keys(FUR_PATCH).find(has);
   const patch = patchId && FUR_PATCH[patchId];
-  const patchRim = rimFor(build.patchColor, colorOf('head', 'head'));
+  /* Череп белый всегда, см. SKULL_FUR. Сердце и звезда берут цвет
+     из сборки — он у них общий, чтобы не пропадал при переключении. */
+  const skullPatch = patchId === 'furSkull';
+  const patchFill = skullPatch ? SKULL_FUR : build.patchColor;
+  const patchRim = rimFor(patchFill, colorOf('head', 'head'));
   const ribbonRim = rimFor(build.ribbonColor, colorOf('head', 'head'));
 
   const lit = hover ?? activePart;
@@ -371,12 +383,16 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
            обводкой. Почему именно обводка, а не вторая уменьшенная
            копия, написано у FUR_PATCH. */}
       {patch && (
-        <g {...addon(patchId)}>
+        /* Череп — обычная фигура, а не кликабельная зона: красить его
+           нечем, и кнопка, которая ничего не делает, хуже отсутствия
+           кнопки. События он при этом забирает себе, иначе нажатие
+           сквозь него открывало бы палитру головы. */
+        <g {...(skullPatch ? null : addon(patchId))}>
           {/* Светлая кромка шире чёрного канта, иначе её не видно
               из-под него: она нужна, когда мех нашивки совпал с мехом
               головы и чёрный кант обе стороны не разделяет. */}
           {patchRim && <path d={patch.d} {...patchRim} strokeWidth="9" />}
-          <path d={patch.d} fill={build.patchColor} stroke={INK} strokeWidth="5.5" />
+          <path d={patch.d} fill={patchFill} stroke={INK} strokeWidth="5.5" />
         </g>
       )}
 
@@ -506,8 +522,27 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
         </g>
       )}
 
+      {/* Просвет вокруг бусин. Вырез на 2.4 шире самой бусины — узкая
+          светлая щель между нею и кольцом: ровно столько, чтобы глаз
+          прочитал «бусина лежит сверху», и не столько, чтобы это
+          выглядело дырой в ухе. Два кружка на бусину — под лицо и
+          под бок. */}
+      {beads && (
+        <mask id="squid-bead-cut" maskUnits="userSpaceOnUse"
+              x="-60" y="-60" width="520" height="1000">
+          <rect x="-60" y="-60" width="520" height="1000" fill="#fff" />
+          {beads.map(({ x, y }, i) => (
+            <g key={i} fill="#000">
+              <circle cx={x} cy={y} r={BEAD_R + 2.4} />
+              <circle cx={x - BEAD_SIDE_DX} cy={y} r={BEAD_R + 2.4} />
+            </g>
+          ))}
+        </mask>
+      )}
+
       {has('rhinestones') && (
-        <path d={PART.rhineLine} fill="#E4E4EC" stroke={INK} strokeWidth="0.5" pointerEvents="none" />
+        <path d={PART.rhineLine} fill="#E4E4EC" stroke={INK} strokeWidth="0.5" pointerEvents="none"
+              mask={beads ? 'url(#squid-bead-cut)' : undefined} />
       )}
 
       {/* Чёрный камень из сета теряется на чёрной голове — та же
@@ -584,12 +619,14 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
 
       {(has('pierceHoles') || has('pierceFull')) && (
         <path d={PIERCE.rings} fill={INK} fillRule="evenodd" pointerEvents="none"
-              stroke="#ECE8DF" strokeOpacity="0.34" strokeWidth="1.6" />
+              stroke="#ECE8DF" strokeOpacity="0.34" strokeWidth="1.6"
+              mask={beads ? 'url(#squid-bead-cut)' : undefined} />
       )}
 
       {has('pierceFull') && (
         <path d={PIERCE.chain} fill={INK} fillRule="evenodd" pointerEvents="none"
-              stroke="#ECE8DF" strokeOpacity="0.34" strokeWidth="1.6" />
+              stroke="#ECE8DF" strokeOpacity="0.34" strokeWidth="1.6"
+              mask={beads ? 'url(#squid-bead-cut)' : undefined} />
       )}
 
       {has('safetyPin') && (
@@ -599,6 +636,55 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
           <path d={SAFETY_PIN} fill="#ECE8DF" fillOpacity="0.34" stroke="#ECE8DF"
                 strokeOpacity="0.34" strokeWidth="1.8" strokeLinejoin="round" fillRule="evenodd" />
           <path d={SAFETY_PIN} fill={INK} fillRule="evenodd" />
+        </g>
+      )}
+
+      {/* Бусины с буквами — вдоль края левого уха, в наружном ухе.
+          Где именно и почему не по самой линии — см. beadSpots
+          в squidParts.
+
+          СТОЯТ ПОСЛЕ ПИРСИНГА НАМЕРЕННО. Кольца занимают ту же полосу
+          уха, и порядок решает, что кого перекроет. Имя важнее
+          украшения: буква, наполовину съеденная кольцом, не читается,
+          а кольцо под буквой читается по-прежнему.
+
+          Бусина рисуется двумя кружками, как на фотографии Риты:
+          задний сдвинут влево — это её бок, по его левой дуге идут
+          насечки-лесенка; передний — лицо с буквой. */}
+      {beads && (
+        <g pointerEvents="none">
+          {beads.map(({ x, y }, i) => {
+            const sx = x - BEAD_SIDE_DX;
+            return (
+              <g key={i}>
+                <circle cx={sx} cy={y} r={BEAD_R} fill={BEAD_SIDE}
+                        stroke={INK} strokeWidth="1.8" />
+                {BEAD_RIDGES.map((deg) => {
+                  const a = (deg * Math.PI) / 180;
+                  const c = Math.cos(a), s2 = Math.sin(a);
+                  return (
+                    <line
+                      key={deg}
+                      x1={sx + c * BEAD_R} y1={y + s2 * BEAD_R}
+                      x2={sx + c * (BEAD_R - BEAD_RIDGE_DEPTH)}
+                      y2={y + s2 * (BEAD_R - BEAD_RIDGE_DEPTH)}
+                      stroke={INK} strokeWidth="1.2" strokeLinecap="round"
+                    />
+                  );
+                })}
+                <circle cx={x} cy={y} r={BEAD_R} fill={BEAD_FACE}
+                        stroke={INK} strokeWidth="1.8" />
+                <text
+                  x={x} y={y}
+                  textAnchor="middle" dominantBaseline="central"
+                  fontFamily="var(--font-ui), sans-serif"
+                  fontSize="8" fontWeight="700" fill={INK}
+                >
+                  {build.beadWord[i]}
+                </text>
+              </g>
+            );
+          })}
         </g>
       )}
 

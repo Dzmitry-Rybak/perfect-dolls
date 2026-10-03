@@ -15,6 +15,7 @@ import {
 import { galleryItems } from '../data/gallery.js';
 import { ORDERS } from '../data/shopState.js';
 import { faqItems } from '../data/faq.js';
+import { squidModels } from '../data/squidModels.js';
 
 /** Искусственная задержка: состояния загрузки должны быть настоящими
  *  с первого дня, а не появиться сюрпризом при подключении бэкенда. */
@@ -130,6 +131,22 @@ const HOME = `{
   }
 }`;
 
+/* Готовые сквиды. Снимок берём со всем, что нужно и плитке, и окну:
+   hotspot/crop — чтобы обрезка шла по точке, отмеченной в админке,
+   размеры и размытая копия — чтобы окно знало форму кадра заранее
+   и не схлопывалось, пока он грузится. */
+const MODELS = `*[_id == "squidModels"][0]{
+  models[]{
+    name, collection, price,
+    "photo": photo{
+      alt, asset, hotspot, crop,
+      "w": asset->metadata.dimensions.width,
+      "h": asset->metadata.dimensions.height,
+      "blur": asset->metadata.lqip
+    }
+  }
+}`;
+
 /** Три ссылки на кадр: под сетку, под плитку раздела и под модалку.
     Одним файлом на все места обойтись нельзя — размеры разные втрое. */
 /** Откат на встроенные данные — штука полезная, но молчаливая:
@@ -163,6 +180,20 @@ const mapShot = (s) => ({
   h: s.h,
   blur: s.blur,
 });
+
+/**
+ * Снимок, который нужен и в плитке, и в окне: к обычным ссылкам
+ * добавлены full, размеры и размытая копия — то же, что у работ
+ * архива, иначе окно не умеет показать кадр целиком.
+ */
+const mapShotPhoto = (p) =>
+  (p?.asset
+    ? {
+      src: tileUrl(p), srcSet: tileSrcSet(p), sizes: TILE_SIZES,
+      full: fullUrl(p), alt: p.alt ?? '',
+      w: p.w, h: p.h, blur: p.blur,
+    }
+    : null);
 
 /** Одиночная картинка (главная, полка) — та же рамка, что у плитки. */
 const mapPhoto = (p) =>
@@ -313,8 +344,62 @@ export async function getHome() {
   }
 }
 
+/**
+ * GET /api/squid-models — готовые сквиды из коллекций.
+ *
+ * Имена, цены и снимки Рита правит в админке («Готовые сквиды»).
+ * Встроенный список остаётся запасным: если сервис недоступен,
+ * страница покажет имена с пустыми рамками, а не пустоту.
+ *
+ * Запись без снимка не выбрасываем, в отличие от полки «в наличии»:
+ * там карточка без кадра бессмысленна, а здесь по пустой рамке видно,
+ * какому дизайну фотографии ещё не хватает.
+ */
+export async function getSquidModels() {
+  try {
+    const raw = await client.fetch(MODELS);
+    if (!raw?.models?.length) throw new Error('пусто');
+    return raw.models.map((m, i) => ({
+      id: `${i}-${m.name}`,
+      name: m.name,
+      collection: m.collection ?? '',
+      price: m.price,
+      photo: mapShotPhoto(m.photo),
+    }));
+  } catch (err) {
+    fellBack('готовые сквиды', err);
+    return respond(squidModels);
+  }
+}
+
 /** GET /api/faq */
 export function getFaq() {
   return respond(faqItems);
 }
 
+
+/* --- Рассылка ------------------------------------------------- */
+
+/**
+ * POST /api/subscriptions — «напишите, когда откроется».
+ *
+ * Пока заказы закрыты, это единственный способ не потерять человека:
+ * иначе он уходит со страницы и про окно не узнаёт — а открывается оно
+ * на несколько дней. Раздел передаём вместе с адресом: куклы и портреты
+ * открывают в разное время, и слать письмо про портреты тому, кто ждал
+ * куклу, незачем.
+ *
+ * Сейчас — мок; настоящая отправка появится вместе с бэкендом
+ * (см. api/CONTRACT.md).
+ */
+export function subscribe(email, topic) {
+  // ↓ когда появится бэкенд, мок ниже меняется на:
+  //   return fetch('/api/subscriptions', {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify({ email, topic }),
+  //   }).then((r) => (r.ok ? r.json() : Promise.reject(new Error('Could not subscribe'))));
+  return new Promise((resolve) => {
+    setTimeout(() => resolve({ status: 'subscribed', email, topic }), 700);
+  });
+}

@@ -117,7 +117,7 @@ export const PRIVACY = {
         ] },
         'If other people are in a photo — a partner, a child, a friend, a wedding party — ' +
         'those people have rights to their own image. Please only send photos you are ' +
-        'entitled to share. The form asks you to confirm this before sending.',
+        'entitled to share.',
       ],
     },
     {
@@ -417,8 +417,8 @@ export const COPYRIGHT = {
         'content for a doll to be made from their face.',
         'Photographs of the finished piece are Margarita’s own work and may appear in the ' +
         'gallery and on social media. If you would rather they did not — a surprise, a ' +
-        'private commission, a face you would rather not see online — tick the box in the ' +
-        'form or say so in an email, at any point, including after it is posted.',
+        'private commission, a face you would rather not see online — say so in an email, ' +
+        'at any point, including after it is posted.',
       ],
     },
     {

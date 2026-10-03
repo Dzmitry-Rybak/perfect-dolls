@@ -21,11 +21,6 @@
   color: var(--moon); text-align: right;
 }
 
-.facts2 { display: grid; gap: var(--sp-2); margin-top: var(--sp-2); }
-.facts2 li {
-  display: flex; align-items: center; gap: var(--sp-3);
-  font-size: var(--step--1); color: var(--lilac);
-}
 
 /* --- призыв --- */
 .cta {
@@ -98,6 +93,116 @@
   border-top: var(--stitch);
 }
 
+/* --- характеристики (куклы) --- */
+/* Не карточка и не таблица, а список на разлинованной бумаге: слева
+   короткое слово, справа строка. Разделители — стежок, тот же, что
+   у рамок; рамки вокруг всего блока нет намеренно, иначе он спорил
+   бы за внимание с блоком заказа выше. */
+.spec {
+  max-width: 68ch;
+  border-top: var(--stitch);
+}
+.specRow {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: var(--sp-2) var(--sp-5);
+  padding-block: var(--sp-3);
+  border-bottom: var(--stitch);
+}
+.specRow dt {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rose);
+  /* Слово и первая строка справа должны стоять на одной линии:
+     шрифты разные, поэтому выравниваем не блоки, а буквы. */
+  padding-top: 0.15em;
+}
+.specRow dd {
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.5;
+  color: var(--lilac);
+}
+/* Узко — слово встаёт над строкой: колонка в 7.5rem съедала бы
+   половину экрана, и описания ломались бы по два слова в строку. */
+@media (max-width: 560px) {
+  .specRow { grid-template-columns: 1fr; }
+}
+
+/* --- готовые модели из коллекций --- */
+/* Восемь дизайнов должны читаться как список, а не как витрина:
+   карточки нарочно мельче архивных плиток, без наклона и без тени —
+   иначе они спорили бы с работами ниже за главное место на странице. */
+.modelsLead { max-width: 56ch; margin-bottom: var(--sp-5); color: var(--lilac); }
+
+.models {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
+}
+@media (min-width: 30rem) { .models { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 48rem) { .models { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+/* Все восемь в один ряд — только на широком экране: раньше карточка
+   становится уже самого длинного имени (Annabelle), а название
+   коллекции под ним ломается на четыре строки. */
+@media (min-width: 72rem) {
+  .models { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: var(--sp-3); }
+}
+
+.model { overflow: hidden; }
+
+/* Место под снимок держим пустой рамкой той же пропорции, что у Photo:
+   когда фотографии появятся, сетка не переедет ни на пиксель. */
+.modelShot {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 200 / 260;
+  background: var(--ink);
+  border-bottom: var(--stitch);
+}
+.modelShot > img { width: 100%; height: 100%; }
+
+/* Снимок, который открывается во весь экран. Лупа в курсоре — весь
+   намёк: подписи «нажмите» на восьми карточках подряд были бы шумом. */
+.modelOpen {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-bottom: var(--stitch);
+  cursor: zoom-in;
+}
+.modelOpen > img { transition: scale var(--t-mid) var(--ease-out); }
+.modelOpen:hover > img,
+.modelOpen:focus-visible > img { scale: 1.05; }
+.modelOpen:focus-visible { outline: 2px solid var(--rose); outline-offset: -2px; }
+@media (prefers-reduced-motion: reduce) { .modelOpen > img { transition: none } }
+
+.modelBody { display: grid; gap: 2px; padding: var(--sp-3); }
+.modelName {
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  line-height: 1.2;
+  color: var(--bone);
+}
+.modelFrom {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-style: italic;
+  line-height: 1.25;
+  color: var(--muted);
+}
+.modelPrice {
+  margin-top: var(--sp-2);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--moon);
+}
+
 /* --- пусто --- */
 .empty {
   display: grid; justify-items: center; gap: var(--sp-3);
@@ -110,20 +215,9 @@
 }
 .emptyHint { font-size: var(--step--1); color: var(--muted); }
 
-/* --- шаги мастерской --- */
-.divider { margin: var(--sp-7) auto; opacity: 0.5; }
-.steps {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
-  gap: var(--sp-5);
-}
-.step { padding: var(--sp-5) var(--sp-4); background: var(--ink-raised); border-top: 2px dashed var(--fog); }
-.stepNum { font-family: var(--font-accent); font-size: var(--step-2); color: var(--rose); opacity: 0.75; }
-.stepTitle {
-  margin-block: var(--sp-2); font-family: var(--font-accent);
-  font-size: var(--step-1); color: var(--bone);
-}
-.stepText { font-family: var(--font-body); font-size: var(--step-0); color: var(--muted); line-height: 1.55; }
+/* Подпись над ссылками на странице «про меня». Отступ больше обычного
+   зазора между абзацами: это конец рассказа, а не его продолжение. */
+.findMe { margin-top: var(--sp-4); }
 
 /* --- фото --- */
 .photo {

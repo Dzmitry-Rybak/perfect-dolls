@@ -36,7 +36,7 @@ export default function Footer() {
             <h4 className={styles.colTitle}>Look</h4>
             <ul>
               <li><Link to="/gallery">Gallery</Link></li>
-              <li><Link to="/workshop">Workshop</Link></li>
+              <li><Link to="/workshop">About</Link></li>
               <li><Link to="/faq">Q&amp;A</Link></li>
               <li><Link to="/other">Other creations</Link></li>
             </ul>
@@ -46,7 +46,9 @@ export default function Footer() {
             <ul>
               <li><a href={SOCIAL.instagram} target="_blank" rel="noreferrer noopener">Instagram</a></li>
               <li><a href={SOCIAL.tiktok} target="_blank" rel="noreferrer noopener">TikTok</a></li>
-              <li><a href={`mailto:${EMAIL.main}`}>{EMAIL.main}</a></li>
+              {/* Подписью, а не адресом: в колонке рядом с Instagram
+                  и TikTok длинная почта ломала бы строку. */}
+              <li><a href={`mailto:${EMAIL.main}`}>Email</a></li>
               <li><Link to="/pr">PR &amp; brands</Link></li>
             </ul>
           </div>

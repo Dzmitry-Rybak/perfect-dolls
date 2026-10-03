@@ -67,16 +67,18 @@ export default function Home() {
           </figure>
 
           <div className={styles.heroCopy}>
-            <p className="eyebrow">Handmade, one at a time</p>
+            {/* Надпись над заголовком убрана: фраза ниже говорит сама
+                за себя, и подводка к ней только мешала. */}
             <h1 className={styles.title}>
-              Sewn from the dark
-              <span className={styles.and}>and</span>
-              something softer
+              To be loved
+              <span className={styles.and}>is</span>
+              to be seen
             </h1>
             <p className={`prose ${styles.lead}`}>
-              I'm Margarita. I make plush squids with button faces, cloth dolls that
-              stare back, and portraits of people and their animals. Everything
-              is made to order, and no two come out the same.
+              Hey, dolly! So happy to see you here. I’m Margarita, and I make
+              dolls, plushies, and little creatures with my own two hands.
+              I turn the things you love into something you can hold.
+              Come on in ♡
             </p>
             <div className={styles.actions}>
               <Button to="/builder" size="lg">Build a squid</Button>

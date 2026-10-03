@@ -10,6 +10,7 @@ import {
   GLITTER_PRICE,
   defaultBuild, ADDON_COLORS, CHARMS, CHARM_SLOTS,
 } from '../data/squidBuilder.js';
+import { BEAD_MAX } from '../data/squidParts.js';
 import styles from './Builder.module.css';
 
 const usd = (n) => `$${n}`;
@@ -264,6 +265,42 @@ export default function Builder() {
                 </button>
               ))}
             </div>
+
+            {/* Слово для бусин. Поле появляется только у включённой
+                добавки: пустая строка ввода без неё — вопрос без повода.
+                Буквы приводим к верхнему регистру и выкидываем всё, что
+                на бусине не напечатано: пробелы, точки, кириллицу. */}
+            {build.addons.includes('nameBeads') && (
+              <div className={styles.sub}>
+                <span className={styles.help}>
+                  Up to <b>{BEAD_MAX}</b> letters — they run along the left ear, and sit
+                  over the piercings if you have both.
+                </span>
+                <input
+                  type="text"
+                  value={build.beadWord}
+                  maxLength={BEAD_MAX}
+                  placeholder="NAME"
+                  aria-label="Word for the letter beads"
+                  onChange={(e) => setBuild((b) => ({
+                    ...b,
+                    beadWord: e.target.value
+                      .toUpperCase()
+                      .replace(/[^A-Z0-9]/g, '')
+                      .slice(0, BEAD_MAX),
+                  }))}
+                />
+              </div>
+            )}
+
+            {/* По черепу кликнуть нельзя, и без строчки это выглядело бы
+                поломкой: сердце и звезда красятся, а он нет. */}
+            {build.addons.includes('furSkull') && (
+              <p className={styles.help}>
+                The fur skull is always <b>white</b>. The heart and the star take
+                any fur colour — tap them on the squid.
+              </p>
+            )}
 
             {build.addons.includes('corset') && (
               <div className={styles.sub}>

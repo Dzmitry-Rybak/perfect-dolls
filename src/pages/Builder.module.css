@@ -175,6 +175,7 @@
   text-transform: uppercase;
   color: var(--lilac);
 }
+.panel input[type="text"],
 .panel textarea,
 .panel select {
   width: 100%;
@@ -308,3 +309,13 @@
 .swatchFree input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
 .swatchFree input[type="color"]::-webkit-color-swatch { border: none; border-radius: 50%; }
 .swatchFree input[type="color"]::-moz-color-swatch { border: none; border-radius: 50%; }
+
+/* Поле под слово из бусин: короткое и в разрядку, чтобы на экране оно
+   выглядело так же, как на ухе — отдельными буквами, а не словом. */
+.panel input[type="text"] {
+  resize: none;
+  max-width: 14ch;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+.panel input[type="text"]::placeholder { color: var(--fog); letter-spacing: 0.3em; }

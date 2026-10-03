@@ -9,8 +9,12 @@ import styles from './GalleryCard.module.css';
  *
  * Листается прямо на месте — стрелками, точками и свайпом, — чтобы
  * не заводить отдельную страницу под каждую работу.
+ *
+ * `levelled` — в показанном есть подписанные работы, и портрет должен
+ * дотянуться до их высоты. Решает это страница: карточка не знает,
+ * что стоит рядом с ней в ряду.
  */
-export default function GalleryCard({ item }) {
+export default function GalleryCard({ item, levelled = false }) {
   const [i, setI] = useState(0);
   const [zoom, setZoom] = useState(false);
   const [touch, setTouch] = useState(null);
@@ -112,7 +116,9 @@ export default function GalleryCard({ item }) {
                а не тот же самый на 700px, что и на большом экране. */
             srcSet={shot.srcSet}
             sizes={shot.sizes}
-            alt={`${shot.alt}. Photo ${i + 1} of ${item.shots.length}`}
+            alt={many
+              ? `${shot.alt || item.title}. Photo ${i + 1} of ${item.shots.length}`
+              : shot.alt || item.title}
             width="675"
             height="900"
             /* Крошечная размытая копия (около килобайта) приходит вместе
@@ -189,7 +195,18 @@ export default function GalleryCard({ item }) {
           работы, а не выбранный фильтр: портрет должен выглядеть
           одинаково и в своей подборке, и когда показан весь архив.
           Название не потеряно — оно осталось в alt снимка. */}
-      {item.kind !== 'portrait' && (
+      {item.kind === 'portrait' ? (levelled && (
+        /* Подписи нет, но место под неё есть: без него портрет выходил
+           ниже соседей по ряду и низ ряда шёл зубцами. На этом месте —
+           пластина матового стекла. Она ничего не показывает и ничем
+           не окрашена: её дело — закрыть пустоту, а не завести под
+           снимком вторую картинку. Как собрана — см. blurFoot
+           в стилях.
+           Появляется только там, где рядом есть подписанные работы.
+           На вкладке с одними портретами все карточки и так одной
+           высоты, и полоса была бы приставкой без причины. */
+        <div className={styles.blurFoot} aria-hidden="true" />
+      )) : (
         <div className={styles.caption}>
           <h3 className={styles.title}>{item.title}</h3>
           {/* Год и судьба известны не про каждую работу: у сквидов их пока

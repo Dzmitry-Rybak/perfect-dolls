@@ -25,9 +25,14 @@ export default function GalleryLightbox({ item, start = 0, onClose }) {
   const [ready, setReady] = useState(false);
   const trapRef = useRef(null);
   const closeRef = useRef(null);
+  const imgRef = useRef(null);
   const touch = useRef(null);
   const many = item.shots.length > 1;
   const shot = item.shots[i];
+  /* У портретов подписи нет — ни в карточке, ни здесь: Маргарита
+     попросила оставить одни снимки. Точки-перелистыватели живут в той
+     же полосе, поэтому сама полоса остаётся, если кадров несколько. */
+  const captioned = item.kind !== 'portrait';
 
   const go = (d) => {
     setReady(false);
@@ -60,6 +65,22 @@ export default function GalleryLightbox({ item, start = 0, onClose }) {
   }, []);
 
   useEffect(() => { closeRef.current?.focus(); }, []);
+
+  /**
+   * Кадр мог прийти из кеша — тогда onLoad уже не сработает.
+   *
+   * Это не редкий случай, а самый обычный: карточка тянет полный
+   * снимок заранее, по наведению мыши. К нажатию он чаще всего уже
+   * лежит в кеше, браузер считает его загруженным сразу, события
+   * больше не будет — и кадр навсегда остаётся прозрачным, окно
+   * показывает одну размытую подложку.
+   *
+   * Поэтому после отрисовки спрашиваем картинку саму: complete —
+   * значит показывать можно, ждать нечего.
+   */
+  useEffect(() => {
+    if (imgRef.current?.complete) setReady(true);
+  }, [i]);
 
   /* Соседние кадры подтягиваем заранее — иначе при листании окно
      на миг пустеет, а здесь это заметнее, чем в маленькой карточке. */
@@ -126,14 +147,20 @@ export default function GalleryLightbox({ item, start = 0, onClose }) {
           >
           <img
             key={i}
+            ref={imgRef}
             className={`${styles.shot} ${ready ? styles.shotReady : ''}`}
             onLoad={() => setReady(true)}
+            /* Не открыть снимок — плохо, но показать пустоту хуже:
+               если файла нет, проявляем то, что есть. */
+            onError={() => setReady(true)}
             /* full — та же работа без обрезки и покрупнее: в карточке
                кадр режется под 4:5 и уменьшен под сетку. Приходит из
                Sanity; у встроенных в сборку данных его нет, тогда
                показываем то же, что и в карточке. */
             src={shot.full ?? shot.src}
-            alt={`${shot.alt}. Photo ${i + 1} of ${item.shots.length}`}
+            alt={many
+              ? `${shot.alt || item.title}. Photo ${i + 1} of ${item.shots.length}`
+              : shot.alt || item.title}
             decoding="async"
             draggable="false"
           />
@@ -153,17 +180,20 @@ export default function GalleryLightbox({ item, start = 0, onClose }) {
           )}
         </div>
 
-        <div className={styles.caption}>
-          <div>
-            <p className={styles.title}>{item.title}</p>
-            {(item.year || item.note) && (
-              <p className={styles.note}>
-                {item.year && <span>{item.year}</span>}
-                {item.year && item.note && <span aria-hidden="true">·</span>}
-                {item.note && <span>{item.note}</span>}
-              </p>
-            )}
-          </div>
+        {(captioned || many) && (
+        <div className={`${styles.caption} ${captioned ? '' : styles.captionBare}`}>
+          {captioned && (
+            <div>
+              <p className={styles.title}>{item.title}</p>
+              {(item.year || item.note) && (
+                <p className={styles.note}>
+                  {item.year && <span>{item.year}</span>}
+                  {item.year && item.note && <span aria-hidden="true">·</span>}
+                  {item.note && <span>{item.note}</span>}
+                </p>
+              )}
+            </div>
+          )}
 
           {many && (
             <div className={styles.dots} role="tablist" aria-label={`Photos of ${item.title}`}>
@@ -180,6 +210,7 @@ export default function GalleryLightbox({ item, start = 0, onClose }) {
             </div>
           )}
         </div>
+        )}
       </div>
     </div>,
     document.body

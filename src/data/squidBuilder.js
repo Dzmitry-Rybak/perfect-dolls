@@ -92,8 +92,9 @@ export const ADDON_COLORS = [
   /* У всех трёх нашивок ОДИН ключ цвета: они занимают одно место и
      взаимоисключающие, так что выбранный мех не должен пропадать,
      когда человек переключает форму. */
+  /* Черепа здесь нет намеренно: он всегда белый и не красится —
+     цвет лежит в SKULL_FUR (data/squidParts.js), рядом с его формой. */
   { addon: 'furHeart', key: 'patchColor', label: 'Fur heart colour', palette: 'fur' },
-  { addon: 'furSkull', key: 'patchColor', label: 'Fur skull colour', palette: 'fur' },
   { addon: 'furStar',  key: 'patchColor', label: 'Fur star colour',  palette: 'fur' },
 ];
 
@@ -147,6 +148,8 @@ export const ADDONS = [
   { id: 'stitches',     label: 'Scars',                    price: 5,  group: null },
   { id: 'wounds',       label: 'Bloody wounds',            price: 5,  group: null },
   { id: 'rhinestones',  label: 'Rhinestones',              price: 10, group: null },   // PLACEHOLDER-PRICE
+  /* Бусины с буквами: слово набирается в панели, цвет не выбирается. */
+  { id: 'nameBeads',    label: 'Letter beads — a name',    price: 10, group: null },   // PLACEHOLDER-PRICE
   { id: 'claySet',      label: 'Coraline-inspired clay set', price: 20, group: null }, // PLACEHOLDER-PRICE
 
   // пирсинг: простой — только дырочки, фулл — дырочки, цепь и подвески
@@ -160,7 +163,7 @@ export const ADDONS = [
   /* Нашивка под пуговицей. Форм три, но место одно — поэтому группа:
      выбрать можно только одну. */
   { id: 'furHeart',     label: 'Fur heart',                price: 10, group: 'patch', customizable: 'fur' },  // PLACEHOLDER-PRICE
-  { id: 'furSkull',     label: 'Fur skull',                price: 10, group: 'patch', customizable: 'fur' },  // PLACEHOLDER-PRICE
+  { id: 'furSkull',     label: 'Fur skull',                price: 10, group: 'patch' },                      // PLACEHOLDER-PRICE
   { id: 'furStar',      label: 'Fur star',                 price: 10, group: 'patch', customizable: 'fur' },  // PLACEHOLDER-PRICE
   { id: 'safetyPin',    label: 'Safety pin + pendant',     price: 5,  group: null, customizable: 'charm' },
 ];
@@ -295,6 +298,9 @@ export const defaultBuild = {
   bowCharm: null,       // номер подвески из CHARMS, null — не выбрана
   pierceCharm: null,
   pinCharm: null,
-  patchColor: '#E2A7C1',      // мех нашивки — общий для сердца, черепа и звезды
+  patchColor: '#E2A7C1',      // мех нашивки — общий для сердца и звезды; череп белый всегда
+  /* Слово из бусин. Пустая строка при включённой добавке — это не
+     ошибка: человек мог включить её и ещё не решить, что писать. */
+  beadWord: '',
   notes: '',
 };

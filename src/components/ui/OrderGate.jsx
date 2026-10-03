@@ -1,5 +1,6 @@
 import Button from './Button.jsx';
 import ButtonEye from './ButtonEye.jsx';
+import NotifyForm from './NotifyForm.jsx';
 import Spiral from './Spiral.jsx';
 import { useCommission } from '../../context/CommissionContext.jsx';
 import { useOrders } from '../../context/OrdersContext.jsx';
@@ -9,7 +10,8 @@ import styles from './OrderGate.module.css';
  * Кнопка заказа, которая знает, открыты ли заказы.
  *
  * Открыты  → открывает анкету.
- * Закрыты  → показывает примерный срок, а не мёртвую кнопку.
+ * Закрыты  → показывает примерный срок и подписку на открытие,
+ *            а не мёртвую кнопку.
  *
  * Открыты или нет, срок и приписка приходят из админки. Значения
  * в data/shopState.js остались запасным вариантом на случай, если
@@ -52,6 +54,11 @@ export default function OrderGate({ topic, label, kind }) {
         Next opening: <b>{state?.window ?? 'to be announced'}</b>
       </p>
       {state?.note && <p className={styles.note}>{state.note}</p>}
+      {/* Дата — это ещё не ответ: точный день объявляют за неделю-две,
+          и запомнить «конец октября» человек не может. Подписка —
+          единственное, что здесь можно сделать, поэтому она в блоке,
+          а не ссылкой куда-то ещё. */}
+      <NotifyForm topic={topic} kind={kind} />
     </div>
   );
 }

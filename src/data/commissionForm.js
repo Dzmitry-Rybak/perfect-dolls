@@ -1,6 +1,7 @@
 /**
  * Анкеты на заказ. Куклы и портреты — разные формы: вопросы почти
- * не пересекаются, и ответы уходят на разные почты.
+ * не пересекаются. Заполненные анкеты обеих приходят в один ящик —
+ * EMAIL.commissions в data/site.js.
  *
  * Формулировки и варианты правятся здесь, без залезания в компоненты.
  *
@@ -32,18 +33,26 @@ const contactStep = (extra = []) => ({
 });
 
 /**
- * Последний шаг: референсы и две галочки.
+ * Галочка в конце последнего шага — общая для обеих анкет.
  *
- * Первая обязательна и закрывает сразу две вещи — согласие на
- * обработку и подтверждение прав на присланные фото. Отдельными
- * галочками это выглядело бы как бюрократия ради бюрократии, а
- * смысл один: «эти снимки мои, и я знаю, что с ними будет».
+ * Раньше их было две, и первая тащила в себе ещё и подтверждение прав
+ * на присланные фотографии. Фраза выходила длинная и читалась как
+ * предупреждение, хотя права на снимки и так оговорены в условиях —
+ * их принимают, отправляя заявку, а не отдельной галочкой.
  *
- * Вторая — от противного: по умолчанию работу показывать можно,
- * галочка это запрещает. Наоборот было бы честнее на бумаге, но
- * тогда пустая галочка запрещала бы показывать почти всё, включая
- * то, о чём никто не возражал, — а галерея и есть витрина.
- * Кто не хочет видеть свою куклу в интернете, тот галочку поставит.
+ * Вторая запрещала показывать готовую работу в галерее. Её убрали:
+ * попросить об этом можно письмом в любой момент, в том числе после
+ * публикации, и это написано в условиях.
+ */
+const permissions = [
+  { name: 'consent', type: 'checkbox', required: true,
+    label: 'I have read how my data is handled.',
+    link: { href: '/privacy', label: 'Privacy' } },
+];
+
+/**
+ * Последний шаг анкеты на куклу: чем угодно, лишь бы было похоже
+ * на замысел — скриншоты, фотографии, каракули, ссылки.
  */
 const refsStep = {
   id: 'refs',
@@ -54,12 +63,33 @@ const refsStep = {
       hint: `Used only to make your piece, never published, and deleted ${KEEP_REFS} after it ships.` },
     { name: 'links', label: 'Or links', type: 'textarea', rows: 3,
       placeholder: 'Pinterest, Instagram — one link per line' },
-    { name: 'consent', type: 'checkbox', required: true,
-      label: 'These photos are mine to send — anyone recognisable in them is fine with it — and I have read how my data is handled.',
-      link: { href: '/privacy', label: 'Privacy' } },
-    { name: 'noShow', type: 'checkbox',
-      label: 'Please do not show the finished piece in the gallery or on social media.',
-      hint: 'Leave this alone if you do not mind — most people like seeing theirs there. You can change your mind later by email.' },
+    ...permissions,
+  ],
+};
+
+/**
+ * Последний шаг анкеты на портрет — свой, а не общий с куклой.
+ *
+ * У портрета референс — это не настроение, а исходник: Рита рисует
+ * с конкретных снимков, и ей нужны не «похожие картинки из интернета»,
+ * а причёска, верх одежды и украшения этого человека. Поэтому ссылок
+ * здесь нет, а вместо них — свободное поле про фон и детали, которое
+ * раньше стояло на первом шаге и спрашивалось слишком рано:
+ * про фон думаешь, уже глядя на присланные фотографии.
+ */
+const portraitRefsStep = {
+  id: 'refs',
+  title: 'References',
+  hint: 'Show me the details that are important to you!',
+  fields: [
+    { name: 'files', label: 'Attach files', type: 'files',
+      hint: 'I’d like to see the hairstyle, the top part of the outfit, and any accessories. '
+          + 'If it’s a pet, please send me a front-facing photo without any distortion.' },
+    { name: 'idea', label: 'Anything I should know', type: 'textarea', rows: 4,
+      placeholder: 'Leave the background up to me, or let me know if you have something special '
+                 + 'in mind for it. You can also describe any particularly important details or '
+                 + 'share your pet’s name with me.' },
+    ...permissions,
   ],
 };
 
@@ -140,25 +170,24 @@ export const portraitForm = {
       title: 'Who is in it',
       hint: 'Numbers first — they decide how long it takes.',
       fields: [
+        /* Потолок — четыре, и людей, и животных: больше Рита на одном
+           листе не рисует. Раньше последним вариантом стояло «четыре и
+           больше», и заявка на шестерых выглядела разрешённой. */
         { name: 'people', label: 'How many people', type: 'select', required: true,
           options: [
             { value: '1', label: 'One' }, { value: '2', label: 'Two' },
-            { value: '3', label: 'Three' }, { value: '4+', label: 'Four or more' },
+            { value: '3', label: 'Three' }, { value: '4', label: 'Four' },
           ] },
         { name: 'pets', label: 'Any animals', type: 'select',
           options: [
             { value: '0', label: 'None' }, { value: '1', label: 'One' },
-            { value: '2', label: 'Two' }, { value: '3+', label: 'Three or more' },
+            { value: '2', label: 'Two' }, { value: '3', label: 'Three' },
+            { value: '4', label: 'Four' },
           ] },
-        { name: 'idea', label: 'Anything I should know', type: 'textarea', rows: 4,
-          placeholder: 'A mood, a setting, a joke only they would get.' },
       ],
     },
     contactStep(),
-    {
-      ...refsStep,
-      hint: 'Reference photos, please — bad lighting is fine, I am after the face, not the shot.',
-    },
+    portraitRefsStep,
   ],
 };
 

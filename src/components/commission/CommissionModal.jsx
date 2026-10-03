@@ -142,10 +142,20 @@ export default function CommissionModal() {
             <h2 id="commission-title" ref={headingRef} tabIndex={-1} className={styles.doneTitle}>
               Sent
             </h2>
+            {/* Текст Риты, слово в слово: про случайный отбор здесь
+                сказано нарочно — человек должен узнать об этом сразу,
+                а не гадать неделю, почему нет ответа. */}
             <p className={`prose ${styles.doneText}`}>
-              Reference <code>{sent.id}</code>. Margarita usually replies the same
-              day — the answer lands at {values.email}.
+              Dear dolly, thank you so much for taking the time to fill out the
+              application so carefully! I usually reply within 1–2 days. Please
+              keep in mind that due to the high demand, your order may not be
+              selected this time. To keep the process fair, the order list is
+              chosen randomly. You’ll receive a response either way ♡
             </p>
+            {/* Адрес показываем ещё раз: опечатка в нём — единственная
+                ошибка анкеты, которую уже не исправить, письмо просто
+                не дойдёт. Здесь её видно, пока окно не закрыто. */}
+            <p className={styles.doneTo}>The answer goes to {values.email}</p>
             <Button onClick={close}>Close</Button>
           </div>
         ) : (

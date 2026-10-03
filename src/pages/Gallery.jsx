@@ -22,11 +22,19 @@ export default function Gallery() {
 
   const shown = items?.filter((i) => filter === 'all' || i.kind === filter);
 
+  /* Есть ли в показанном хоть что-то кроме портретов.
+     От этого зависит, подставлять ли портрету стеклянную полосу
+     вместо подписи: она нужна только затем, чтобы он не оказался
+     ниже подписанных соседей по ряду. На вкладке с одними
+     портретами ровнять не с кем — там полоса была бы пустой
+     приставкой без всякой причины. */
+  const mixed = !!shown?.some((i) => i.kind !== 'portrait');
+
   return (
     <PageShell
       eyebrow="Archive"
-      title="Everything that left"
-      lead="Past work — sold, exhibited, or still sitting on my shelf. Swipe or use the arrows to see more shots of each piece."
+      title="Some Things I’ve Made"
+      lead="Past pieces that have found their new homes. Swipe or use the arrows to see more shots of each piece."
     >
       <div className={styles.filters} role="group" aria-label="Filter by type">
         {GALLERY_FILTERS.map((f) => (
@@ -42,7 +50,7 @@ export default function Gallery() {
       {loading ? <Loader label="Digging through the archive…" /> : (
         <ul className={styles.grid}>
           {shown.map((item) => (
-            <li key={item.id}><GalleryCard item={item} /></li>
+            <li key={item.id}><GalleryCard item={item} levelled={mixed} /></li>
           ))}
         </ul>
       )}
