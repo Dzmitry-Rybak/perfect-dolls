@@ -9,7 +9,7 @@
  */
 
 import {
-  client, cardUrl, tileUrl, fullUrl,
+  client, cardUrl, tileUrl, fullUrl, FULL_W,
   cardSrcSet, tileSrcSet, CARD_SIZES, TILE_SIZES,
 } from './sanity.js';
 import { galleryItems } from '../data/gallery.js';
@@ -159,6 +159,33 @@ function fellBack(what, err) {
   );
 }
 
+/**
+ * Размер снимка ПОСЛЕ обрезки, заданной в админке.
+ *
+ * metadata.dimensions — это размеры исходного файла, и про рамку,
+ * которую Маргарита вытянула в редакторе, они не знают ничего. А
+ * сервис картинок обрезку учитывает и отдаёт уже обрезанный кадр.
+ * Пока здесь стояли размеры исходника, модалка строила рамку по одним
+ * пропорциям, а получала кадр других: он вписывался внутрь с полями
+ * сверху и снизу, и в этих полях просвечивала размытая заглушка —
+ * те самые мутные полосы.
+ *
+ * Считаем так же, как считает сервис: доли, срезанные с каждой
+ * стороны, вычитаем из единицы.
+ */
+function shotSize(s) {
+  const { w, h, crop } = s;
+  if (!w || !h) return { w: undefined, h: undefined };
+  if (!crop) return { w, h };
+  return {
+    w: Math.round(w * (1 - (crop.left ?? 0) - (crop.right ?? 0))),
+    h: Math.round(h * (1 - (crop.top ?? 0) - (crop.bottom ?? 0))),
+  };
+}
+
+/** До какой ширины снимок можно показывать, не растягивая. */
+const shownW = (w) => (w ? Math.min(w, FULL_W) : undefined);
+
 const mapShot = (s) => ({
   src:  cardUrl(s),
   tile: tileUrl(s),
@@ -176,8 +203,8 @@ const mapShot = (s) => ({
      и не схлопывается в пустую коробку, пока грузится снимок,
      а размытая копия занимает это место мгновенно — она весит
      около килобайта и приходит вместе с текстом. */
-  w: s.w,
-  h: s.h,
+  ...shotSize(s),
+  maxW: shownW(shotSize(s).w),
   blur: s.blur,
 });
 
@@ -191,7 +218,9 @@ const mapShotPhoto = (p) =>
     ? {
       src: tileUrl(p), srcSet: tileSrcSet(p), sizes: TILE_SIZES,
       full: fullUrl(p), alt: p.alt ?? '',
-      w: p.w, h: p.h, blur: p.blur,
+      ...shotSize(p),
+      maxW: shownW(shotSize(p).w),
+      blur: p.blur,
     }
     : null);
 

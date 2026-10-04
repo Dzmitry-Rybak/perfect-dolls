@@ -5,6 +5,29 @@ import styles from './FileField.module.css';
 const mb = (bytes) => bytes / 1024 / 1024;
 const fmt = (bytes) => `${mb(bytes).toFixed(1)} MB`;
 
+/**
+ * Чем именно можно поделиться.
+ *
+ * Атрибут accept у поля — только подсказка системному окну выбора:
+ * он сужает список в диалоге и ровно ничего не проверяет. Файл,
+ * перетащенный мышью на рамку, минует его целиком, и до этой правки
+ * в анкету можно было положить что угодно — архив, документ,
+ * исполняемый файл, — а узнали бы об этом уже на почте.
+ *
+ * Расширение здесь не про безопасность, а про запасной путь: у части
+ * файлов (особенно heic с телефона и файлов из архивов) браузер не
+ * определяет тип и отдаёт пустую строку. Настоящая проверка — по
+ * содержимому и на сервере, про это написано в api/CONTRACT.md.
+ */
+const ALLOWED = ACCEPT.split(',');
+const BY_EXT = {
+  jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
+  webp: 'image/webp', heic: 'image/heic', heif: 'image/heic',
+  pdf: 'application/pdf',
+};
+const typeOf = (f) =>
+  f.type || BY_EXT[f.name.split('.').pop()?.toLowerCase()] || '';
+
 export default function FileField({ files, onChange }) {
   const id = useId();
   const inputRef = useRef(null);
@@ -25,6 +48,9 @@ export default function FileField({ files, onChange }) {
     const rejected = [];
 
     for (const f of incoming) {
+      /* Тип проверяем первым: отказ «не та картинка» понятнее, чем
+         отказ «слишком тяжёлый» у файла, который всё равно не нужен. */
+      if (!ALLOWED.includes(typeOf(f))) { rejected.push(`${f.name} — photos and PDF only`); continue; }
       if (next.length >= MAX_FILES) { rejected.push(`${f.name} — more than ${MAX_FILES} files won't fit`); continue; }
       if (mb(f.size) > MAX_FILE_MB) { rejected.push(`${f.name} — heavier than ${MAX_FILE_MB} MB`); continue; }
       // Дубли по имени и размеру: люди часто кидают один файл дважды

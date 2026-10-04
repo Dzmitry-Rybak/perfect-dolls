@@ -66,10 +66,32 @@
 .gridTitle { margin-block: var(--sp-6) var(--sp-4); }
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+  /* auto-FILL — по той же причине, что и у полки на главной: в разделе
+     может оказаться одна-две работы, и auto-fit растянул бы их во всю
+     ширину. Пустые колонки лучше растянутого снимка. */
+  grid-template-columns: repeat(auto-fill, minmax(min(210px, 100%), 1fr));
   gap: var(--sp-5);
 }
 .tile { overflow: hidden; }
+
+/* На телефоне — две работы в ряд, как в архиве и на главной.
+   Порог 210px оставлял одну колонку: двум таким нужно 444px, а на
+   типовом экране их 320–390. Три работы выстраивались столбиком почти
+   на два экрана, и до ссылки «See the rest» надо было долистать.
+   Порог 559 и поджатый зазор — те же, что в сетке архива. */
+@media (max-width: 559px) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-3);
+  }
+  /* Подпись в половинной ширине: в прежнем размере «Pumpkin Season»
+     ломалось на три строки, а поля съедали четверть карточки. */
+  .tileName {
+    padding: var(--sp-2) var(--sp-3);
+    font-size: var(--step-0);
+    line-height: 1.15;
+  }
+}
 
 /* Ссылка в архив под витриной. Справа, потому что читается как «дальше»,
    и на узком экране растягивается во всю ширину — иначе кнопка жалась
@@ -133,9 +155,10 @@
 }
 
 /* --- готовые модели из коллекций --- */
-/* Восемь дизайнов должны читаться как список, а не как витрина:
-   карточки нарочно мельче архивных плиток, без наклона и без тени —
-   иначе они спорили бы с работами ниже за главное место на странице. */
+/* Восемь дизайнов стоят сеткой по четыре в ряд — два ряда. Карточки
+   без наклона и без тени, в отличие от архивных плиток: это выбор из
+   готового, а не витрина, и спорить с работами ниже за главное место
+   на странице ей незачем. */
 .modelsLead { max-width: 56ch; margin-bottom: var(--sp-5); color: var(--lilac); }
 
 .models {
@@ -144,13 +167,10 @@
   gap: var(--sp-4);
 }
 @media (min-width: 30rem) { .models { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Дальше четырёх в ряд не растём: восемь в одну линию делали карточку
+   уже самого длинного имени (Annabelle), а название коллекции под ним
+   ломалось на четыре строки. Два ряда по четыре — и снимки крупнее. */
 @media (min-width: 48rem) { .models { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-/* Все восемь в один ряд — только на широком экране: раньше карточка
-   становится уже самого длинного имени (Annabelle), а название
-   коллекции под ним ломается на четыре строки. */
-@media (min-width: 72rem) {
-  .models { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: var(--sp-3); }
-}
 
 .model { overflow: hidden; }
 
@@ -165,20 +185,39 @@
 }
 .modelShot > img { width: 100%; height: 100%; }
 
-/* Снимок, который открывается во весь экран. Лупа в курсоре — весь
-   намёк: подписи «нажмите» на восьми карточках подряд были бы шумом. */
+/* Снимок, который открывается во весь экран.
+   Кнопкой он остаётся по разметке — абзац внутри кнопки недопустим, а
+   в карточке лежат имя, коллекция и цена. Но нажимать можно всю
+   карточку: ::after растягивает кнопку на неё целиком. Карточке задан
+   position: relative (см. StitchCard), от неё и считается; z-index
+   поднимает слой над подписями, иначе нажатие по цене не доходило бы
+   до кнопки. */
 .modelOpen {
   width: 100%;
   padding: 0;
   border: 0;
   border-bottom: var(--stitch);
-  cursor: zoom-in;
+  cursor: pointer;
 }
-.modelOpen > img { transition: scale var(--t-mid) var(--ease-out); }
-.modelOpen:hover > img,
-.modelOpen:focus-visible > img { scale: 1.05; }
-.modelOpen:focus-visible { outline: 2px solid var(--rose); outline-offset: -2px; }
-@media (prefers-reduced-motion: reduce) { .modelOpen > img { transition: none } }
+.modelOpen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+/* Снимок подаётся вперёд при наведении на ЛЮБОЕ место карточки, а не
+   только на него самого: нажимается она вся. */
+.model > .modelOpen > img { transition: scale var(--t-mid) var(--ease-out); }
+.model:hover > .modelOpen > img,
+.model:has(.modelOpen:focus-visible) > .modelOpen > img { scale: 1.05; }
+/* Обводка по всей карточке, а не по снимку: нажимается карточка. */
+.model:has(.modelOpen:focus-visible) {
+  outline: 2px solid var(--rose);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .model > .modelOpen > img { transition: none }
+}
 
 .modelBody { display: grid; gap: 2px; padding: var(--sp-3); }
 .modelName {

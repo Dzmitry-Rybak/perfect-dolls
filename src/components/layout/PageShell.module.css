@@ -46,3 +46,10 @@
 @media (max-width: 860px) {
   .split { grid-template-columns: 1fr; }
 }
+
+/* Нижнее поле страницы на телефоне: вместе с отступом подвала оно
+   давало пустую половину экрана. Подробнее — в Footer.module.css. */
+@media (max-width: 559px) {
+  .shell { padding-block: var(--sp-6) var(--sp-7); }
+  .head { margin-bottom: var(--sp-6); }
+}

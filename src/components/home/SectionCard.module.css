@@ -79,3 +79,17 @@
 }
 .card:hover .go { opacity: 1; translate: 0 0; }
 @media (prefers-reduced-motion: reduce) { .go { opacity: 1; translate: 0 0; } }
+
+/* Два раздела в ряд на телефоне — карточка вдвое уже, и прежние
+   размеры в неё не помещаются: заголовок в --step-2 занимал три
+   строки, а поля съедали половину ширины.
+
+   «look →» убираем совсем: он появляется по наведению, а на сенсорном
+   экране наведения не бывает — там это просто строка, которая никогда
+   не покажется, но место под себя просит. */
+@media (max-width: 559px) {
+  .body { padding: var(--sp-3); gap: var(--sp-1); }
+  .title { font-size: var(--step-1); }
+  .blurb { font-size: var(--step--1); line-height: 1.35; }
+  .go { display: none; }
+}

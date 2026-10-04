@@ -172,6 +172,18 @@ export default function Home() {
             <Button to="/builder" size="lg">Open the builder</Button>
           </div>
         </div>
+
+        {/* Строчка про рекламу — последней на главной и нарочно мелкой.
+            Отдельная страница для брендов есть и остаётся, но ссылка на
+            неё живёт только в подвале, и бренды до неё не доходили.
+            Здесь она попадается на глаза тому, кто дочитал страницу до
+            конца, и при этом не мешает тем, кто пришёл за куклой. */}
+        <p className={styles.commercial}>
+          commercial enquiries:{' '}
+          <a href={`mailto:${EMAIL.pr}`}>{EMAIL.pr}</a>
+          {' · '}
+          <Link to="/pr">more for brands</Link>
+        </p>
       </section>
     </>
   );

@@ -56,8 +56,17 @@ export const cardUrl = (source, w = 700) =>
 export const tileUrl = (source, w = 620) =>
   img(source).width(w).height(Math.round(w * 260 / 200)).fit('crop').url();
 
-/** Модалка — целиком, без обрезки. */
-export const fullUrl = (source, w = 1800) =>
+/**
+ * Модалка — целиком, во всю отмеченную область.
+ *
+ * FULL_W — потолок ширины. fit('max') не растягивает: снимок меньше
+ * потолка приедет в своём размере, и показывать его крупнее нельзя,
+ * иначе он поплывёт. Отсюда же модалка узнаёт, до каких пор ей можно
+ * расти, — см. GalleryLightbox.
+ */
+export const FULL_W = 1800;
+
+export const fullUrl = (source, w = FULL_W) =>
   img(source).width(w).fit('max').url();
 
 /**
