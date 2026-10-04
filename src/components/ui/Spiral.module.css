@@ -7,3 +7,23 @@
   .spin { animation: pulse 1.2s var(--ease-soft) infinite; }
   @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .4 } }
 }
+
+/* Раскручивается по мере прокрутки. Счёт ведёт сама прокрутка, а не
+   время: пока страница стоит, стоит и спираль. Полный проход мимо —
+   полтораста градусов, по трети оборота в каждую сторону от середины.
+
+   Браузеры без привязки к прокрутке (Firefox) покажут обычную
+   неподвижную спираль — то есть ровно то, что было. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .unwind {
+      animation: unwind linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+    @keyframes unwind {
+      from { rotate: -75deg; }
+      to   { rotate: 75deg; }
+    }
+  }
+}

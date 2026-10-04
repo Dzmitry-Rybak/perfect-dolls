@@ -97,7 +97,7 @@ export default function Home() {
         </ul>
       </section>
 
-      <Spiral size={52} className={styles.divider} />
+      <Spiral size={52} unwind className={styles.divider} />
 
       <section className={`page ${styles.section}`}>
         <div className={styles.availHead}>
@@ -128,7 +128,7 @@ export default function Home() {
                       <p className={styles.shelfName}>{it.name}</p>
                       {it.note && <p className={styles.shelfNote}>{it.note}</p>}
                       <div className={styles.shelfFoot}>
-                        <PriceTag value={it.price} size="sm" />
+                        <PriceTag value={it.price} size="sm" className={styles.tag} />
                         <Button
                           href={`mailto:${EMAIL.main}?subject=${encodeURIComponent(`Available now: ${it.name}`)}`}
                           variant="stitched"

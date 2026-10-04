@@ -1,11 +1,22 @@
 import styles from './Spiral.module.css';
 
-/** Рисованная спираль — из двух работ Риты. Разделитель секций
- *  и, в режиме spin, индикатор загрузки. */
-export default function Spiral({ size = 48, spin = false, color = 'var(--plum)', className = '' }) {
+/**
+ * Рисованная спираль — из двух работ Риты. Разделитель секций
+ * и, в режиме spin, индикатор загрузки.
+ *
+ * `unwind` — спираль медленно поворачивается, пока страница проходит
+ * мимо неё: не сама по себе, а ровно настолько, насколько её
+ * прокрутили. Движение привязано к руке, а не к таймеру, поэтому не
+ * отвлекает: остановился — остановилась и она.
+ */
+export default function Spiral({
+  size = 48, spin = false, unwind = false,
+  color = 'var(--plum)', className = '',
+}) {
   return (
     <svg
-      className={`${styles.spiral} ${spin ? styles.spin : ''} ${className}`}
+      className={[styles.spiral, spin && styles.spin, unwind && styles.unwind, className]
+        .filter(Boolean).join(' ')}
       width={size} height={size} viewBox="0 0 100 100"
       aria-hidden="true" focusable="false"
     >

@@ -26,11 +26,59 @@
 .interactive:hover,
 .interactive:focus-within {
   transform: rotate(0deg) translateY(-4px);
-  border-color: var(--rose);
+  /* Рамку гасим: вместо неё по тому же месту побежит нитка, см. ниже.
+     Две розовые линии рядом читались бы как двойной шов. */
+  border-color: transparent;
   box-shadow: var(--shadow-lift);
+}
+
+/* БЕГУЩИЙ СТЕЖОК.
+ *
+ * Пунктир по краю карточки здесь с самого начала и называется в коде
+ * беговым стежком. Пусть он и правда бежит: при наведении нитка
+ * проходит по кругу, как будто её протягивают через ткань.
+ *
+ * Четыре слоя — по одному на сторону, иначе не задать им разное
+ * направление. Верх уезжает вправо, правая сторона вниз, низ влево,
+ * левая вверх: вместе это обход по часовой стрелке, и видно, что
+ * нитка одна, а не четыре независимых пунктира.
+ *
+ * Шаг сдвига равен шагу штриха (11px), поэтому в конце цикла картинка
+ * совпадает с началом и повтор не виден.
+ *
+ * inset: 0, а не -2px: у карточек подрезаны края (overflow: hidden),
+ * и вылезающий наружу слой обрезало бы по углам. Поэтому нитка идёт
+ * вплотную внутри рамки, на её месте — та как раз стала прозрачной. */
+.interactive::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--t-fast) var(--ease-soft);
+  --dash: repeating-linear-gradient(90deg, var(--rose) 0 5px, transparent 5px 11px);
+  --dashV: repeating-linear-gradient(180deg, var(--rose) 0 5px, transparent 5px 11px);
+  background-image: var(--dash), var(--dash), var(--dashV), var(--dashV);
+  background-size: 100% 2px, 100% 2px, 2px 100%, 2px 100%;
+  background-position: 0 0, 0 100%, 0 0, 100% 0;
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+}
+
+.interactive:hover::after,
+.interactive:focus-within::after {
+  opacity: 1;
+  animation: runStitch 900ms linear infinite;
+}
+
+@keyframes runStitch {
+  to { background-position: 11px 0, -11px 100%, 0 -11px, 100% 11px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .card { transform: none; }
   .interactive:hover, .interactive:focus-within { transform: none; }
+  /* Нитка остаётся, но стоит: подсветка края нужна и без движения. */
+  .interactive:hover::after, .interactive:focus-within::after { animation: none; }
 }
+

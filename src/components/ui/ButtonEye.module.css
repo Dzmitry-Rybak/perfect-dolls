@@ -5,7 +5,18 @@
   transform: scaleY(0);
 }
 
-/* Моргает, когда наводишь на родителя */
+/* Моргает сам по себе — редко и вразнобой. Период и задержка приходят
+   из ButtonEye.jsx, свои у каждого глаза. */
+.lid {
+  animation: idle var(--eye-every, 13s) var(--ease-soft) var(--eye-wait, 0s) infinite;
+}
+@keyframes idle {
+  0%, 97%, 100% { transform: scaleY(0); }
+  98.5%         { transform: scaleY(1); }
+}
+
+/* Моргает, когда наводишь на родителя. Это правило весит больше
+   предыдущего, поэтому наведение перебивает собственный ритм. */
 :global(.eye-host):hover .lid,
 .eye:hover .lid {
   animation: blink 340ms var(--ease-soft);
@@ -16,6 +27,11 @@
   45%      { transform: scaleY(1); }
 }
 
+/* Взгляд догоняет курсор, а не прилипает к нему: мгновенный сдвиг
+   читается как дёрганье, небольшое запаздывание — как взгляд. */
+.pupil { transition: transform 220ms var(--ease-out); }
+
 @media (prefers-reduced-motion: reduce) {
+  .pupil { transition: none; }
   .lid { animation: none !important; }
 }

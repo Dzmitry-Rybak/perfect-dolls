@@ -220,7 +220,6 @@
 }
 /* При наведении вещь выравнивается — как будто её поправили. */
 .pinned:hover { rotate: 0deg; }
-
 /* Булавка. Блик смещён влево-вверх, тень вправо-вниз — иначе
    головка читается плоским кружком, а не объёмом. */
 .pin {
@@ -254,6 +253,27 @@
   color: var(--bone);
 }
 .shelfNote { font-size: var(--step--1); color: var(--muted); }
+/* Бирка висит на нитке — значит, должна качаться.
+   Ось поворота — у дырки под нитку, в левом краю бирки: качается она
+   вокруг неё, а не вокруг своей середины, иначе получается не маятник,
+   а дрожащий прямоугольник.
+   Качание затухающее и однократное: вещь на полке качнули, когда взяли
+   в руки, и она успокоилась. Бесконечный маятник на витрине из шести
+   карточек дёргал бы глаз. */
+.tag { transform-origin: 0.7rem 50%; }
+.pinned:hover .tag,
+.pinned:focus-within .tag {
+  animation: swing 1.5s var(--ease-soft);
+}
+@keyframes swing {
+  0%   { rotate: 0deg; }
+  18%  { rotate: -7deg; }
+  42%  { rotate: 4.5deg; }
+  65%  { rotate: -2.5deg; }
+  85%  { rotate: 1deg; }
+  100% { rotate: 0deg; }
+}
+
 .shelfFoot {
   display: flex;
   flex-wrap: wrap;
@@ -265,6 +285,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pinned, .pinned:hover { transition: none; }
+  .pinned:hover .tag, .pinned:focus-within .tag { animation: none; }
 }
 
 /* ---------- полоса конструктора ---------- */

@@ -27,7 +27,7 @@ export default function PageShell({
           {lead && (Array.isArray(lead) ? lead : [lead]).map((line, i) => (
             <p key={i} className={`prose ${styles.lead}`}>{line}</p>
           ))}
-          <Spiral size={40} className={styles.spiral} />
+          <Spiral size={40} unwind className={styles.spiral} />
         </div>
         {aside && <div className={styles.headAside}>{aside}</div>}
       </header>
