@@ -504,3 +504,37 @@
 @media (prefers-reduced-motion: reduce) {
   .sold, .sold:hover { rotate: var(--tilt); }
 }
+
+/* ---------- полка на телефоне: одна колонка ----------
+   Карточки во всю ширину листа, по две друг под другом. */
+@media (max-width: 559px) {
+  .board { padding: var(--sp-6) var(--sp-4) var(--sp-6) calc(var(--sp-4) + 10px); }
+  .boardMargin { left: 16px; }
+  .shelf {
+    grid-template-columns: minmax(0, 1fr);
+    /* Строки одной высоты: в одной колонке у каждой своя строка, и
+       «проданная» карточка под вещью выходила ниже неё. */
+    grid-auto-rows: 1fr;
+    gap: var(--sp-7);
+  }
+
+  /* Больше двух — страницы по две листаются вбок целиком.
+     Страница чуть уже полки: следующая выглядывает краем, и видно,
+     что дальше есть ещё. Отступы внутри — под булавки и тени, иначе
+     их обрезала бы прокрутка. */
+  .carousel {
+    display: flex;
+    gap: var(--sp-4);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    padding: var(--sp-3) 2px var(--sp-4);
+    margin-inline: -2px;
+    scrollbar-width: none;
+  }
+  .carousel::-webkit-scrollbar { display: none; }
+  .page {
+    flex: 0 0 calc(100% - 28px);
+    scroll-snap-align: start;
+  }
+}

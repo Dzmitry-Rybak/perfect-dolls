@@ -32,6 +32,29 @@ import styles from './Home.module.css';
  */
 const TILTS = [-2.2, 1.6, -1.1, 2.4, -1.8, 1.2];
 
+/** Вещей на одной странице полки на телефоне: одна колонка, две строки. */
+const PER_PAGE = 2;
+
+/** Разбить список на куски по size. */
+const chunk = (list, size) => Array.from(
+  { length: Math.ceil(list.length / size) },
+  (_, i) => list.slice(i * size, i * size + size),
+);
+
+/** Узкий экран (телефон) — тот же порог, что у сетки полки в стилях. */
+function usePhone() {
+  const query = '(max-width: 559px)';
+  const [phone, setPhone] = useState(() => window.matchMedia(query).matches);
+  useLayoutEffect(() => {
+    const mq = window.matchMedia(query);
+    const on = () => setPhone(mq.matches);
+    on();
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  return phone;
+}
+
 /* Снимки для «проданных» мест — прошлые работы, уменьшенные копии с
    главной. Размыты и приглушены: это намёк, что здесь уже висело и
    ушло, а не витрина. */
@@ -74,7 +97,66 @@ export default function Home() {
      Только до конца первого ряда: целый ряд пустых мест был бы уже не
      намёком, а складом. */
   const [shelfRef, cols] = useColumns();
-  const spots = available.length < cols ? cols - available.length : 0;
+  /* На телефоне полка — одна колонка, по две вещи на странице друг под
+     другом; «проданное» добавляем только к одной-единственной вещи,
+     чтобы страница не была наполовину пустой. Вещей больше двух —
+     страницы по две листаются вбок (carousel в стилях). */
+  const phone = usePhone();
+  const n = available.length;
+  const spots = phone ? (n === 1 ? 1 : 0) : (n < cols ? cols - n : 0);
+  const swipe = phone && n > PER_PAGE;
+
+  /* Ячейки полки: вещи и «проданные» места после них. Отдельно от
+     раскладки — та бывает сеткой или листающимися страницами. */
+  const cells = [
+    ...available.map((it, i) => (
+      <li key={it.id} className={styles.pinned} style={{ '--tilt': `${TILTS[i % TILTS.length]}deg` }}>
+        <span className={styles.pin} aria-hidden="true" />
+        <StitchCard seed={it.id} tilt={false} className={styles.shelfCard}>
+          <Photo
+            src={it.photo.src}
+            srcSet={it.photo.srcSet}
+            sizes={it.photo.sizes}
+            alt={it.photo.alt || it.name}
+          />
+          <div className={styles.shelfBody}>
+            {it.kind && <p className="eyebrow">{it.kind}</p>}
+            <p className={styles.shelfName}>{it.name}</p>
+            {it.note && <p className={styles.shelfNote}>{it.note}</p>}
+            <div className={styles.shelfFoot}>
+              <PriceTag value={it.price} size="sm" className={styles.tag} />
+              <Button
+                href={`mailto:${EMAIL.main}?subject=${encodeURIComponent(`Available now: ${it.name}`)}`}
+                variant="stitched"
+              >
+                Ask about it
+              </Button>
+            </div>
+          </div>
+        </StitchCard>
+      </li>
+  )),
+    ...Array.from({ length: spots }, (_, i) => (
+      <li
+        key={`sold-${i}`}
+        className={`${styles.pinned} ${styles.sold}`}
+        style={{ '--tilt': `${TILTS[(available.length + i) % TILTS.length]}deg` }}
+        aria-hidden="true"
+      >
+        <span className={styles.pin} />
+        <StitchCard seed={`sold-${i}`} tilt={false} className={styles.shelfCard}>
+          <span className={styles.soldShot}>
+            <img src={SOLD_SHOTS[i % SOLD_SHOTS.length]} alt="" loading="lazy" decoding="async" />
+            <span className={styles.stamp}>Sold</span>
+          </span>
+          <div className={styles.shelfBody}>
+            <p className="eyebrow">Found a home</p>
+            <p className={styles.soldNext}>next one lands here ♡</p>
+          </div>
+        </StitchCard>
+      </li>
+  )),
+  ];
 
   /* Снимки разделов из админки перекрывают вшитые в сборку. Берём
      карточку целиком, а не по полю: второй кадр без первого — это
@@ -167,55 +249,19 @@ export default function Home() {
         {loading ? <Loader label="Looking on the shelf…" /> : available.length > 0 ? (
           <div className={styles.board}>
             <span className={styles.boardMargin} aria-hidden="true" />
-            <ul className={styles.shelf} ref={shelfRef}>
-              {available.map((it, i) => (
-                <li key={it.id} className={styles.pinned} style={{ '--tilt': `${TILTS[i % TILTS.length]}deg` }}>
-                  <span className={styles.pin} aria-hidden="true" />
-                  <StitchCard seed={it.id} tilt={false} className={styles.shelfCard}>
-                    <Photo
-                      src={it.photo.src}
-                      srcSet={it.photo.srcSet}
-                      sizes={it.photo.sizes}
-                      alt={it.photo.alt || it.name}
-                    />
-                    <div className={styles.shelfBody}>
-                      {it.kind && <p className="eyebrow">{it.kind}</p>}
-                      <p className={styles.shelfName}>{it.name}</p>
-                      {it.note && <p className={styles.shelfNote}>{it.note}</p>}
-                      <div className={styles.shelfFoot}>
-                        <PriceTag value={it.price} size="sm" className={styles.tag} />
-                        <Button
-                          href={`mailto:${EMAIL.main}?subject=${encodeURIComponent(`Available now: ${it.name}`)}`}
-                          variant="stitched"
-                        >
-                          Ask about it
-                        </Button>
-                      </div>
-                    </div>
-                  </StitchCard>
-                </li>
-              ))}
-              {Array.from({ length: spots }, (_, i) => (
-                <li
-                  key={`sold-${i}`}
-                  className={`${styles.pinned} ${styles.sold}`}
-                  style={{ '--tilt': `${TILTS[(available.length + i) % TILTS.length]}deg` }}
-                  aria-hidden="true"
-                >
-                  <span className={styles.pin} />
-                  <StitchCard seed={`sold-${i}`} tilt={false} className={styles.shelfCard}>
-                    <span className={styles.soldShot}>
-                      <img src={SOLD_SHOTS[i % SOLD_SHOTS.length]} alt="" loading="lazy" decoding="async" />
-                      <span className={styles.stamp}>Sold</span>
-                    </span>
-                    <div className={styles.shelfBody}>
-                      <p className="eyebrow">Found a home</p>
-                      <p className={styles.soldNext}>next one lands here ♡</p>
-                    </div>
-                  </StitchCard>
-                </li>
-              ))}
-            </ul>
+            {/* На телефоне вещей больше двух — страницы по две (одна
+                колонка) листаются вбок целиком. */}
+            {swipe ? (
+              <ul className={styles.carousel} ref={shelfRef}>
+                {chunk(cells, PER_PAGE).map((page, p) => (
+                  <li key={p} className={styles.page}>
+                    <ul className={styles.shelf}>{page}</ul>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <ul className={styles.shelf} ref={shelfRef}>{cells}</ul>
+            )}
           </div>
         ) : (
           <div className={styles.empty}>

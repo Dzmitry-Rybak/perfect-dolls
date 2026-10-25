@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { PATH, VIEW, GROUPS } from '../../data/squidArt.js';
 import { PART, HORNS, WINGS, WING_RIBS, WOUNDS, COLLAR, BOW, SAFETY_PIN, CLAY, CLAY_COLOR, PIERCE, CORSET, heart, star, HEART_BOX, FUR_PATCH, SKULL_FUR, beadSpots, BEAD_FACE, BEAD_SIDE, BEAD_RIDGES } from '../../data/squidParts.js';
 import styles from './SquidCanvas.module.css';
@@ -125,7 +125,34 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
   });
 
   /**
-   * Палитра открывается по pointerdown, а не по click.
+   * Нажатие на деталь: мышь и перо — сразу, палец — только как тап.
+   *
+   * Палец, начавший прокрутку с детали, тоже даёт pointerdown, и
+   * палитра мерцала на долю секунды, пока страница уезжала. Поэтому
+   * на сенсорном экране ждём, пока палец поднимется, и открываем,
+   * только если он почти не сдвинулся. Ушёл в прокрутку — браузер сам
+   * отменяет касание (pointercancel), и открывать нечего.
+   * Мыши и перу это не нужно: прокрутки ими по рисунку нет, а ждать
+   * отпускания значило бы сделать отклик медленнее.
+   */
+  const pressRef = useRef(null);
+  const tap = (open) => ({
+    onPointerDown: (e) => {
+      if (e.pointerType !== 'touch') { open(e); return; }
+      pressRef.current = { x: e.clientX, y: e.clientY };
+    },
+    onPointerUp: (e) => {
+      const p = pressRef.current;
+      pressRef.current = null;
+      if (e.pointerType !== 'touch' || !p) return;
+      if (Math.hypot(e.clientX - p.x, e.clientY - p.y) < 10) open(e);
+    },
+    onPointerCancel: () => { pressRef.current = null; },
+  });
+
+  /**
+   * Палитра открывается по pointerdown, а не по click (для пальца — по
+   * отпусканию, см. tap выше).
    *
    * На сенсорном экране click браузер синтезирует уже ПОСЛЕ pointerdown,
    * и к этому моменту открытая палитра успевала закрыться — первый тап
@@ -151,7 +178,7 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
       role: 'button',
       'aria-label': `Change colour: ${group}`,
       'data-colour-zone': '',
-      onPointerDown: (e) => onPick(id, group, e),
+      ...tap((e) => onPick(id, group, e)),
       onKeyDown: (e) => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(id, group, e); }
       },
@@ -262,7 +289,7 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
     role: 'button',
     'aria-label': `Change colour: ${id}`,
     'data-colour-zone': '',
-    onPointerDown: (e) => onPick(id, id, e),
+    ...tap((e) => onPick(id, id, e)),
     onKeyDown: (e) => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(id, id, e); }
     },
@@ -275,7 +302,7 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
       tabIndex={0} role="button"
       aria-label={`Change colour: ${part.id}`}
       data-colour-zone=""
-      onPointerDown={(e) => onPick(part.id, part.id, e)}
+      {...tap((e) => onPick(part.id, part.id, e))}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(part.id, part.id, e); } }}
       {...mark(part.id)}
     >

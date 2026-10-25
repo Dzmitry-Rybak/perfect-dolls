@@ -10,6 +10,10 @@ import styles from './ColorPopover.module.css';
  */
 export default function ColorPopover({ at, title, hint, colors, value, free, onChoose, onClose, onRemove }) {
   const ref = useRef(null);
+  /* Где была страница, когда палитра открылась. В ref, а не в эффекте:
+     onClose приходит новой функцией на каждой отрисовке, эффект ниже
+     перезапускается, и отсчёт прокрутки начинался бы заново. */
+  const openedAt = useRef(window.scrollY);
   const [pos, setPos] = useState({ left: at.x, top: at.y });
   // С какой стороны от детали встала палитра: оттуда она и разворачивается.
   const [flipped, setFlipped] = useState(false);
@@ -61,11 +65,19 @@ export default function ColorPopover({ at, title, hint, colors, value, free, onC
       if (e.target?.closest?.('[data-colour-zone]')) return;
       onClose();
     };
+    /* Прокрутили страницу — палитра закрывается. Она приколота к
+       экрану, а не к детали: на телефоне палец, начавший прокрутку с
+       детали сквида, не считается «нажатием мимо», и палитра висела на
+       месте, пока сквид уезжал из-под неё. Порог — чтобы не закрывать
+       от случайного сдвига на пару пикселей при самом нажатии. */
+    const onScroll = () => { if (Math.abs(window.scrollY - openedAt.current) > 24) onClose(); };
     document.addEventListener('keydown', onKey);
     document.addEventListener('pointerdown', onDown, true);
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('pointerdown', onDown, true);
+      window.removeEventListener('scroll', onScroll);
     };
   }, [onClose]);
 
