@@ -34,7 +34,12 @@ export default function GalleryLightbox({ item, start = 0, onClose }) {
      же полосе, поэтому сама полоса остаётся, если кадров несколько. */
   const captioned = item.kind !== 'portrait';
 
+  /* Листать можно, только если кадров больше одного. Иначе «следующий»
+     — тот же самый кадр: картинка не перерисовывается, onLoad больше не
+     приходит, а ready уже сброшен — и снимок навсегда оставался
+     прозрачным, на его месте был чёрный фон (свайп по портрету). */
   const go = (d) => {
+    if (!many) return;
     setReady(false);
     setI((v) => (v + d + item.shots.length) % item.shots.length);
   };
@@ -97,7 +102,7 @@ export default function GalleryLightbox({ item, start = 0, onClose }) {
   const onTouchEnd = (e) => {
     if (touch.current === null) return;
     const dx = e.changedTouches[0].clientX - touch.current;
-    if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+    if (many && Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
     touch.current = null;
   };
 
