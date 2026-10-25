@@ -62,6 +62,8 @@ export default function Workshop() {
               и длинная почта посреди них читалась бы как сбой. Сам
               адрес виден в подвале и открывается по нажатию. */}
           <a href={`mailto:${EMAIL.main}`}>Email</a>
+          {' · '}
+          <a href={SOCIAL.coffee} target="_blank" rel="noreferrer noopener">Support my work</a>
         </p>
       </InfoSection>
     </PageShell>

@@ -13,7 +13,7 @@ export default function Faq() {
     <PageShell
       eyebrow="Questions"
       title="Things people ask"
-      lead="If the answer is not here, write to me — I usually reply the same day."
+      spiral={false}
     >
       {loading ? <Loader label="Digging out the answers…" /> : (
         <ul className={styles.list}>
@@ -26,7 +26,20 @@ export default function Faq() {
                   <span>{item.q}</span>
                   <span className={styles.marker} aria-hidden="true" />
                 </summary>
-                <p className={`prose ${styles.a}`}>{item.a}</p>
+                {/* Ответ — список абзацев. Строка это обычный абзац,
+                    пара { label, text } — абзац с подписью: так
+                    разделён ответ про уход, где у кукол и сквидов
+                    разные правила. */}
+                <div className={`prose ${styles.a}`}>
+                  {item.a.map((part, n) =>
+                    (typeof part === 'string' ? (
+                      <p key={n}>{part}</p>
+                    ) : (
+                      <p key={n}>
+                        <b className={styles.aLabel}>{part.label}:</b> {part.text}
+                      </p>
+                    )))}
+                </div>
               </details>
             </li>
           ))}

@@ -1,16 +1,20 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import PageShell from '../components/layout/PageShell.jsx';
 import SquidCanvas from '../components/squid/SquidCanvas.jsx';
 import ColorPopover from '../components/squid/ColorPopover.jsx';
+import GalleryLightbox from '../components/gallery/GalleryLightbox.jsx';
+import SheetDoodles from '../components/squid/SheetDoodles.jsx';
 import Button from '../components/ui/Button.jsx';
 import {
   BASE_PRICE, SIZES, FUR_COLORS, BUTTON_COLORS,
   BUTTON_PATTERNS, BUTTON_SHAPES, SHAPE_PRICE,
   ADDONS, RIBBON_COLORS, RIBBON_KINDS, PATTERN_PRICE, PATTERN_PRESETS,
   GLITTER_PRICE,
-  defaultBuild, ADDON_COLORS, CHARMS, CHARM_SLOTS,
+  defaultBuild, ADDON_COLORS, CHARMS, CHARM_SLOTS, describeBuild,
 } from '../data/squidBuilder.js';
 import { BEAD_MAX } from '../data/squidParts.js';
+import { EMAIL } from '../data/site.js';
+import { useCommission } from '../context/CommissionContext.jsx';
 import styles from './Builder.module.css';
 
 const usd = (n) => `$${n}`;
@@ -18,6 +22,58 @@ const usd = (n) => `$${n}`;
 export default function Builder() {
   const [build, setBuild] = useState(defaultBuild);
   const [pop, setPop] = useState(null);   // { partId, group, x, y }
+  /* Открыт ли лист с подвесками — снимок всех двадцати пяти. */
+  const [charms, setCharms] = useState(false);
+  const { open: openOrder } = useCommission();
+  const sheetRef = useRef(null);
+
+  /* МИНИ-ПРЕВЬЮ. На телефоне схема над панелью, и стоит прокрутить к
+     кнопкам — сквид уезжает за верх экрана, а с ним и ответ на вопрос
+     «как он сейчас выглядит». Пока его не видно, в углу держим
+     маленькую копию; нажатие на неё возвращает к большой схеме.
+     Раньше выбор в панели сам прокручивал к схеме — с копией это не
+     нужно: результат виден в углу, а человек остаётся у кнопок.
+     Появляется заранее — когда от схемы на экране осталась пятая
+     часть, а не когда она скрылась совсем: иначе был момент, когда
+     сквида не видно нигде. И только когда схема уходит ВВЕРХ: в начале
+     страницы, пока до неё ещё не долистали, копия была бы лишней.
+     Пока человек печатает (имя для бусин, заметки), копия прячется:
+     над клавиатурой она закрывала бы само поле. */
+  const [sketchGone, setSketchGone] = useState(false);
+  const [typing, setTyping] = useState(false);
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!el || typeof IntersectionObserver !== 'function') return undefined;
+    const narrow = window.matchMedia('(max-width: 940px)');
+    /* Отсчёт — от низа шапки: то, что под ней, не видно. */
+    const headerH = () => document.querySelector('#root > header')?.offsetHeight ?? 69;
+    const io = new IntersectionObserver(([e]) => {
+      const leaving = e.boundingClientRect.top < e.rootBounds.top;   // уходит вверх
+      setSketchGone(narrow.matches && leaving && e.intersectionRatio <= 0.2);
+    }, {
+      rootMargin: `-${headerH()}px 0px 0px 0px`,
+      threshold: [0, 0.1, 0.2, 0.25, 0.3, 0.5, 1],
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  useEffect(() => {
+    const isField = (n) => n && (n.tagName === 'TEXTAREA'
+      || (n.tagName === 'INPUT' && !['checkbox', 'radio', 'color', 'button'].includes(n.type)));
+    const onIn = (e) => setTyping(isField(e.target));
+    const onOut = () => setTyping(false);
+    document.addEventListener('focusin', onIn);
+    document.addEventListener('focusout', onOut);
+    return () => {
+      document.removeEventListener('focusin', onIn);
+      document.removeEventListener('focusout', onOut);
+    };
+  }, []);
+  const miniShown = sketchGone && !typing;
+  const backToSketch = () => {
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    sheetRef.current?.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
+  };
 
   /* Цвет детали: в обычном режиме — общий для группы,
      в режиме «микс» — свой, если его задали. */
@@ -95,15 +151,55 @@ export default function Builder() {
     <PageShell
       eyebrow="Build your own"
       title="Make your plush squid"
-      lead="Tap any part of the squid to change its colour. Everything you pick updates the price as you go — this is a sketch, not an exact preview, and every plushie is sewn by hand."
+      /* Описание во всю ширину — так попросили: в узкой колонке
+         оно стояло столбиком, а справа от него пустовало полэкрана. */
+      wideLead
+      lead={[
+        'Click on any part of the squid to choose a color. Add any details you love most, and don’t forget that I’m not limited to what you see in the builder! Keep in mind that this is just a rough sketch of your future plush companion, so the final result will look a little different in real life.',
+        /* Готовый дизайн из галереи заказывают письмом, а не через
+           конструктор, — поэтому ссылка сразу на почту для сквидов.
+           Пробелы в ссылке неразрывные: «let me» на одной строке и
+           «know» на другой читались как две разные ссылки. */
+        <>
+          If you like any of the designs in the gallery and want one just like
+          it, <a href={`mailto:${EMAIL.main}`}>let&nbsp;me&nbsp;know</a> right away!
+        </>,
+      ]}
     >
       <div className={styles.desk}>
         {/* ---------- Схема на тетрадном листе ---------- */}
-        <div className={styles.sheetWrap}>
+        <div className={styles.sheetWrap} ref={sheetRef}>
           <div className={styles.sheet}>
-            <span className={styles.tapeL} aria-hidden="true" />
-            <span className={styles.tapeR} aria-hidden="true" />
-            <p className={styles.sheetTitle}>tap a part to colour it</p>
+            {/* Скотч по всем четырём углам — лист прижат к столу. */}
+            <span className={`${styles.tape} ${styles.tapeTL}`} aria-hidden="true" />
+            <span className={`${styles.tape} ${styles.tapeTR}`} aria-hidden="true" />
+            <span className={`${styles.tape} ${styles.tapeBL}`} aria-hidden="true" />
+            <span className={`${styles.tape} ${styles.tapeBR}`} aria-hidden="true" />
+
+            {/* Рисунок на полях — по скетчу Риты, у каждого поля свой.
+                На узком экране его нет: там лист по ширине сквида. */}
+            <SheetDoodles side="left" className={styles.marginL} />
+            <SheetDoodles side="right" className={styles.marginR} />
+
+            {/* Подсказка — бумажка на скрепке, приколотая к листу.
+                Раньше это была просто строчка от руки: на широком
+                листе она терялась в пустоте. */}
+            <div className={styles.note}>
+              <svg className={styles.clip} viewBox="0 0 28 62" aria-hidden="true" focusable="false">
+                {/* Скрепка: одной линией, как её и гнут из проволоки —
+                    внутренняя петля, вверх, большая внешняя вокруг неё.
+                    Серая, как металл: на скетче у Риты она не нарисована,
+                    а настоящая, приколотая сверху. */}
+                <path
+                  d="M19.5 39V15a6.5 6.5 0 0 0-13 0v32a10.5 10.5 0 0 0 21 0V19"
+                  fill="none" stroke="#6F6E7A" strokeWidth="3.4"
+                  strokeLinecap="round" strokeLinejoin="round"
+                />
+              </svg>
+              {/* Строки разбиты руками: так на скетче у Риты, и на
+                  телефоне записка иначе вытянулась бы в одну. */}
+              <p className={styles.noteText}>tap a part<br />to colour it</p>
+            </div>
 
             <SquidCanvas
               build={build}
@@ -273,8 +369,9 @@ export default function Builder() {
             {build.addons.includes('nameBeads') && (
               <div className={styles.sub}>
                 <span className={styles.help}>
-                  Up to <b>{BEAD_MAX}</b> letters — they run along the left ear, and sit
-                  over the piercings if you have both.
+                  Up to <b>{BEAD_MAX}</b> letters — they run along the left ear, and
+                  sit over the piercings if you have both. Longer names come out
+                  on smaller beads.
                 </span>
                 <input
                   type="text"
@@ -345,10 +442,25 @@ export default function Builder() {
             ))}
 
             {CHARM_SLOTS.some((s) => build.addons.includes(s.addon)) && (
-              <p className={styles.help}>
-                Charms are small — 1 to 3 cm. The list changes as stock comes
-                and goes, so if yours is gone I'll write and we'll pick another.
-              </p>
+              <>
+                {/* Снимок листа с подвесками. По названию в списке не
+                    понять, чем «Winged heart key» отличается от
+                    «Winged heart lock», — а на фотографии видно сразу.
+                    Кнопка стоит под списками, а не над: сначала человек
+                    видит, что выбор вообще есть, и только потом идёт
+                    разглядывать. */}
+                <Button
+                  variant="stitched"
+                  onClick={() => setCharms(true)}
+                  className={styles.charmsLink}
+                >
+                  See all {CHARMS.length} charms →
+                </Button>
+                <p className={styles.help}>
+                  Charms are small — 1 to 3 cm. The list changes as stock comes
+                  and goes, so if yours is gone I'll write and we'll pick another.
+                </p>
+              </>
             )}
 
             {/* Цвет добавок выбирается кликом по самой детали на схеме —
@@ -379,7 +491,19 @@ export default function Builder() {
               <strong className={styles.totalValue}>{usd(total)}</strong>
             </div>
             <div className={styles.totalActions}>
-              <Button>Send this to Margarita</Button>
+              {/* Та же анкета, что у готового сквида: кто, куда и кому
+                  счёт. Сквид уходит с ней — словами и сырой сборкой. */}
+              <Button onClick={() => openOrder({
+                kind: 'build',
+                heading: `Your squid · ${usd(total)}`,
+                values: {
+                  price: total,
+                  build: describeBuild(build, total),
+                  buildJson: JSON.stringify(build),
+                },
+              })}>
+                Send this to Margarita
+              </Button>
               <button className={styles.reset} onClick={() => setBuild(defaultBuild)}>
                 start over
               </button>
@@ -393,6 +517,45 @@ export default function Builder() {
           </p>
         </div>
       </div>
+
+      {/* Мини-превью в углу. Копия схемы только для глаз: inert — ни
+          фокуса, ни нажатий по деталям, нажимается вся карточка. */}
+      <button
+        type="button"
+        className={`${styles.mini} ${miniShown ? styles.miniOn : ''}`}
+        onClick={backToSketch}
+        aria-hidden={!miniShown}
+        tabIndex={miniShown ? 0 : -1}
+        aria-label="Back to your squid"
+      >
+        <span className={styles.miniSheet} inert="">
+          <SquidCanvas build={build} colorOf={colorOf} onPick={() => {}} />
+        </span>
+      </button>
+
+      {/* Лист с подвесками — в том же окне, что и работы в архиве:
+          Escape закрывает, фокус не уходит за него, фон не ползёт.
+          Размеры снимка переданы, поэтому окно встаёт в свой размер
+          сразу и не прыгает, когда фотография догрузится. */}
+      {charms && (
+        <GalleryLightbox
+          item={{
+            title: 'Available charms',
+            note: 'About 1–3 cm each · numbers are what I order by',
+            shots: [{
+              src: '/art/charms.jpg',
+              full: '/art/charms.jpg',
+              alt: 'A sheet with all twenty-five charms, numbered: crosses, a coffin, a dagger, skulls, keys, stars, a chainsaw, a razor, winged hearts, an octopus, buttons, a pentagram, a spiral and a dragonfly',
+              w: 974,
+              h: 1280,
+              /* Настоящая ширина снимка: выше неё окно не растёт,
+                 иначе на высоком экране лист растянуло бы до мыла. */
+              maxW: 974,
+            }],
+          }}
+          onClose={() => setCharms(false)}
+        />
+      )}
 
       {pop && (
         <ColorPopover

@@ -38,7 +38,10 @@ export class NotFoundError extends Error {
 /* --- Заявки --------------------------------------------------- */
 
 /**
- * POST /api/commissions — заявка на куклу или портрет с референсами.
+ * POST /api/commissions — заявка на куклу, портрет или готового сквида.
+ *
+ * Полей с файлами может быть несколько (у кукол — по одному на каждый
+ * шаг внешности и документ на развилке), каждое уходит под своим именем.
  *
  * Файлы нельзя положить в JSON, поэтому на бэкенде это multipart/form-data.
  * Тело собирается здесь, чтобы компоненты про транспорт не знали.
@@ -48,8 +51,8 @@ export function submitCommission(values, kind = 'doll') {
   const body = new FormData();
   body.append('kind', kind);
   for (const [key, value] of Object.entries(values)) {
-    if (key === 'files') {
-      for (const file of value) body.append('files', file, file.name);
+    if (Array.isArray(value) && value.some((v) => v instanceof File)) {
+      for (const file of value) body.append(key, file, file.name);
     } else if (Array.isArray(value)) {
       body.append(key, value.join(','));
     } else {
@@ -66,7 +69,13 @@ export function submitCommission(values, kind = 'doll') {
         id: `CS-${Date.now().toString(36).toUpperCase()}`,
         status: 'received',
         kind,
-        files: values.files.map((f) => ({ name: f.name, size: f.size })),
+        /* У анкеты готового сквида файлов нет вовсе — без ?? заглушка
+           падала внутри таймера, и анкета навсегда зависала на «Sending…». */
+        files: Object.values(values)
+          .filter((v) => Array.isArray(v))
+          .flat()
+          .filter((f) => f instanceof File)
+          .map((f) => ({ name: f.name, size: f.size })),
       });
     }, 900);
   });
@@ -138,7 +147,7 @@ const HOME = `{
 const MODELS = `*[_id == "squidModels"][0]{
   models[]{
     name, collection, price,
-    "photo": photo{
+    "photos": photos[]{
       alt, asset, hotspot, crop,
       "w": asset->metadata.dimensions.width,
       "h": asset->metadata.dimensions.height,
@@ -276,6 +285,9 @@ export async function getWorks(kind, n) {
   const chosen = picks[kind]
     .map((id) => all.find((w) => w.id === id))
     .filter(Boolean);            // выбранную работу могли удалить из архива
+  /* Выбрано в админке — показываем ровно это, сколько бы ни выбрали:
+     недостающие места не добираем, так попросили. Архив подставляется
+     только когда не выбрано ничего — иначе раздел остался бы пустым. */
   const shown = chosen.length ? chosen : all;
   return { shown: n === undefined ? shown : shown.slice(0, n), total: all.length };
 }
@@ -393,7 +405,7 @@ export async function getSquidModels() {
       name: m.name,
       collection: m.collection ?? '',
       price: m.price,
-      photo: mapShotPhoto(m.photo),
+      photos: (m.photos ?? []).map(mapShotPhoto).filter(Boolean),
     }));
   } catch (err) {
     fellBack('готовые сквиды', err);

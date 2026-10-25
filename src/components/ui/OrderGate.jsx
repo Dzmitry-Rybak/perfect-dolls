@@ -19,7 +19,8 @@ import styles from './OrderGate.module.css';
  */
 /** Приглашение под заголовком: у кукол шьют, у портретов рисуют. */
 const OPEN_LEAD = {
-  doll: "Taking commissions right now — tell me who you want and I'll sew her.",
+  /* Без «her»: кукла по-английски — предмет, it, а не она. */
+  doll: 'Taking commissions right now — describe your idea, and I’ll bring it to life!',
   portrait: 'Taking commissions right now — send a photo and I will draw it.',
 };
 

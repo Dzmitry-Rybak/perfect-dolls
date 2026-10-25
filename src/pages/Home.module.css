@@ -61,7 +61,50 @@
   line-height: 1.5;
 }
 .lead { margin-top: var(--sp-5); }
-.actions { display: flex; flex-wrap: wrap; gap: var(--sp-4); margin-top: var(--sp-6); }
+/* width: 100% обязательно: у контейнера (container-type) ширина не
+   берётся от содержимого, и в колонке, подстраивающейся под контент
+   (телефон), обёртка сжималась почти в ноль вместе с кнопками. */
+.actionsWrap { container-type: inline-size; width: 100%; margin-top: var(--sp-6); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); }
+
+/* «Support my work» — просто текст без подложки, рядом с кнопками.
+   Подчёркнут розовым, как ссылки в тексте, чтобы было видно, что
+   нажимается, но кнопкой не притворяется. */
+.support {
+  padding-inline: var(--sp-2);
+  font-family: var(--font-ui);
+  font-size: var(--step-0);
+  font-weight: 600;
+  color: var(--bone);
+  text-decoration: underline;
+  text-decoration-color: var(--rose);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 5px;
+  transition: color var(--t-fast) var(--ease-soft);
+}
+.support:hover { color: var(--rose); }
+
+/* Втроём в строку не помещаются (≈600px) — кнопки парой, ссылка на
+   донат своей строкой под ними и по центру этой пары, а не у края.
+   Сетка по размеру кнопок: центр — середина пары, а не колонки. */
+@container (max-width: 37.5rem) {
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    justify-content: start;
+    align-items: center;
+  }
+  .actions > .support { grid-column: 1 / -1; justify-self: center; }
+}
+
+/* Кнопки первого экрана — чуть меньше крупного размера (.lg): рядом
+   с заголовком они перетягивали внимание. Вес .actions > a — чтобы
+   перебить размер самой кнопки независимо от порядка файлов. */
+.actions > a:not(.support),
+.actions > button {
+  padding: 0.75rem 1.75rem;
+  font-size: calc((var(--step-0) + var(--step-1)) / 2);
+}
 
 /* На телефоне кнопки стоят в строку, а не одна под другой.
    В крупном размере «Build a squid» и «See past work» вместе просят
@@ -74,8 +117,12 @@
    сколько .lg у самой кнопки, и кто кого перебьёт, решал бы порядок
    файлов в сборке — то есть случай. */
 @media (max-width: 559px) {
-  .actions { flex-wrap: nowrap; gap: var(--sp-3); }
-  .actions > a,
+  /* Кнопки делят первую строку поровну — сетка на всю ширину; ссылка
+     на донат своей строкой под ними. */
+  .actions { gap: var(--sp-3); grid-template-columns: 1fr 1fr; }
+  /* Своей строкой и по центру — под парой кнопок, а не у края. */
+  .actions > .support { flex-basis: 100%; padding-inline: 0; text-align: center; }
+  .actions > a:not(.support),
   .actions > button {
     flex: 1 1 0;
     min-width: 0;
@@ -107,6 +154,14 @@
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--sp-3);
+  }
+  /* Разделов нечётное число (без «Other creations» их три) — последний
+     встаёт по центру своей строки, а не прижимается влево с пустотой
+     справа. Ширина та же, что у соседей. */
+  .grid > li:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc(50% - var(--sp-3) / 2);
   }
 }
 
@@ -180,9 +235,14 @@
   position: relative;
   padding: var(--sp-7) var(--sp-6) var(--sp-8);
   background: #F2EDE3;
+  /* Клетка — плиткой 24×24, а не repeating-linear-gradient во весь
+     лист: лист повёрнут, браузер рисует его кусками, и длинный
+     градиент на стыках кусков съезжал ступенькой (так было и в
+     конструкторе). */
   background-image:
-    repeating-linear-gradient(to right,  rgba(90, 120, 160, 0.2) 0 1px, transparent 1px 24px),
-    repeating-linear-gradient(to bottom, rgba(90, 120, 160, 0.2) 0 1px, transparent 1px 24px);
+    linear-gradient(to right,  rgba(90, 120, 160, 0.2) 0 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(90, 120, 160, 0.2) 0 1px, transparent 1px);
+  background-size: 24px 24px;
   border-radius: 2px;
   /* Лист лежит чуть криво — как приколотый, а не свёрстанный. */
   rotate: -0.4deg;
@@ -359,9 +419,10 @@
       calc((100vw - 2 * var(--gutter) - min(34vw, 140px) - var(--sp-4)) / 5.5)
     );
   }
-  .lead, .actions { grid-column: 1 / -1; }
+  /* Ячейка сетки — обёртка кнопок, а не сам ряд: он внутри неё. */
+  .lead, .actionsWrap { grid-column: 1 / -1; }
   .lead { margin-top: 0; }
-  .actions { margin-top: 0; }
+  .actionsWrap { margin-top: 0; }
 }
 
 /* Строчка про рекламное сотрудничество под конструктором на главной.
@@ -382,4 +443,64 @@
 /* То же на главной: её секции живут без общей оболочки страницы. */
 @media (max-width: 559px) {
   .section { padding-block: var(--sp-6); }
+}
+
+/* ---------- «проданное» место на полке ----------
+   Карточка той же формы, что у вещи, но уже без вещи: снимок прошлой
+   работы размыт, обесцвечен и притушен, поверх — штамп SOLD, как
+   чернилами по фотографии. Наведение её не выпрямляет: брать здесь
+   нечего. */
+/* Высота — как у соседней вещи: ячейка сетки и так растянута на ряд,
+   карточку тянем на всю ячейку, а лишнее место забирает снимок. */
+.sold { opacity: 0.92; display: flex; flex-direction: column; }
+.sold > .shelfCard { flex: 1; display: flex; flex-direction: column; }
+.sold .soldShot { flex: 1; min-height: 210px; max-height: none; height: auto; }
+.sold:hover { rotate: var(--tilt); }
+.soldShot {
+  position: relative;
+  display: block;
+  height: 210px;
+  overflow: hidden;
+  background: var(--ink);
+}
+.soldShot img {
+  /* Абсолютно — по размеру растянутой рамки, какой бы высоты ни вышла. */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* scale — чтобы размытый край не оставлял светлой каймы по рамке. */
+  scale: 1.12;
+  filter: blur(7px) grayscale(0.55) brightness(0.6);
+}
+.stamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  rotate: -14deg;
+  padding: 0.2rem 0.9rem 0.25rem;
+  font-family: var(--font-ui);
+  font-size: var(--step-2);
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rose);
+  border: 3px solid var(--rose);
+  border-radius: var(--r-sm);
+  /* Двойная рамка и лёгкая неровность краски — штамп, а не плашка. */
+  box-shadow: inset 0 0 0 2px rgb(14 13 16 / 0.6), 0 0 0 2px rgb(14 13 16 / 0.35);
+  background: rgb(14 13 16 / 0.35);
+  opacity: 0.9;
+  mix-blend-mode: screen;
+}
+.soldNext {
+  margin-top: var(--sp-2);
+  font-family: var(--font-hand);
+  font-size: var(--step-0);
+  color: var(--muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sold, .sold:hover { rotate: var(--tilt); }
 }

@@ -31,6 +31,10 @@
   border: var(--stitch-rose);
   border-radius: var(--r-lg);
 }
+/* Конструктор сразу под шапкой (Squids): отступ сверху даёт шапка, и
+   он равен отступу над завитком. Свой большой отступ здесь сдвигал бы
+   завиток с середины. */
+.ctaFirst { margin-top: 0; }
 .ctaPaper {
   position: absolute; inset: 0; opacity: 0.14;
   background-image:
@@ -175,48 +179,48 @@
 .model { overflow: hidden; }
 
 /* Место под снимок держим пустой рамкой той же пропорции, что у Photo:
-   когда фотографии появятся, сетка не переедет ни на пиксель. */
+   когда фотографии появятся, сетка не переедет ни на пиксель.
+   relative — от рамки считаются стрелки, точки и счётчик кадров. */
 .modelShot {
+  position: relative;
   display: grid;
   place-items: center;
+  overflow: hidden;
   aspect-ratio: 200 / 260;
   background: var(--ink);
   border-bottom: var(--stitch);
 }
 .modelShot > img { width: 100%; height: 100%; }
 
-/* Снимок, который открывается во весь экран.
-   Кнопкой он остаётся по разметке — абзац внутри кнопки недопустим, а
-   в карточке лежат имя, коллекция и цена. Но нажимать можно всю
-   карточку: ::after растягивает кнопку на неё целиком. Карточке задан
-   position: relative (см. StitchCard), от неё и считается; z-index
-   поднимает слой над подписями, иначе нажатие по цене не доходило бы
-   до кнопки. */
-.modelOpen {
-  width: 100%;
-  padding: 0;
-  border: 0;
-  border-bottom: var(--stitch);
-  cursor: pointer;
-}
-.modelOpen::after {
-  content: '';
+/* Заказ — по нажатию на любое место карточки. Кнопка растянута на
+   неё целиком; карточке задан position: relative (см. StitchCard).
+   z-index 1 — над подписями, но под стрелками и точками (у них 2),
+   иначе листание открывало бы заказ. */
+.modelOrder {
   position: absolute;
   inset: 0;
   z-index: 1;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 }
-/* Снимок подаётся вперёд при наведении на ЛЮБОЕ место карточки, а не
-   только на него самого: нажимается она вся. */
-.model > .modelOpen > img { transition: scale var(--t-mid) var(--ease-out); }
-.model:hover > .modelOpen > img,
-.model:has(.modelOpen:focus-visible) > .modelOpen > img { scale: 1.05; }
+/* Стрелки в галерее проявляются по наведению на её карточку; здесь
+   своя карточка, поэтому и правило своё. */
+.model:hover .modelArrow { opacity: 1; }
+
+/* Снимок подаётся вперёд при наведении на ЛЮБОЕ место карточки:
+   нажимается она вся. */
+.modelShot > img { transition: scale var(--t-mid) var(--ease-out); }
+.model:hover .modelShot > img,
+.model:has(.modelOrder:focus-visible) .modelShot > img { scale: 1.05; }
 /* Обводка по всей карточке, а не по снимку: нажимается карточка. */
-.model:has(.modelOpen:focus-visible) {
+.model:has(.modelOrder:focus-visible) {
   outline: 2px solid var(--rose);
   outline-offset: 2px;
 }
 @media (prefers-reduced-motion: reduce) {
-  .model > .modelOpen > img { transition: none }
+  .modelShot > img { transition: none }
 }
 
 .modelBody { display: grid; gap: 2px; padding: var(--sp-3); }
@@ -234,12 +238,23 @@
   color: var(--muted);
 }
 .modelPrice {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--sp-2);
   margin-top: var(--sp-2);
   font-family: var(--font-ui);
   font-size: var(--step--1);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--moon);
+}
+
+/* Подсказка, что карточка — это заказ: без неё нажатие на снимок
+   читалось бы как «посмотреть крупнее». */
+.modelCta {
+  font-weight: 600;
+  color: var(--rose);
 }
 
 /* --- пусто --- */
@@ -290,4 +305,19 @@
 .prMailAddr {
   font-family: var(--font-accent); font-size: var(--step-2);
   color: var(--moon); text-decoration: none; word-break: break-all;
+}
+
+/* Стартовая цена в описании раздела: тем же розовым, что ссылки и
+   акценты, чтобы выделялась, но не кричала. */
+.price { color: var(--rose); }
+/* Оговорка под ценами — своей строкой, мельче и тише: это сноска к
+   цифрам, а не ещё одна цифра. */
+.priceNote {
+  display: block;
+  margin-top: var(--sp-2);
+  /* От размера абзаца, а не от общей мелкой ступени: подводка набрана
+     крупно, и --step--1 рядом с ней выходил едва читаемым. */
+  font-size: 0.8em;
+  line-height: 1.5;
+  color: var(--muted);
 }

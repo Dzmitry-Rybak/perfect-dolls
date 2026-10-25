@@ -17,7 +17,7 @@
  * у мастеров такого масштаба; Маргарита должна подтвердить, что это
  * её настоящие правила, иначе на сайте будет написана неправда.
  */
-import { EMAIL, SOCIAL } from './site.js';
+import { EMAIL } from './site.js';
 
 /** Реквизиты продавца. null — «ещё не знаем», строка не выводится. */
 export const TRADER = {
@@ -50,7 +50,10 @@ export const TRADER_MISSING = Object.entries(TRADER)
  * и в приватности, и в условиях.
  */
 export const POLICY = {
-  updated: '18 September 2026',
+  /* Даты обновления — у каждой страницы своя, в её описании ниже
+     (updated): строка «Last updated» внизу страницы. */
+  /** Приватность — та же дата ещё и словами в её последнем разделе. */
+  privacyUpdated: '10 October 2026',
   /** Предоплата, % от цены. */
   deposit: 30,
   /** Референсы удаляются через столько после отправки работы. */
@@ -67,132 +70,95 @@ export const POLICY = {
 
 /* --- Приватность --------------------------------------------- */
 
+/* Почта в тексте — ссылкой: { mail } внутри абзаца из кусков (parts). */
+const mail = { mail: EMAIL.main };
+
+/**
+ * Текст Риты, слово в слово (10 октября 2026). Своих пояснений здесь
+ * больше нет — ни про хостинг и шрифты, ни про права по GDPR: она
+ * прислала готовый текст и попросила именно его.
+ */
 export const PRIVACY = {
-  eyebrow: 'Privacy',
-  title: 'What happens to your data',
-  lead:
-    'The short version: the only thing this site collects is what you type into ' +
-    'the commission form, and it goes straight to Margarita’s inbox. No analytics, ' +
-    'no cookies, no mailing list, nothing sold or shared for advertising.',
+  title: 'Privacy Policy',
+  lead: [
+    'Your privacy matters to me.',
+    'I only collect the information I need to communicate with you, create your order, ' +
+    'and ship it to you. I don’t sell your personal data, use it for advertising, or share ' +
+    'it with third parties for their own purposes.',
+  ],
+  updated: POLICY.privacyUpdated,
   sections: [
     {
       id: 'who',
-      title: 'Who is responsible',
+      title: 'Who handles your data?',
       body: [
-        'The person who receives and handles everything below is the one who makes the work — ' +
-        'there is no company behind her, no team, no support desk.',
-        { trader: true },
-        `Anything in this document — a copy of your data, a correction, deletion — ` +
-        `is done by writing to ${TRADER.email}.`,
+        'I’m Margarita, the artist behind cutesmokey, and I personally handle your enquiries, ' +
+        'reference photos, and orders.',
+        { parts: ['If you have any questions about your personal data, you can reach me at ', mail] },
       ],
     },
     {
-      id: 'form',
-      title: 'What the commission form collects',
+      id: 'collect',
+      title: 'What information do I collect?',
       body: [
-        'Only what is needed to answer you and make the piece:',
+        'Depending on your enquiry or order, I may collect:',
         { list: [
-          'your name, so there is something to call you',
-          'your email, because the answer has to land somewhere',
-          'the city and country it ships to, for postage and delivery time',
-          'your deadline and budget range, if you give them',
-          'your description of what you want',
-          'up to five reference files you choose to attach',
-          'for squids, the build you put together in the builder',
+          'Your name and email address',
+          'Your shipping details',
+          'Your budget and deadline, if provided',
+          'Your description of the piece you’d like me to create',
+          'Reference photos and other files you choose to send',
+          'Your custom squid design, if you use the configurator',
+          'Order and payment records',
         ] },
-        'The name, the email and the description are required. Everything else can be left blank.',
-        'The legal basis is Article 6(1)(b) of the GDPR: steps taken at your request before ' +
-        'a contract, and then the contract itself. No profiling, no automated decisions.',
+        'I use this information only to communicate with you, create your piece, arrange ' +
+        'delivery, and keep the records required by law.',
       ],
     },
     {
       id: 'photos',
-      title: 'The photos you attach',
+      title: 'What about your reference photos?',
       body: [
-        'Reference photos are the most personal thing on this site, so they get their own rules.',
-        { list: [
-          'They are used only to make your piece — never published, never shown to anyone else, never used as reference for another order.',
-          `They are deleted within ${POLICY.keepRefs} of the finished piece being sent, or sooner if you ask.`,
-          'They are not uploaded to the gallery service, to any AI tool, or anywhere else — they travel by email and stay in that mailbox.',
-        ] },
-        'If other people are in a photo — a partner, a child, a friend, a wedding party — ' +
-        'those people have rights to their own image. Please only send photos you are ' +
-        'entitled to share.',
+        'I know that reference photos can be personal, especially when they include you or ' +
+        'someone you love. I treat them with care and use them to create your commissioned piece.',
+        'Your photos are never sold, used for advertising, submitted to AI tools, or used to ' +
+        'train AI. I don’t use them for other customers’ orders or share them with other ' +
+        'artists or businesses for their own use.',
+        'Sometimes, I share photos of my work in progress on social media to show how a piece ' +
+        'comes to life. I always ask for your permission before sharing anything. If you’d ' +
+        'prefer your order to remain completely private, please let me know from the start. ' +
+        'I’ll respect that.',
+        'I may also keep reference photos in my personal archive as part of my artistic portfolio.',
       ],
     },
     {
-      id: 'automatic',
-      title: 'What happens without you doing anything',
+      id: 'access',
+      title: 'Who can access your information?',
       body: [
-        { list: [
-          'The hosting provider (Vercel) keeps short-lived server logs: IP address, browser, page and time. That is ordinary security housekeeping — Article 6(1)(f), legitimate interest.',
-          'The typefaces are loaded from Google Fonts, which means your IP address reaches Google when a page opens. Nothing else is sent, and no cookie is set, but this is a transfer and you should know about it.',
-        ] },
-      ],
-    },
-    {
-      id: 'cookies',
-      title: 'Cookies and tracking',
-      body: [
-        'There are none. No cookies at all, no analytics, no advertising pixels, ' +
-        'no session recording, nothing stored in your browser.',
-        'That is also why there is no cookie banner on this site: there is nothing ' +
-        'to ask you to agree to.',
-      ],
-    },
-    {
-      id: 'others',
-      title: 'Who else touches your data',
-      body: [
-        'As few as it is possible to have:',
-        { list: [
-          'Vercel — hosting. Serves the pages and keeps the server logs above.',
-          'Google (Gmail) — the mailbox the form lands in, and the fonts described above.',
-          'Sanity — the service holding photos of finished work. No customer data is stored there.',
-          'The postal carrier — your name and address, when there is something to send.',
-        ] },
-        'That is the whole list. Nothing is sold, rented, shared for advertising, ' +
-        'or used to train machine-learning systems.',
+        'I handle your enquiries and reference photos personally. Emails are handled through ' +
+        'Gmail, and payments are processed by the relevant payment providers. These services ' +
+        'process information as needed to provide their services.',
+        'When I ship your order, I also share the necessary delivery details with the postal ' +
+        'or courier service.',
+        'I don’t sell your data or share it with third parties for advertising or their own ' +
+        'marketing purposes.',
       ],
     },
     {
       id: 'keeping',
-      title: 'How long things are kept',
+      title: 'How long do I keep your information?',
       body: [
-        { list: [
-          `Enquiries that never became an order — ${POLICY.keepEnquiries}, then deleted.`,
-          `Reference files — ${POLICY.keepRefs} after the piece is sent.`,
-          `Order and payment records — ${POLICY.keepAccounts}, because tax law requires it.`,
-          'Email correspondence — as long as it is useful to remember who you are, and deleted on request.',
-        ] },
+        'I keep emails and correspondence for as long as reasonably needed to manage your ' +
+        'enquiry, order, or any follow-up. Order and payment records are kept for the period ' +
+        'required by Polish law.',
       ],
     },
     {
-      id: 'rights',
-      title: 'What you can ask for',
+      id: 'updates',
+      title: 'Updates to this policy',
       body: [
-        'Under the GDPR you can ask for any of this, and it costs you nothing:',
-        { list: [
-          'a copy of everything held about you',
-          'a correction, if something is wrong',
-          'deletion — including of your reference photos, at any point',
-          'a pause on processing while something is disputed',
-          'your data in a portable file',
-          'an objection to processing based on legitimate interest',
-        ] },
-        `Write to ${TRADER.email}. The answer comes within a month, usually the same week.`,
-        'If the answer does not satisfy you, you can complain to the data protection ' +
-        'authority in your own country, or to the one where Margarita is registered.',
-        { dpa: true },
-      ],
-    },
-    {
-      id: 'changes',
-      title: 'Changes',
-      body: [
-        `This page was last changed on ${POLICY.updated}. If it changes in a way that ` +
-        'affects an order already under way, you will be told by email rather than ' +
-        'left to notice it here.',
+        `This policy was last updated on ${POLICY.privacyUpdated}. If anything changes, ` +
+        'I’ll update this page.',
       ],
     },
   ],
@@ -200,137 +166,91 @@ export const PRIVACY = {
 
 /* --- Условия заказа ------------------------------------------- */
 
+/** Текст Риты, слово в слово. Даты в нём нет — стоит день, когда он
+    появился на сайте. */
 export const TERMS = {
-  eyebrow: 'Commission terms',
-  title: 'How an order works',
-  lead:
-    'Everything here is made by one person, to order, and usually for someone who has ' +
-    'never commissioned anything before. So this page is the whole arrangement in plain ' +
-    'words: what happens when, what is paid when, and what to do when something goes wrong.',
+  title: 'Terms & Conditions',
+  lead: 'A few things worth knowing before placing an order.',
+  updated: '25 October 2026',
   sections: [
     {
-      id: 'who',
-      title: 'Who you are buying from',
-      body: [{ trader: true }],
-    },
-    {
-      id: 'how',
-      title: 'From enquiry to parcel',
+      id: 'order',
+      title: 'Placing an order',
       body: [
-        { list: [
-          'You send the form. Nothing is owed and nothing is booked yet.',
-          'You get a reply with a price and a realistic date — usually the same day, at worst within a few days.',
-          `If it suits you, a deposit of ${POLICY.deposit}% confirms the slot. Work starts after it arrives.`,
-          'Progress photos arrive as the piece takes shape, and you can still steer small things.',
-          'The balance is paid when the piece is finished, before it is posted.',
-          'It ships tracked, and you get the number.',
-        ] },
+        'The process depends on what you’d like to order, so here’s how each type works.',
+        /* Вид заказа — жирным в начале абзаца, как у Риты двоеточием. */
+        { parts: [{ strong: 'Portraits:' }, ' The price is listed on the website. Sending an ' +
+          'application doesn’t guarantee a spot, so please wait for my email. If your ' +
+          'application is selected, I’ll send you an invoice with the details.'] },
+        { parts: [{ strong: 'Squids:' }, ' If you choose a design from one of my collections and ' +
+          'don’t request any changes, the listed price is your price, plus shipping. The same ' +
+          'goes for the configurator: the estimated price shown there is what you can expect to ' +
+          'pay, plus shipping, as long as you don’t request anything extra or unusual. If you’d ' +
+          'like to add something special, I’ll let you know the additional cost by email before ' +
+          'you decide.'] },
+        { parts: [{ strong: 'Custom dolls:' }, ' Submitting an application doesn’t guarantee a ' +
+          'spot. If you’re selected, we’ll discuss your idea and the final price by email. Once ' +
+          'everything is agreed upon, I’ll send you an invoice for the full amount.'] },
       ],
     },
     {
-      id: 'money',
-      title: 'Prices and payment',
+      id: 'cancel',
+      title: 'Cancellations & Changes',
       body: [
-        'Prices are in US dollars and quoted per piece — every commission is priced ' +
-        'individually, because no two take the same time.',
-        { list: [
-          `The ${POLICY.deposit}% deposit covers materials and the time reserved for you.`,
-          'Once work has begun the deposit is not refundable: the fabric is cut, the parts are bought, the slot is gone.',
-          'The balance is due before shipping.',
-          'Shipping is added on top, at cost.',
-        ] },
-        { vat: true },
-      ],
-    },
-    {
-      id: 'time',
-      title: 'How long it takes',
-      body: [
-        'A squid is usually 2–4 weeks, a doll longer, a portrait shorter. Any date given ' +
-        'is an honest estimate rather than a guarantee — this is handwork, and hands get ill.',
-        'If a date is going to slip, you hear it from Margarita before it slips, not after. ' +
-        'If you have a hard deadline — a birthday, a wedding — say so in the form, because ' +
-        'that is what decides whether the order can be taken at all.',
-      ],
-    },
-    {
-      id: 'changes',
-      title: 'Changes and cancellation',
-      body: [
-        { list: [
-          'Before work begins you can cancel for any reason, and the deposit comes back minus anything already bought for you.',
-          'After work begins the deposit stays, and what is already made stays with Margarita.',
-          'Small changes along the way are normal and free. A change that means starting over is a new price, agreed before anything is unpicked.',
-        ] },
-      ],
-    },
-    {
-      id: 'withdrawal',
-      title: 'The 14-day right of withdrawal',
-      body: [
-        'EU consumers usually get fourteen days to change their mind about something ' +
-        'bought online. Here it depends on what you bought:',
-        { list: [
-          'A commissioned piece — made to your description, for you — is exempt under Article 16(c) of Directive 2011/83/EU. There is no 14-day withdrawal, because it cannot be sold to anyone else.',
-          'Something bought from the “Available now” shelf already existed before you asked for it, so the full fourteen days apply: tell Margarita within fourteen days of it arriving, send it back at your own cost, and the money — including original postage — comes back within fourteen days of the piece arriving back.',
-        ] },
-      ],
-    },
-    {
-      id: 'wrong',
-      title: 'If something arrives wrong',
-      body: [
-        { list: [
-          `Damaged in the post: photograph the parcel and the piece and write within ${POLICY.damageWindow} of delivery. That is what the carrier needs to pay out.`,
-          'Not what was agreed, or a fault in the making: it is repaired or remade, at no cost, postage included.',
-          'Your statutory rights as a consumer — including the two-year guarantee of conformity — apply on top of everything on this page and are not reduced by it.',
-        ] },
-        'Handmade is not flawless by definition: slightly uneven stitching, a visible seam, ' +
-        'a button that is not perfectly centred — these are how the thing is made, not faults.',
+        'Please make sure you’re ready to commit before placing an order, as custom pieces are ' +
+        'made specifically for you.',
+        'If you need to cancel or change something, please contact me as soon as possible. Small ' +
+        'adjustments may be possible while I’m working, but changes that require significant ' +
+        'extra work may affect the price.',
+        'Once I’ve started working on your custom piece, cancellations and refunds are generally ' +
+        'not possible. Custom-made items may be excluded from the usual 14-day withdrawal right. ' +
+        'If you have any doubts, please get in touch before placing your order.',
       ],
     },
     {
       id: 'shipping',
-      title: 'Shipping, customs and duties',
+      title: 'Shipping & Customs',
       body: [
-        'Everything is sent tracked, packed to survive a rough journey.',
-        'Import duty, customs handling and local VAT are the buyer’s to pay, and are not ' +
-        'included in the price. They are charged by your own country, not by Margarita, ' +
-        'and cannot be predicted from here.',
-        'Parcels are not marked as gifts and values are not understated: that is fraud, ' +
-        'and it invalidates the insurance the parcel travels under.',
-      ],
-    },
-    {
-      id: 'toys',
-      title: 'These are not toys',
-      body: [
-        `Everything here is a collector’s item for adults and older children, and is not ` +
-        `suitable for anyone under ${POLICY.minAge}. Pieces contain button eyes, wire, ` +
-        `beads and small hand-sculpted clay parts that come off under real play, and they ` +
-        `are not tested or CE-marked as toys under Directive 2009/48/EC.`,
-        'If it is a present for a small child, say so and it can be made without the ' +
-        'small parts — sewn features, no wire, nothing to swallow.',
+        'Orders are shipped from Poland with tracking. Delivery times depend on the destination ' +
+        'and may be affected by postal delays.',
+        'I know waiting for a package can be stressful, and I’ll always do my best to help if ' +
+        'anything goes wrong along the way. Thankfully, I’ve never had a parcel go missing in all ' +
+        'the years I’ve been doing this, so it’s not something I’d worry too much about!',
+        'Once a parcel has been shipped, I can’t control what happens to it in transit. If it’s ' +
+        'delayed, I’ll gladly help you check its status and do whatever I can to help things go ' +
+        'smoothly. However, if a parcel is confirmed lost in transit, I’m unable to offer a ' +
+        'refund, as the loss happens after it has left my hands.',
+        'Some countries charge import taxes, customs duties, or handling fees when a parcel ' +
+        'arrives. These charges are set by your country, not by me, and I can’t always pay them ' +
+        'in advance. For example, UK orders may be subject to import charges, and other ' +
+        'destinations may have similar rules. By placing an order, you agree to cover any ' +
+        'applicable charges that are not included in your purchase price. For US orders, I cover ' +
+        'applicable import taxes in advance, so you shouldn’t need to pay them again upon delivery.',
+        'Please make sure your shipping details are correct and that you can receive your parcel. ' +
+        'If a parcel is returned because you provided incorrect details or didn’t collect it, ' +
+        'you’ll need to cover the cost of resending it. If the mistake was mine, I’ll take ' +
+        'responsibility and cover the additional shipping costs myself.',
       ],
     },
     {
       id: 'care',
-      title: 'Looking after it',
+      title: 'Caring for your piece',
       body: [
-        'Spot-clean only, never a washing machine. Keep it out of direct sun — the dyes ' +
-        'fade. Dust it with a soft brush rather than water.',
-        'If something comes loose years later, write anyway: repairs of her own work are ' +
-        'something Margarita does gladly, for the cost of postage.',
+        'My dolls and squids are handmade collectible pieces, made to be cherished and displayed ' +
+        'rather than used for everyday rough play. They may contain wire, small parts, and ' +
+        'sculpted details that can break or come loose if handled roughly.',
+        'If young children handle them, please make sure they’re supervised.',
+        'Of course, once a piece is yours, how you choose to enjoy it is up to you. I simply hope ' +
+        'you’ll treat it with care, so it can stay with you and bring you joy for as long as ' +
+        'possible! ♡',
       ],
     },
     {
-      id: 'law',
-      title: 'Law and disputes',
+      id: 'questions',
+      title: 'Questions?',
       body: [
-        { law: true },
-        'If you are a consumer, this does not take away the protection of the mandatory ' +
-        'rules of your own country of residence.',
-        'Most things sort themselves out in one email. Please start there.',
+        { parts: ['If anything is unclear or you have a question about your order, feel free to ' +
+          'email me at ', mail, '. I’m always happy to help!'] },
       ],
     },
   ],
@@ -338,106 +258,66 @@ export const TERMS = {
 
 /* --- Авторские права ------------------------------------------ */
 
+/** Текст Риты, слово в слово (10 октября 2026). */
 export const COPYRIGHT = {
-  eyebrow: 'Copyright',
-  title: 'Whose work is whose',
-  lead:
-    'Every photograph, drawing, character and pattern on this site was made by one person ' +
-    'by hand. This page says plainly what you may do with it, what you may not, and what ' +
-    'happens to the photos you send.',
+  title: 'Copyright',
+  lead: [
+    'Everything you see here is my own work, from the photographs and videos to the ' +
+    'drawings, characters, and designs. I create everything with a lot of time, care, ' +
+    'and love, and I ask that you respect that.',
+    `© ${new Date().getFullYear()} cutesmokey. All rights reserved.`,
+  ],
+  /* Даты в тексте нет — стоит день, когда Рита его прислала. */
+  updated: '10 October 2026',
   sections: [
     {
-      id: 'mine',
-      title: 'What belongs to Margarita',
+      id: 'sharing',
+      title: 'Sharing my work',
       body: [
-        'All of it: the photographs, the drawings, the text on these pages, the squid ' +
-        'artwork in the builder, and the designs of the pieces themselves — the shapes, ' +
-        'the faces, the way a squid is put together.',
-        `© ${new Date().getFullYear()} cutesmokey. All rights reserved.`,
+        'You’re welcome to share my work on social media, as long as you credit @cutesmokey ' +
+        'and link back to the original. You can save my work for personal inspiration or ' +
+        'share it with a friend, too.',
+        'Please don’t copy my designs, reproduce my creations, sell my artwork, use my photos ' +
+        'or videos commercially, or present my work as your own. My work may not be used to ' +
+        'train AI models, either.',
+        'If you’d like to use my work for something beyond personal sharing, please ask me first.',
       ],
     },
     {
-      id: 'may',
-      title: 'What you are welcome to do',
+      id: 'bought',
+      title: 'If you’ve bought something from me',
       body: [
-        { list: [
-          'Link to any page here.',
-          `Repost a photo on social media with credit and a link back — @${SOCIAL.instagram.split('/').filter(Boolean).pop()} is enough.`,
-          'Save images to a private moodboard or show them to a friend.',
-          'Photograph your own piece and post it however you like. It is yours.',
+        'The piece you buy is yours. You can keep it, photograph it, give it to someone, or do ' +
+        'whatever you like with the actual object.',
+        'The design itself remains my intellectual property, so please don’t reproduce or ' +
+        'manufacture copies of it.',
+      ],
+    },
+    {
+      id: 'photos',
+      title: 'Your photos',
+      body: [
+        'I use the reference photos you send me to create your commission. I may also share ' +
+        'photos or videos of the creative process or finished piece on my social media, but I ' +
+        'always ask for your permission first. If you’d prefer your commission to stay ' +
+        'private, just let me know.',
+        { parts: [
+          'You can read more about how I handle your photos on the ',
+          { link: '/privacy', label: 'Privacy page' },
+          '.',
         ] },
       ],
     },
     {
-      id: 'maynot',
-      title: 'What you may not do',
+      id: 'copy',
+      title: 'Spotted a copy?',
       body: [
-        { list: [
-          'Use any image here commercially: advertising, merchandise, prints, stock, packaging, or anything sold.',
-          'Crop out or cover the credit, or present the work as someone else’s.',
-          'Copy the designs — making, mass-producing or selling pieces built from these photos, or drafting patterns from them, is copying, not inspiration.',
-          'Order a piece and then have it reproduced in a workshop.',
+        { parts: [
+          'If you come across someone using my work without permission, I’d really appreciate ' +
+          'it if you let me know at ', mail, '.',
         ] },
-        'Small studios copy each other constantly and it is usually obvious. Asking first ' +
-        'costs nothing, and the answer is often yes.',
-      ],
-    },
-    {
-      id: 'ai',
-      title: 'Machine learning and scraping',
-      body: [
-        'Rights are expressly reserved against text and data mining under Article 4(3) of ' +
-        'Directive (EU) 2019/790. Nothing on this site may be used to train, fine-tune or ' +
-        'evaluate machine-learning models, and no automated collection of these images is ' +
-        'permitted, whether for a dataset, a generator or a resale catalogue.',
-        'This is stated for machines as well as people: the site’s robots.txt refuses the ' +
-        'known AI crawlers by name.',
-      ],
-    },
-    {
-      id: 'owning',
-      title: 'Buying a piece',
-      body: [
-        'You own the object. You can keep it, photograph it, give it away, or sell it on ' +
-        'years later — that is yours to decide, and none of it needs permission.',
-        'What does not come with it is the design. Copyright stays with Margarita, so a ' +
-        'piece cannot be reproduced, cast, patterned or manufactured from, and cannot be ' +
-        'used to advertise something else, without written permission.',
-      ],
-    },
-    {
-      id: 'yours',
-      title: 'The photos you send, and the piece made from them',
-      body: [
-        'Your reference photos stay yours. Sending them gives permission to use them for ' +
-        'one thing only — making your piece — and nothing else; how they are stored and ' +
-        'deleted is in the privacy page.',
-        'You also confirm, when you send them, that they are yours to send: that you took ' +
-        'them or have the right to use them, and that anyone recognisable in them is ' +
-        'content for a doll to be made from their face.',
-        'Photographs of the finished piece are Margarita’s own work and may appear in the ' +
-        'gallery and on social media. If you would rather they did not — a surprise, a ' +
-        'private commission, a face you would rather not see online — say so in an email, ' +
-        'at any point, including after it is posted.',
-      ],
-    },
-    {
-      id: 'brands',
-      title: 'Brands and press',
-      body: [
-        `Commercial use, collaborations and press requests go to ${EMAIL.pr} — there is a ` +
-        'whole page about it under PR & brands.',
-      ],
-    },
-    {
-      id: 'wrong',
-      title: 'If something here is wrongly used',
-      body: [
-        `If you find this work reposted as someone else’s, sold as a pattern, or scraped ` +
-        `into a catalogue, telling Margarita at ${TRADER.email} genuinely helps — she cannot ` +
-        `watch the whole internet by herself.`,
-        'And if something of yours has ended up on this site by mistake, write to the same ' +
-        'address and it comes down while it is being sorted out, not after.',
+        'I believe that everyone deserves to have their work respected, and that creating ' +
+        'something of your own is always better than taking someone else’s.',
       ],
     },
   ],

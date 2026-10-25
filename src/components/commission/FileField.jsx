@@ -19,16 +19,32 @@ const fmt = (bytes) => `${mb(bytes).toFixed(1)} MB`;
  * определяет тип и отдаёт пустую строку. Настоящая проверка — по
  * содержимому и на сервере, про это написано в api/CONTRACT.md.
  */
-const ALLOWED = ACCEPT.split(',');
 const BY_EXT = {
   jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
   webp: 'image/webp', heic: 'image/heic', heif: 'image/heic',
   pdf: 'application/pdf',
+  doc: 'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 };
 const typeOf = (f) =>
   f.type || BY_EXT[f.name.split('.').pop()?.toLowerCase()] || '';
 
-export default function FileField({ files, onChange }) {
+/** Что сказать про файл не того типа — по тому, что поле принимает. */
+const wrongType = (allowed) => {
+  const photos = allowed.some((t) => t.startsWith('image/'));
+  const docs = allowed.some((t) => !t.startsWith('image/'));
+  if (photos && docs) {
+    return allowed.includes('application/msword') ? 'photos, PDF or Word only' : 'photos and PDF only';
+  }
+  return photos ? 'photos only' : 'PDF or Word only';
+};
+
+/**
+ * accept — у каждого поля свой: у кукол на шагах внешности только
+ * снимки, на развилке «всё собрано» — только документ.
+ */
+export default function FileField({ files, onChange, accept: types = ACCEPT, invalid = false }) {
+  const allowed = types.split(',');
   const id = useId();
   const inputRef = useRef(null);
   const [notice, setNotice] = useState('');
@@ -50,7 +66,7 @@ export default function FileField({ files, onChange }) {
     for (const f of incoming) {
       /* Тип проверяем первым: отказ «не та картинка» понятнее, чем
          отказ «слишком тяжёлый» у файла, который всё равно не нужен. */
-      if (!ALLOWED.includes(typeOf(f))) { rejected.push(`${f.name} — photos and PDF only`); continue; }
+      if (!allowed.includes(typeOf(f))) { rejected.push(`${f.name} — ${wrongType(allowed)}`); continue; }
       if (next.length >= MAX_FILES) { rejected.push(`${f.name} — more than ${MAX_FILES} files won't fit`); continue; }
       if (mb(f.size) > MAX_FILE_MB) { rejected.push(`${f.name} — heavier than ${MAX_FILE_MB} MB`); continue; }
       // Дубли по имени и размеру: люди часто кидают один файл дважды
@@ -76,7 +92,9 @@ export default function FileField({ files, onChange }) {
     <div className={styles.wrap}>
       <label
         htmlFor={id}
-        className={`${styles.drop} ${dragging ? styles.over : ''}`}
+        /* invalid — шаг не пропустил: рамка розовая, как у поля с
+           ошибкой, чтобы было видно, что здесь тоже можно заполнить. */
+        className={`${styles.drop} ${dragging ? styles.over : ''} ${invalid ? styles.bad : ''}`}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
@@ -90,7 +108,8 @@ export default function FileField({ files, onChange }) {
           id={id}
           type="file"
           multiple
-          accept={ACCEPT}
+          aria-invalid={invalid || undefined}
+          accept={types}
           className="visually-hidden"
           onChange={(e) => { accept([...e.target.files]); e.target.value = ''; }}
         />
@@ -105,7 +124,7 @@ export default function FileField({ files, onChange }) {
               <li key={`${f.name}-${f.size}`} className={styles.item}>
                 {previews[i]
                   ? <img src={previews[i]} alt="" className={styles.thumb} />
-                  : <span className={styles.thumbDoc} aria-hidden="true">PDF</span>}
+                  : <span className={styles.thumbDoc} aria-hidden="true">{f.name.split('.').pop()?.toUpperCase().slice(0, 4)}</span>}
                 <span className={styles.name} title={f.name}>{f.name}</span>
                 <span className={styles.size}>{fmt(f.size)}</span>
                 <button

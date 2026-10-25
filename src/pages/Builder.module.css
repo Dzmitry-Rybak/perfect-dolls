@@ -1,5 +1,8 @@
 /* Схема — главный герой страницы, панель справа узкая и спокойная */
 .desk {
+  /* Запас сверху под скотч и скрепку: они выступают над листом, и без
+     запаса налезали на завиток шапки. */
+  margin-top: var(--sp-7);
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
   gap: clamp(1.5rem, 4vw, 3rem);
@@ -11,10 +14,11 @@
 
 .sheet {
   position: relative;
-  /* Лист по ширине схемы: иначе вокруг сквида оставались
-     широкие пустые поля клетчатой бумаги */
-  width: fit-content;
-  max-width: 100%;
+  /* Лист во всю колонку, а не по ширине схемы.
+     Раньше он обнимал сквида, чтобы вокруг не было пустой бумаги.
+     Теперь поля заполнены каракулями — и лист может быть настоящим
+     листом, а не узкой полоской под рисунком. */
+  width: 100%;
   margin-inline: auto;
   padding: var(--sp-6) var(--sp-5) var(--sp-5);
   background: #F2EDE3;
@@ -22,30 +26,72 @@
   rotate: -0.6deg;
   box-shadow: var(--shadow-pin);
   /* Поля — тоже фоновым слоем, а не отдельным элементом: у позиционированного
-     элемента нет способа уйти под обычное содержимое, и линия резала схему */
+     элемента нет способа уйти под обычное содержимое, и линия резала схему.
+     Клетка — плиткой 24×24 с одной линией по краю, а не
+     repeating-linear-gradient во весь лист. Лист повёрнут, и повёрнутый
+     большой слой браузер рисует кусками; длинный повторяющийся градиент
+     на стыках кусков не совпадал, и линии съезжали ступенькой. Плитка
+     у каждого куска одна и та же — съезжать нечему. */
   background-image:
     linear-gradient(to right, transparent 0 36px,
                     rgba(200, 70, 90, 0.4) 36px 37px, transparent 37px),
-    repeating-linear-gradient(to right,  rgba(90, 120, 160, 0.2) 0 1px, transparent 1px 24px),
-    repeating-linear-gradient(to bottom, rgba(90, 120, 160, 0.2) 0 1px, transparent 1px 24px);
-  background-repeat: no-repeat, repeat, repeat;
+    linear-gradient(to right,  rgba(90, 120, 160, 0.2) 0 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(90, 120, 160, 0.2) 0 1px, transparent 1px);
+  /* Красная линия полей — по той же причине тоже плитка: полоска
+     37×24, повторённая вниз по листу. */
+  background-size: 37px 24px, 24px 24px, 24px 24px;
+  background-repeat: repeat-y, repeat, repeat;
 }
-.tapeL, .tapeR {
-  position: absolute; top: -12px;
+/* Скотч по углам. Розоватый и полупрозрачный — сквозь него видно
+   бумагу, как сквозь настоящий. Углы наклонены в разные стороны,
+   иначе четыре одинаковые полоски читаются как рамка. */
+.tape {
+  position: absolute;
   width: 84px; height: 24px;
-  background: rgb(237 230 220 / 0.55);
-  border-inline: 1px dashed rgb(120 110 130 / 0.4);
+  /* Яркий и почти плотный: бледный на тёмном столе мутнел до
+     бурого и терялся. */
+  background: rgb(250 172 210 / 0.88);
+  border-inline: 1px dashed rgb(214 120 168 / 0.6);
 }
-.tapeL { left: -18px;  rotate: -30deg; }
-.tapeR { right: -18px; rotate: 30deg; }
+.tapeTL { top: -12px; left: -18px;     rotate: -30deg; }
+.tapeTR { top: -12px; right: -18px;    rotate: 30deg; }
+.tapeBL { bottom: -12px; left: -18px;  rotate: 30deg; }
+.tapeBR { bottom: -12px; right: -18px; rotate: -30deg; }
 
-.sheetTitle {
+/* Поля с каракулями. Ширина — доля листа, но не больше того, что
+   останется от сквида; на узком экране их нет вовсе. */
+.marginL, .marginR { display: none; }
+
+/* ---------- записка на скрепке ---------- */
+.note {
+  position: absolute;
+  top: 18px; left: 26px;
+  z-index: 2;
+  padding: var(--sp-4) var(--sp-4) var(--sp-3);
+  max-width: 13ch;
+  background: #FBC6DE;
+  rotate: -4deg;
+  box-shadow: 2px 4px 10px -4px rgb(90 60 75 / 0.5);
+}
+/* Скрепка сидит верхом на верхнем крае — часть её за бумажкой,
+   часть перед ней. Отсюда две половины: сам крючок рисуется поверх,
+   а тень под ним даёт ощущение, что он что-то зажал. */
+/* Скрепка сидит ВЕРХОМ на верхнем крае: большая часть над бумагой,
+   на листе — только короткий хвост. Пока она была наполовину внутри,
+   читалась как нарисованная на записке, а не надетая на неё. */
+.clip {
+  position: absolute;
+  top: -38px; left: 18px;
+  width: 24px; height: 52px;
+  rotate: 6deg;
+  filter: drop-shadow(1px 2px 2px rgb(60 40 50 / 0.4));
+}
+.noteText {
   font-family: var(--font-hand);
   font-size: var(--step-0);
-  color: #5A6B86;
-  margin-left: 20px;
-  margin-bottom: var(--sp-2);
-  rotate: -0.8deg;
+  line-height: 1.15;
+  color: #3A2430;
+  rotate: -1deg;
 }
 
 /* ---------- панель ---------- */
@@ -278,11 +324,44 @@
   max-width: 52ch;
 }
 
+/* На широком экране лист шире схемы, и по бокам есть поля.
+   Ширину полей считаем от листа, но не даём им налезть на сквида:
+   он занимает середину, его ширина — примерно 320px. */
+@media (min-width: 941px) {
+  /* Поле — от края листа до сквида: половина листа минус половина
+     схемы с небольшим зазором. */
+  .marginL, .marginR { display: block; width: calc(50% - 168px); }
+  .marginL { left: 0; }
+  .marginR { right: 0; }
+}
+
 @media (max-width: 940px) {
   .desk { grid-template-columns: 1fr; }
-  .sheetWrap { position: static; max-width: 460px; margin-inline: auto; }
+  /* Отступ под шапку: к схеме прокручивает мини-превью. */
+  .sheetWrap { position: static; max-width: 460px; margin-inline: auto; scroll-margin-top: 84px; }
   .sheet { rotate: 0deg; }
-  .tapeL { left: -8px; } .tapeR { right: -8px; }
+  .tapeTL, .tapeBL { left: -8px; }
+  .tapeTR, .tapeBR { right: -8px; }
+  /* Записка на узком листе села бы на уши сквида, поэтому здесь она
+     не лежит поверх схемы, а стоит над ней в общем потоке. Но это
+     та же бумажка на скрепке, что и на компьютере, а не строчка:
+     relative — чтобы скрепке было от чего отсчитываться. */
+  .note {
+    position: relative;
+    top: auto; left: auto;
+    width: fit-content;
+    max-width: none;
+    /* Верх записки — там же, где на компьютере, в 18px от края листа:
+       отрицательный отступ съедает верхнее поле листа. Иначе скрепка
+       не доставала до края и висела на записке сама по себе, а не
+       держала её на листе. */
+    margin: calc(18px - var(--sp-6)) var(--sp-2) var(--sp-4) auto;
+    padding: var(--sp-3) var(--sp-4);
+    rotate: 3deg;
+  }
+  /* На телефоне записка у правого края листа и наклонена в другую
+     сторону; скрепка при этом остаётся на её левом краю, как на
+     компьютере. */
 }
 
 /* Свободный выбор цвета в ряду образцов — та же лунка, что и у
@@ -319,3 +398,60 @@
   text-transform: uppercase;
 }
 .panel input[type="text"]::placeholder { color: var(--fog); letter-spacing: 0.3em; }
+
+/* Кнопка «посмотреть все подвески». Прижата влево и не на всю
+   ширину: это не действие с заказом, а возможность разглядеть, —
+   и выглядеть она должна скромнее кнопки отправки. */
+.charmsLink {
+  justify-self: start;
+  margin-top: var(--sp-1);
+}
+
+/* ---------- мини-превью сквида (телефон и планшет) ----------
+   Маленький лист в правом ВЕРХНЕМ углу, под шапкой: там, куда ушла
+   большая схема. Тот же клетчатый фон и тот же сквид. Появляется из
+   угла — растёт и проявляется, — а не выскакивает; уходит так же. */
+.mini {
+  position: fixed;
+  right: var(--sp-4);
+  top: calc(var(--header-h) + var(--sp-3));
+  z-index: 90;              /* под шапкой (100) и окнами (200) */
+  display: none;
+  padding: 6px;
+  background: #F2EDE3;
+  background-image:
+    linear-gradient(to right,  rgba(90, 120, 160, 0.2) 0 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(90, 120, 160, 0.2) 0 1px, transparent 1px);
+  background-size: 12px 12px;
+  border: 0;
+  border-radius: var(--r-md);
+  box-shadow: 0 10px 28px -8px rgb(0 0 0 / 0.65), 0 0 0 2px rgb(255 150 201 / 0.55);
+  rotate: 2deg;
+  transform-origin: 100% 0;
+  opacity: 0;
+  scale: 0.6;
+  translate: 0 -12px;
+  pointer-events: none;
+  cursor: pointer;
+  transition:
+    opacity 0.25s var(--ease-soft),
+    scale 0.35s var(--ease-out),
+    translate 0.35s var(--ease-out);
+}
+.miniOn {
+  opacity: 1;
+  scale: 1;
+  translate: 0 0;
+  pointer-events: auto;
+}
+.mini:active { scale: 0.96; }
+.mini:focus-visible { outline: 2px solid var(--rose); outline-offset: 3px; }
+/* Размер задаёт высота: сквид вытянутый (400:875), ширина следует. */
+.miniSheet { display: block; height: 190px; }
+.miniSheet svg { height: 100%; width: auto; }
+@media (max-width: 940px) {
+  .mini { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mini { transition: opacity 0.2s linear; scale: 1; translate: 0 0; }
+}

@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button.jsx';
 import ButtonEye from '../components/ui/ButtonEye.jsx';
@@ -11,7 +12,7 @@ import Loader from '../components/ui/Loader.jsx';
 import { getHome } from '../lib/api.js';
 import useAsync from '../lib/useAsync.js';
 import { SECTIONS } from '../data/nav.js';
-import { EMAIL } from '../data/site.js';
+import { EMAIL, SOCIAL } from '../data/site.js';
 import styles from './Home.module.css';
 
 /**
@@ -31,16 +32,60 @@ import styles from './Home.module.css';
  */
 const TILTS = [-2.2, 1.6, -1.1, 2.4, -1.8, 1.2];
 
+/* Снимки для «проданных» мест — прошлые работы, уменьшенные копии с
+   главной. Размыты и приглушены: это намёк, что здесь уже висело и
+   ушло, а не витрина. */
+const SOLD_SHOTS = [
+  '/art/home/squids-a.jpg', '/art/home/dolls-b.jpg',
+  '/art/home/squids-b.jpg', '/art/home/dolls-a.jpg',
+];
+
+/**
+ * Сколько колонок сейчас у полки — чтобы досыпать первый ряд пустыми
+ * местами. Колонок столько, сколько влезает (auto-fill), а сколько
+ * влезло, знает только браузер: читаем готовую раскладку и следим за
+ * шириной.
+ */
+function useColumns() {
+  const ref = useRef(null);
+  const [cols, setCols] = useState(1);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const read = () => setCols(getComputedStyle(el).gridTemplateColumns.split(' ').length);
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  });
+  return [ref, cols];
+}
+
 export default function Home() {
   /* Картинки главной и полка — одним запросом, см. getHome(). */
   const { data, loading } = useAsync(getHome, []);
   const hero = data?.hero;
   const available = data?.available ?? [];
+  /* Пустые места на полке. Одна-две вещи на листе во всю ширину
+     оставляли пустую бумагу, и полка выглядела недоделанной. Первый
+     ряд досыпаем «проданными» карточками: размытый снимок прошлой
+     работы и штамп SOLD — видно, что здесь висело и его забрали, и
+     следующее появится здесь же.
+     Только до конца первого ряда: целый ряд пустых мест был бы уже не
+     намёком, а складом. */
+  const [shelfRef, cols] = useColumns();
+  const spots = available.length < cols ? cols - available.length : 0;
 
   /* Снимки разделов из админки перекрывают вшитые в сборку. Берём
      карточку целиком, а не по полю: второй кадр без первого — это
      наплыв с одной работы на другую, и выглядел бы он как ошибка. */
-  const sections = SECTIONS.map((s) => ({ ...s, ...(data?.cards[s.id] ?? {}) }));
+  /* Карточка без снимка не показывается. Это «Other creations»: работ
+     там пока нет, и вместо снимка стояла рисованная заглушка — пустой
+     раздел, выставленный как полный. Появится снимок в админке
+     («Главная») — карточка вернётся сама. */
+  const sections = SECTIONS
+    .map((s) => ({ ...s, ...(data?.cards[s.id] ?? {}) }))
+    .filter((s) => s.photo);
 
   return (
     <>
@@ -80,9 +125,19 @@ export default function Home() {
               I turn the things you love into something you can hold.
               Come on in ♡
             </p>
+            {/* Обёртка — для правила по ширине самого блока (container):
+                «Support my work» уходит на свою строку не только на
+                телефоне, но и на планшете, где колонка текста узкая. */}
+            <div className={styles.actionsWrap}>
             <div className={styles.actions}>
               <Button to="/builder" size="lg">Build a squid</Button>
               <Button to="/gallery" size="lg" variant="stitched">See past work</Button>
+              {/* Не третья кнопка, а тихая ссылка рядом: донат —
+                  не главное действие на странице, а возможность. */}
+              <a className={styles.support} href={SOCIAL.coffee} target="_blank" rel="noreferrer noopener">
+                Support my work
+              </a>
+            </div>
             </div>
           </div>
         </div>
@@ -112,7 +167,7 @@ export default function Home() {
         {loading ? <Loader label="Looking on the shelf…" /> : available.length > 0 ? (
           <div className={styles.board}>
             <span className={styles.boardMargin} aria-hidden="true" />
-            <ul className={styles.shelf}>
+            <ul className={styles.shelf} ref={shelfRef}>
               {available.map((it, i) => (
                 <li key={it.id} className={styles.pinned} style={{ '--tilt': `${TILTS[i % TILTS.length]}deg` }}>
                   <span className={styles.pin} aria-hidden="true" />
@@ -136,6 +191,26 @@ export default function Home() {
                           Ask about it
                         </Button>
                       </div>
+                    </div>
+                  </StitchCard>
+                </li>
+              ))}
+              {Array.from({ length: spots }, (_, i) => (
+                <li
+                  key={`sold-${i}`}
+                  className={`${styles.pinned} ${styles.sold}`}
+                  style={{ '--tilt': `${TILTS[(available.length + i) % TILTS.length]}deg` }}
+                  aria-hidden="true"
+                >
+                  <span className={styles.pin} />
+                  <StitchCard seed={`sold-${i}`} tilt={false} className={styles.shelfCard}>
+                    <span className={styles.soldShot}>
+                      <img src={SOLD_SHOTS[i % SOLD_SHOTS.length]} alt="" loading="lazy" decoding="async" />
+                      <span className={styles.stamp}>Sold</span>
+                    </span>
+                    <div className={styles.shelfBody}>
+                      <p className="eyebrow">Found a home</p>
+                      <p className={styles.soldNext}>next one lands here ♡</p>
                     </div>
                   </StitchCard>
                 </li>
@@ -165,9 +240,7 @@ export default function Home() {
             <p className={styles.scribble}>pick your colours</p>
             <h2 className={styles.stripTitle}>Build your own squid</h2>
             <p className={`prose ${styles.stripLead}`}>
-              Tap the parts, choose the fur, paint the button, add horns or a
-              corset ribbon. The price adds up as you go, so there are no
-              surprises when you write to me.
+              Tap the parts, choose the fur, paint the button, and add your favourite details.
             </p>
             <Button to="/builder" size="lg">Open the builder</Button>
           </div>

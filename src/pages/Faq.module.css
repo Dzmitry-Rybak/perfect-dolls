@@ -45,6 +45,12 @@
   max-width: 66ch;
 }
 
+/* Ответ стал многоабзацным: разводим абзацы и даём подписям вес,
+   чтобы «Dolls» и «Squids» читались как заголовки своих правил,
+   а не как начало предложения. */
+.a > p + p { margin-top: var(--sp-3); }
+.aLabel { color: var(--bone); font-weight: 600; }
+
 .contact {
   margin-top: var(--sp-8);
   padding: var(--sp-6);

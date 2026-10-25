@@ -1,5 +1,6 @@
+import { Link } from 'react-router-dom';
 import PageShell from '../components/layout/PageShell.jsx';
-import { LEGAL, TRADER, TRADER_MISSING, POLICY } from '../data/legal.js';
+import { LEGAL, TRADER, TRADER_MISSING } from '../data/legal.js';
 import styles from './Legal.module.css';
 
 /**
@@ -68,6 +69,22 @@ function Block({ item }) {
     );
   }
 
+  /* Абзац из кусков: строки, почта ({ mail }), жирное ({ strong }) и
+     ссылка на страницу сайта ({ link, label }) — чтобы адрес в тексте
+     нажимался. */
+  if (item.parts) {
+    return (
+      <p className={`prose ${styles.p}`}>
+        {item.parts.map((part, i) => {
+          if (typeof part === 'string') return part;
+          if (part.mail) return <a key={i} href={`mailto:${part.mail}`}>{part.mail}</a>;
+          if (part.strong) return <strong key={i}>{part.strong}</strong>;
+          return <Link key={i} to={part.link}>{part.label}</Link>;
+        })}
+      </p>
+    );
+  }
+
   if (item.trader) return <Trader />;
 
   if (item.dpa) {
@@ -121,7 +138,7 @@ export default function Legal({ doc }) {
         </section>
       ))}
 
-      <p className={styles.updated}>Last updated {POLICY.updated}</p>
+      <p className={styles.updated}>Last updated {page.updated}</p>
     </PageShell>
   );
 }

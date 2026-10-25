@@ -101,36 +101,49 @@
 
 ---
 
-## Заявка на куклу
+## Заявка: кукла, портрет, готовый сквид
 
 ### `POST /api/commissions`
-Соответствует `submitCommission(values)`.
+Соответствует `submitCommission(values, kind)`.
 
 **Формат: `multipart/form-data`** — иначе не передать файлы.
-Фронт собирает `FormData` сам, поля приходят плоским списком.
+Фронт собирает `FormData` сам, поля приходят плоским списком. Полный
+список полей каждой анкеты — в `src/data/commissionForm.js`; ниже
+главное.
 
 | Поле | Тип | Обязательное | Примечание |
 |---|---|---|---|
-| `kind` | string | да | `doll` · `portrait` — от него зависит состав полей |
-| `height` | string | нет | только куклы: `small` · `medium` · `large` · `unsure` |
-| `people` | string | да | только портреты: `1` · `2` · `3` · `4` |
-| `pets` | string | нет | только портреты: `0` · `1` · `2` · `3` · `4` |
-| `idea` | string | у кукол да | свободный текст; у портретов необязателен |
-| `eyes` | string | нет | `pearl` · `jet` · `rose` · `mismatch` · `trust` |
-| `hair` | string | нет | `bob` · `long` · `wax` · `none` · `trust` |
-| `palette` | string | нет | множественный выбор, склеен через запятую |
-| `companion` | string | нет | `none` · `bat` · `cat` · `moon` · `other` |
-| `avoid` | string | нет | чего не хочется |
-| `name` | string | да | имя заказчика |
-| `email` | string | да | адрес для ответа |
-| `deadline` | string | нет | свободный текст |
-| `budget` | string | нет | `to150` · `150300` · `300500` · `over500` · `ask` |
-| `place` | string | нет | город и страна |
-| `links` | string | нет | только куклы: ссылки, по одной на строку |
-| `files` | file[] | нет | до 5 файлов, ≤ 8 МБ каждый, ≤ 20 МБ суммарно |
+| `kind` | string | да | `doll` · `portrait` · `squid` · `build` — от него зависит состав полей |
+| `name`, `email` | string | да | у всех анкет |
+| **куклы** | | | |
+| `instagram`, `message` | string | нет | |
+| `dolls` | string | да | `1` · `2` · `3` · `4` |
+| `country` | string | да | |
+| `path` | string | да | `steps` — заполняли по шагам, `file` — всё в одном документе |
+| `brief` | file[] | при `path=file` | PDF или Word |
+| `colours`, `mouth`, `scary` | string | нет | `mouth`: `regular` · `stitched` · `bloody`; `scary`: `true` · `false` |
+| `skinPhotos`, `hairPhotos`, `outfitPhotos`, `shoesPhotos`, `detailsPhotos` | file[] | нет | только снимки |
+| `skinNote`, `hairNote`, `outfitNote`, `shoesNote`, `detailsNote` | string | нет | |
+| `dollName`, `packaging`, `extra` | string | нет | |
+| `companion` | string | нет | `true` — мини-сквид к кукле (+$75); описание в `companionNote` |
+| `reserve` | string | нет | `true` — бронь места с доплатой 50% |
+| **портреты** | | | |
+| `people` | string | да | `1` · `2` · `3` · `4` |
+| `pets` | string | нет | `0` · `1` · `2` · `3` · `4` |
+| `files` | file[] | нет | снимки и PDF |
+| **готовые сквиды** | | | |
+| `model`, `price` | string | да | приходят от карточки модели |
+| `ship_*` | string | да | адрес доставки: `street` `unit` `city` `state` `country` `postcode` `phone` |
+| `sameInvoice` | string | — | `false` — счёт на другие данные, они в `invoice_*` |
+| **сквид из конструктора** (`build`) | | | поля адреса и счёта — как у готового сквида |
+| `build` | string | да | сквид словами, по строке на пункт |
+| `buildJson` | string | да | сырая сборка из конструктора; цену по ней пересчитать на сервере |
+| `price` | string | да | цена, которую видел человек, — только для сверки |
 
-Допустимые типы файлов: `image/jpeg`, `image/png`, `image/webp`,
-`image/heic`, `application/pdf`.
+В каждом поле с файлами — до 5 файлов, ≤ 8 МБ каждый, ≤ 20 МБ на поле.
+Допустимые типы: снимки — `image/jpeg`, `image/png`, `image/webp`,
+`image/heic`; документы — `application/pdf`, `application/msword`,
+`application/vnd.openxmlformats-officedocument.wordprocessingml.document`.
 
 **201:**
 
@@ -148,13 +161,14 @@
    их обходит любой прямой запрос. Проверять размер, количество и реальный тип
    по содержимому, а не по расширению и не по заголовку `Content-Type`.
 2. **Проверить обязательные поля** и формат почты. Обязательные зависят от
-   `kind`: у кукол это `kind`, `idea`, `name`, `email`, у портретов —
-   `kind`, `people`, `name`, `email`. Число людей и животных на портрете
+   `kind` — см. таблицу выше: у кукол `name`, `email`, `dolls`, `country`,
+   `path`, у портретов `people`, `name`, `email`. Число людей и животных на портрете
    ограничено четырьмя: список на клиенте больше не предлагает «и больше»,
    но проверить потолок обязан сервер.
 3. **Ограничить частоту** — форма открыта всем, без лимита её зальют спамом.
 4. **Отправить письмо Рите** с полями и вложениями — на адрес из
-   `EMAIL.commissions` (`src/data/site.js`), туда идут анкеты обоих видов.
+   `EMAIL.commissions[kind]` (`src/data/site.js`): куклы — на кукольный
+   ящик, портреты и сквиды (готовые и из конструктора) — на основной.
    Заказчику — подтверждение с номером заявки.
 5. **Сохранить заявку** до отправки письма: если почтовый сервис отвалится,
    заявка не должна пропасть.

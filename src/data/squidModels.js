@@ -23,14 +23,14 @@ import { BASE_PRICE } from './squidBuilder.js';
  * как приходит из админки, чтобы два источника не разошлись.
  */
 export const squidModels = [
-  { id: 'bluet',     name: 'Bluet',      collection: 'Coraline-inspired', price: BASE_PRICE, photo: null },
+  { id: 'bluet',     name: 'Bluet',      collection: 'Coraline-inspired', price: BASE_PRICE, photos: [] },
 
-  { id: 'marta',     name: 'Marta',      collection: "Valentine's collection", price: BASE_PRICE, photo: null },
-  { id: 'lilith',    name: 'Lilith',     collection: "Valentine's collection", price: BASE_PRICE, photo: null },
-  { id: 'amalthea',  name: 'Amalthea',   collection: "Valentine's collection", price: BASE_PRICE, photo: null },
+  { id: 'marta',     name: 'Marta',      collection: "Valentine's collection", price: BASE_PRICE, photos: [] },
+  { id: 'lilith',    name: 'Lilith',     collection: "Valentine's collection", price: BASE_PRICE, photos: [] },
+  { id: 'amalthea',  name: 'Amalthea',   collection: "Valentine's collection", price: BASE_PRICE, photos: [] },
 
-  { id: 'samael',    name: 'Samael',     collection: 'Halloween collection', price: BASE_PRICE, photo: null },
-  { id: 'salem',     name: 'Salem',      collection: 'Halloween collection', price: BASE_PRICE, photo: null },
-  { id: 'annabelle', name: 'Annabelle',  collection: 'Halloween collection', price: BASE_PRICE, photo: null },
-  { id: 'amon',      name: 'Amon',       collection: 'Halloween collection', price: BASE_PRICE, photo: null },
+  { id: 'samael',    name: 'Samael',     collection: 'Halloween collection', price: BASE_PRICE, photos: [] },
+  { id: 'salem',     name: 'Salem',      collection: 'Halloween collection', price: BASE_PRICE, photos: [] },
+  { id: 'annabelle', name: 'Annabelle',  collection: 'Halloween collection', price: BASE_PRICE, photos: [] },
+  { id: 'amon',      name: 'Amon',       collection: 'Halloween collection', price: BASE_PRICE, photos: [] },
 ];

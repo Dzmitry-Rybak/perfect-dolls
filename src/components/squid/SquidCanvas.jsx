@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { PATH, VIEW, GROUPS } from '../../data/squidArt.js';
-import { PART, HORNS, WINGS, WING_RIBS, WOUNDS, WOUND_SPECKS, COLLAR, BOW, SAFETY_PIN, CLAY, CLAY_COLOR, PIERCE, CORSET, heart, star, HEART_BOX, FUR_PATCH, SKULL_FUR, beadSpots, BEAD_R, BEAD_FACE, BEAD_SIDE, BEAD_SIDE_DX, BEAD_RIDGES, BEAD_RIDGE_DEPTH } from '../../data/squidParts.js';
+import { PART, HORNS, WINGS, WING_RIBS, WOUNDS, COLLAR, BOW, SAFETY_PIN, CLAY, CLAY_COLOR, PIERCE, CORSET, heart, star, HEART_BOX, FUR_PATCH, SKULL_FUR, beadSpots, BEAD_FACE, BEAD_SIDE, BEAD_RIDGES } from '../../data/squidParts.js';
 import styles from './SquidCanvas.module.css';
 
 /**
@@ -16,8 +16,11 @@ import styles from './SquidCanvas.module.css';
  */
 
 const INK = '#15131A';
-const BLOOD = '#A8323C';       // цвет раны фиксированный — так у Риты в спеке
-const BLOOD_DEEP = '#5A0F17';  // глубина разрыва
+/* Цвет раны один и ровный — так на листе у Риты. Был ещё тёмный
+   для глубины разрыва и мелкие капли по краю; от них отказались:
+   на схеме рана и так небольшая, и три слоя в ней читались не как
+   рана, а как грязь. */
+const BLOOD = '#A8323C';
 const CHARM = '#D9D4CE';       // подвеска — металл, цвет не выбирается
 
 /**
@@ -404,10 +407,9 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
         <g pointerEvents="none">
           {WOUNDS.map((w, i) => (
             <g key={i}>
+              {/* Одна заливка ровным цветом и чёрный контур — как на
+                  рисунке Риты. Ни тёмной глубины, ни капель. */}
               <path d={w.outer} fill={BLOOD} stroke={INK} strokeWidth="2.4" strokeLinejoin="round" />
-              <path d={w.inner} fill={BLOOD_DEEP} />
-              {/* Капли — под швами: нитка лежит поверх раны, а не наоборот */}
-              <path d={WOUND_SPECKS[i]} fill={BLOOD} />
               {/* Швы. Идут ВМЕСТЕ с раной, отдельной добавкой не бывают:
                   на рисунке Риты рваный край всегда прихвачен ниткой.
                   Две толщины: одинаковая у всех читается как машинная
@@ -531,10 +533,10 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
         <mask id="squid-bead-cut" maskUnits="userSpaceOnUse"
               x="-60" y="-60" width="520" height="1000">
           <rect x="-60" y="-60" width="520" height="1000" fill="#fff" />
-          {beads.map(({ x, y }, i) => (
+          {beads.map(({ x, y, r, dx }, i) => (
             <g key={i} fill="#000">
-              <circle cx={x} cy={y} r={BEAD_R + 2.4} />
-              <circle cx={x - BEAD_SIDE_DX} cy={y} r={BEAD_R + 2.4} />
+              <circle cx={x} cy={y} r={r + 2.4} />
+              <circle cx={x - dx} cy={y} r={r + 2.4} />
             </g>
           ))}
         </mask>
@@ -653,32 +655,36 @@ export default function SquidCanvas({ build, colorOf, onPick, activePart }) {
           насечки-лесенка; передний — лицо с буквой. */}
       {beads && (
         <g pointerEvents="none">
-          {beads.map(({ x, y }, i) => {
-            const sx = x - BEAD_SIDE_DX;
+          {beads.map(({ x, y, r, dx, depth }, i) => {
+            const sx = x - dx;
+            /* Всё внутри бусины считается от её радиуса: при длинном
+               имени бусины мельче, и толщина контура с кеглем буквы
+               должны уехать вместе с ними, иначе у коротких имён
+               рисунок один, а у длинных — каша. */
+            const line = r * 0.27;
             return (
               <g key={i}>
-                <circle cx={sx} cy={y} r={BEAD_R} fill={BEAD_SIDE}
-                        stroke={INK} strokeWidth="1.8" />
+                <circle cx={sx} cy={y} r={r} fill={BEAD_SIDE}
+                        stroke={INK} strokeWidth={line} />
                 {BEAD_RIDGES.map((deg) => {
                   const a = (deg * Math.PI) / 180;
                   const c = Math.cos(a), s2 = Math.sin(a);
                   return (
                     <line
                       key={deg}
-                      x1={sx + c * BEAD_R} y1={y + s2 * BEAD_R}
-                      x2={sx + c * (BEAD_R - BEAD_RIDGE_DEPTH)}
-                      y2={y + s2 * (BEAD_R - BEAD_RIDGE_DEPTH)}
-                      stroke={INK} strokeWidth="1.2" strokeLinecap="round"
+                      x1={sx + c * r} y1={y + s2 * r}
+                      x2={sx + c * (r - depth)} y2={y + s2 * (r - depth)}
+                      stroke={INK} strokeWidth={line * 0.67} strokeLinecap="round"
                     />
                   );
                 })}
-                <circle cx={x} cy={y} r={BEAD_R} fill={BEAD_FACE}
-                        stroke={INK} strokeWidth="1.8" />
+                <circle cx={x} cy={y} r={r} fill={BEAD_FACE}
+                        stroke={INK} strokeWidth={line} />
                 <text
                   x={x} y={y}
                   textAnchor="middle" dominantBaseline="central"
                   fontFamily="var(--font-ui), sans-serif"
-                  fontSize="8" fontWeight="700" fill={INK}
+                  fontSize={r * 1.21} fontWeight="700" fill={INK}
                 >
                   {build.beadWord[i]}
                 </text>

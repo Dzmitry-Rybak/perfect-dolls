@@ -7,22 +7,28 @@ export default function Pr() {
   return (
     <PageShell
       eyebrow="For brands"
-      title="PR & collaborations"
-      lead="Yes, advertising is available — and yes, I would genuinely like you to buy some."
+      title="PR & Collaborations"
+      lead="Yes, collaborations are welcome, and yes, I’d genuinely love to hear from you ♡"
     >
+      {/* Текст Риты, слово в слово. */}
       <div className={`prose ${styles.prBody}`}>
         <p>
-          I post about the work on{' '}
+          I share my work on{' '}
           <a href={SOCIAL.instagram} target="_blank" rel="noreferrer noopener">Instagram</a>
           {' '}and{' '}
           <a href={SOCIAL.tiktok} target="_blank" rel="noreferrer noopener">TikTok</a>,
-          where the audience is mostly people who like handmade things, soft
-          horror, sewing and the darker end of cute.
+          where my audience is full of artists, handmade lovers, and people who
+          appreciate authenticity, creativity, and things made with care.
         </p>
         <p>
-          For rates, formats and anything commercial, write to the address below.
-          It's a separate inbox on purpose — commercial mail gets buried
-          instantly if it lands with the order requests.
+          I’d love to find ways to bring your product into my creative world,
+          whether it’s through the making process, a custom order, or a new idea
+          inspired by it. I’m always excited by collaborations that give me
+          something genuinely fun to create.
+        </p>
+        <p>
+          For rates, formats, and all commercial inquiries, please write to the
+          email below.
         </p>
       </div>
 

@@ -17,8 +17,8 @@ export default function Footer() {
             <span>cutesmokey</span>
           </Link>
           <p className={styles.note}>
-            Handmade plush squids, collectible dolls and drawn portraits.
-            Everything is made to order and exists only once.
+            Collectible dolls, handmade plush squids, drawn portraits, and more.
+            Everything exists only once.
           </p>
         </div>
 
@@ -41,7 +41,7 @@ export default function Footer() {
               <li><Link to="/other">Other creations</Link></li>
             </ul>
           </div>
-          <div>
+          <div className={styles.findMe}>
             <h4 className={styles.colTitle}>Find me</h4>
             <ul>
               <li><a href={SOCIAL.instagram} target="_blank" rel="noreferrer noopener">Instagram</a></li>
@@ -50,6 +50,8 @@ export default function Footer() {
                   и TikTok длинная почта ломала бы строку. */}
               <li><a href={`mailto:${EMAIL.main}`}>Email</a></li>
               <li><Link to="/pr">PR &amp; brands</Link></li>
+              {/* Донаты — последним пунктом, после всего остального. */}
+              <li><a href={SOCIAL.coffee} target="_blank" rel="noreferrer noopener">Support my work</a></li>
             </ul>
           </div>
         </nav>
@@ -62,11 +64,9 @@ export default function Footer() {
             поэтому они здесь, а не в шапке: подвал есть везде. */}
         <nav className={styles.legal} aria-label="Legal">
           <Link to="/privacy">Privacy</Link>
-          <Link to="/terms">Commission terms</Link>
+          <Link to="/terms">Terms &amp; Conditions</Link>
           <Link to="/copyright">Copyright</Link>
         </nav>
-
-        <span className={styles.stitchNote}>Sewn by hand · stitch by stitch</span>
 
         {/* Реквизиты предпринимателя — отдельной строкой во всю ширину.
             Пока не заполнены, строки нет вовсе: пустая полоса под

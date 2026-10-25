@@ -6,7 +6,9 @@
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; }
 
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+/* Фон и у html, а не только у body: при оттягивании страницы на
+   iPhone за край и под строкой состояния виден именно он. */
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; background-color: var(--ink); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
@@ -83,10 +85,15 @@ a:hover { text-decoration-color: var(--rose); }
    Все референсы Риты написаны по холсту/акварельной бумаге,
    плоские заливки читались бы чужеродно.
    ============================================================ */
+/* Начинается ПОД шапкой, а не от верха экрана. Safari на iPhone ищет
+   у верхнего края панель, по цвету которой красит полосу под Dynamic
+   Island, и берёт самый верхний приколотый элемент. Зерно на весь
+   экран лежало выше шапки и было прозрачным — Safari решал, что
+   панели нет, и показывал в полосе уезжающий контент. */
 body::after {
   content: '';
   position: fixed;
-  inset: 0;
+  inset: var(--header-h) 0 0 0;
   z-index: 9999;
   pointer-events: none;
   opacity: 0.035;

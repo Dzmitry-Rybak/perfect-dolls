@@ -13,13 +13,16 @@ import styles from './PageShell.module.css';
  * во всю ширину страницы. По умолчанию его нет намеренно: длинная
  * строка читается хуже, глаз теряет начало следующей. Включается
  * там, где так попросили.
+ *
+ * `spiral={false}` убирает завиток под шапкой. Он отбивает подводку
+ * от содержимого; где подводки нет (вопросы), он висел сам по себе.
  */
 export default function PageShell({
-  eyebrow, title, lead, aside, children, wide = false, wideLead = false,
+  eyebrow, title, lead, aside, children, wide = false, wideLead = false, spiral = true,
 }) {
   return (
     <div className={`page ${styles.shell} ${wide ? styles.wide : ''}`}>
-      <header className={[styles.head, aside && styles.split, wideLead && styles.headFull]
+      <header className={[styles.head, aside && styles.split, wideLead && styles.headFull, spiral && styles.spiraled]
         .filter(Boolean).join(' ')}>
         <div className={styles.headText}>
           {eyebrow && <p className="eyebrow">{eyebrow}</p>}
@@ -27,7 +30,7 @@ export default function PageShell({
           {lead && (Array.isArray(lead) ? lead : [lead]).map((line, i) => (
             <p key={i} className={`prose ${styles.lead}`}>{line}</p>
           ))}
-          <Spiral size={40} unwind className={styles.spiral} />
+          {spiral && <Spiral size={40} unwind className={styles.spiral} />}
         </div>
         {aside && <div className={styles.headAside}>{aside}</div>}
       </header>

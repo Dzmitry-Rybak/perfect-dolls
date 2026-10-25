@@ -8,21 +8,23 @@ import { getWorks } from '../lib/api.js';
 import useAsync from '../lib/useAsync.js';
 import styles from './Section.module.css';
 
-/* Три работы из архива. Здесь витрина, а не листалка: показываем
+/* Четыре работы из архива. Здесь витрина, а не листалка: показываем
    один кадр, за остальными — в галерею.
-   Какие именно три, выбирается в админке («Страницы разделов»);
-   ничего не выбрано — берутся первые три по полю «Порядок в галерее».
+   Какие именно, выбирается в админке («Страницы разделов»);
+   ничего не выбрано — берутся первые по полю «Порядок в галерее».
 
    БЕЗ ПОДПИСЕЙ, в отличие от сквидов и кукол: Маргарита попросила
    оставить здесь одни снимки. Описание при этом не пропало — оно
    осталось в alt, так что и поиску, и экранному диктору кадр
    по-прежнему понятен. Заголовки работ никуда не делись из админки
    и по-прежнему видны в галерее. */
-const SHOWN = 3;
+const SHOWN = 4;
 
-/* Описание раздела — четырьмя абзацами: вопрос, как рисуется человек
-   и его зверь, что ещё приходит в наборе и сухие цифры про формат.
-   Цифры нарочно последними: сначала про то, что получится. */
+/* Описание раздела — пятью абзацами: вопрос, как рисуется человек
+   и его зверь, что ещё приходит в наборе, сухие цифры про формат и
+   цены. Цифры нарочно последними: сначала про то, что получится.
+   Цены — как у кукол: последним абзацем, суммы розовым. Три строки
+   Риты разбиты переносами, а не абзацами: это один прайс. */
 const LEAD = [
   'Wanna see what you’d look like as a little doll?',
   'I draw you as a “mini me” doll, turning your favourite details into a tiny '
@@ -33,6 +35,12 @@ const LEAD = [
   + 'around, and every set comes with a few little extras, too.',
   'The portraits are a little larger than A5 and drawn in black and white using '
   + 'markers and black fineliners.',
+  <>
+    Full Set Price: <span className={styles.price}>$100 USD</span><br />
+    Extra person: <span className={styles.price}>+$35</span>
+    {' · '}Extra pet: <span className={styles.price}>+$45</span><br />
+    Shipping: <span className={styles.price}>~$10–20</span>
+  </>,
 ];
 
 export default function Portraits() {

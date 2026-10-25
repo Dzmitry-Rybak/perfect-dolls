@@ -1,6 +1,13 @@
 .overlay {
   position: fixed;
-  inset: 0;
+  /* Не на весь экран, а на ВИДИМУЮ его часть (--vv-top, --vv-h ставит
+     окно по visualViewport). На телефоне клавиатура закрывает низ
+     экрана, и окно на весь экран уходило под неё: поле ввода
+     оказывалось за клавиатурой, а курсор — не там, где палец. */
+  top: var(--vv-top, 0px);
+  left: 0;
+  right: 0;
+  height: var(--vv-h, 100%);
   z-index: 200;              /* выше шапки (100), ниже зерна (9999) */
   display: grid;
   /* minmax(0,1fr) обязателен: при auto-треке грид растёт под контент,
@@ -146,13 +153,43 @@
 /* --- поля --- */
 .body {
   display: grid;
-  gap: var(--sp-5);
-  padding: var(--sp-5) var(--sp-6);
+  /* Две колонки, но по умолчанию каждое поле во всю ширину; в пол-
+     строки встают только короткие, помеченные half (адрес). */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Между строками — отступ у самого поля, а не промежуток сетки:
+     промежуток остаётся и у свёрнутого поля (строка не бывает меньше
+     нуля), и шесть свёрнутых строк блока счёта у сквида давали дыру
+     в полэкрана. Отступ же свёрнутое поле забирает с собой. */
+  column-gap: var(--sp-4);
+  /* Снизу — ещё и высота подвала: он стеклянный и лежит поверх низа
+     анкеты, а последнее поле не должно под ним прятаться. Высоту
+     подвала меряет окно (--foot-h). */
+  padding: var(--sp-5) var(--sp-6) calc(var(--sp-5) + var(--foot-h, 4.5rem));
   /* min-height:0 снимает флексовый минимум по контенту — без него
      overflow-y ниже не срабатывает и блок просто распирает панель */
   min-height: 0;
   overflow-y: auto;
+  /* Шаг въезжает сбоку (stepIn) — без этого на время въезда
+     появлялась горизонтальная прокрутка. */
+  overflow-x: hidden;
   overscroll-behavior: contain;  /* прокрутка не «протекает» на страницу */
+  /* Поле в фокусе браузер докручивает так, чтобы оно не ушло под
+     стеклянный подвал. */
+  scroll-padding-block: var(--sp-4) calc(var(--foot-h, 4.5rem) + var(--sp-3));
+}
+.body > * { grid-column: 1 / -1; }
+.body > * + * { margin-top: var(--sp-5); }
+/* Вторая в паре half стоит в той же строке, что и первая, и отступ у
+   неё должен быть тот же. Не совпадает он только в первой строке шага:
+   у первого поля отступа нет — значит, нет и у его пары. */
+.body > .half:first-child + .half { margin-top: 0; }
+.body > .half { grid-column: auto; }
+/* На телефоне пара полей в строку — по 140px на каждое: подпись
+   «Apartment / unit number» не помещается. Встают друг под другом. */
+@media (max-width: 600px) {
+  .body > .half { grid-column: 1 / -1; }
+  /* Здесь пара встаёт столбиком — второму полю нужен свой отступ. */
+  .body > .half:first-child + .half { margin-top: var(--sp-5); }
 }
 
 .fileBlock { display: grid; gap: var(--sp-2); }
@@ -177,11 +214,27 @@
 
 /* --- низ --- */
 .foot {
-  flex: none;
-  padding: var(--sp-4) var(--sp-6);
-  border-top: 1px dashed rgb(81 76 88 / 0.4);
-  background: var(--ink-sunken);
+  /* «Жидкое стекло»: подвал лежит поверх низа анкеты, и поля при
+     прокрутке уходят под него размытыми. Полупрозрачная заливка,
+     размытие с насыщенностью и светлый блик по верхней кромке —
+     как у стекла, на которое падает свет. */
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 3;
+  padding: var(--sp-3) var(--sp-6);
+  background:
+    linear-gradient(to bottom, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.015)),
+    rgb(21 19 24 / 0.5);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border-top: 1px solid rgb(255 255 255 / 0.12);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
   border-radius: 0 0 calc(var(--r-lg) - 2px) calc(var(--r-lg) - 2px);
+}
+/* Без размытия (старые браузеры) полупрозрачный подвал читался бы
+   поверх полей кашей — там он плотный, как раньше. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .foot { background: var(--ink-sunken); }
 }
 
 .actions {
@@ -192,6 +245,10 @@
   gap: var(--sp-4);
 }
 .btns { display: flex; align-items: center; gap: var(--sp-3); }
+/* Кнопки подвала — чуть меньше обычных: подвал от этого ниже и
+   меньше закрывает анкету. Вес .btns > * — чтобы перебить размер
+   кнопки (.sm) независимо от порядка файлов в сборке. */
+.btns > * { padding: 0.5rem 1.2rem; font-size: 0.95rem; }
 
 .failed {
   margin-bottom: var(--sp-3);
@@ -221,6 +278,14 @@
 .doneTitle { font-size: var(--step-4); }
 .doneTitle:focus { outline: none; }
 .doneText { max-width: 46ch; }
+/* Выделенное в тексте благодарности: розовая черта, как у ссылок, но
+   это не ссылка — без смены цвета самих букв. */
+.doneMark {
+  text-decoration: underline;
+  text-decoration-color: var(--rose);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
 .doneTo {
   font-family: var(--font-ui);
   font-size: var(--step--1);
@@ -229,14 +294,15 @@
 }
 
 @media (max-width: 600px) {
-  .overlay { padding: 0; }
-  .panel {
-    width: 100%;
-    max-height: 100%;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
+  /* На телефоне — тоже окно, а не лист во весь экран: с полями по
+     краям, рамкой и скруглением. Прижатое к краям выглядело как
+     сломанная страница, а не как окно поверх неё. */
+  .overlay {
+    padding: var(--sp-3);
+    padding-top: max(var(--sp-3), env(safe-area-inset-top, 0px));
+    padding-bottom: max(var(--sp-3), env(safe-area-inset-bottom, 0px));
   }
+  .panel { width: 100%; max-height: 100%; }
 
   /* На телефоне шапка и низ забирали больше трети экрана,
      и на сами вопросы оставалась узкая полоса — ужимаем всё,
@@ -246,12 +312,172 @@
   .title { font-size: var(--step-2); }
   .hint { font-size: var(--step--1); }
 
-  .body { padding: var(--sp-4); gap: var(--sp-4); }
+  /* Только промежуток колонок: между строками — отступы у полей
+     (см. .body), иначе под свёрнутым блоком снова оставалась дыра. */
+  .body {
+    padding: var(--sp-4) var(--sp-4) calc(var(--sp-4) + var(--foot-h, 5.5rem));
+    column-gap: var(--sp-4);
+  }
 
-  .foot { padding: var(--sp-3) var(--sp-4); border-radius: 0; gap: var(--sp-2); }
+  .foot { padding: var(--sp-3) var(--sp-4); gap: var(--sp-2); }
   .actions { gap: var(--sp-2); }
-  .privacy { order: 2; flex-basis: 100%; font-size: 0.72rem; }
-  .btns { order: 1; width: 100%; justify-content: flex-end; }
+  /* Подпись короткая — стоит слева от кнопок в той же строке, а не
+     под ними: так подвал ниже и меньше закрывает анкету. Не влезает
+     (Back + Send it) — переносится сама. */
+  .actions { flex-wrap: nowrap; }
+  .privacy { flex: 1 1 0; min-width: 0; font-size: 0.72rem; }
+  .btns { flex: none; }
 
   .done { padding: var(--sp-7) var(--sp-4); }
 }
+
+/* Анкета на куклу: дорожка шагов — ряд пуговиц над заголовком, без
+   подписей. Пройденные и текущая горят розовым. */
+.headBare { grid-template-columns: 1fr; gap: var(--sp-4); }
+.headBare .rail { order: -1; }
+.railBare {
+  grid-auto-flow: column;
+  justify-content: start;
+  align-items: center;
+  gap: var(--sp-4);
+  padding-top: 0;
+  min-width: 0;
+}
+.railBare .railItem + .railItem::before {
+  left: calc(-1 * var(--sp-4));
+  top: 50%;
+  translate: 0 -50%;
+  width: var(--sp-4);
+  height: 2px;
+  background-image: linear-gradient(to right, var(--fog) 55%, transparent 55%);
+  background-size: 5px 2px;
+}
+.railBare .railNow svg,
+.railBare .railDone svg { filter: drop-shadow(0 0 4px rgb(255 150 201 / 0.75)); }
+
+/* Пуговица, которая появилась в ряду, — вырастает, а не выскакивает.
+   Задержка по месту в ряду: шесть новых встают одна за другой, слева
+   направо. Срабатывает только при появлении: стоящие пуговицы React
+   не пересоздаёт. */
+.railBare .railItem {
+  animation: railGrow 0.32s var(--ease-out) both;
+  animation-delay: calc(max(var(--n) - 2, 0) * 45ms);
+}
+@keyframes railGrow {
+  from { opacity: 0; scale: 0.3; }
+}
+/* И уходит так же — сжимается и гаснет, справа налево. */
+.railBare .railLeave {
+  animation: railShrink 0.26s var(--ease-out) both;
+  animation-delay: calc(var(--out) * 35ms);
+}
+@keyframes railShrink {
+  to { opacity: 0; scale: 0.3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .railBare .railItem, .railBare .railLeave { animation: none; }
+}
+
+/* Поле по выбору: разворачивается по высоте, а не возникает.
+   Высоту «до содержимого» напрямую не анимировать, поэтому строка
+   сетки едет от 0fr к 1fr — а вместе с ней, кадр за кадром, растёт
+   и окно. Отступ сверху едет вместе с высотой: у свёрнутого он ноль,
+   иначе на месте пустого поля оставалась бы щель.
+   Раскрывается: сначала высота, следом проявляется содержимое.
+   Сворачивается наоборот: сперва гаснет, потом уходит высота. */
+.collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.38s var(--ease-out) 0.06s,
+    margin-top 0.38s var(--ease-out) 0.06s,
+    opacity 0.16s var(--ease-soft);
+}
+.collapseOpen {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition:
+    grid-template-rows 0.45s var(--ease-out),
+    margin-top 0.45s var(--ease-out),
+    opacity 0.3s var(--ease-soft) 0.12s;
+}
+/* Отступ сверху — с весом .body >, иначе его перебило бы общее
+   .body > * + *. Свёрнутое поле — без отступа: ни высоты, ни щели. */
+.body > .collapse { margin-top: 0; }
+.body > .collapseOpen { margin-top: var(--sp-5); }
+/* Поле по выбору первым в шаге (развилки нет перед ним) — отступ не
+   нужен и раскрытому. */
+.body > .collapseOpen:first-child { margin-top: 0; }
+
+/* overflow прячет содержимое, пока строка не доросла. Запас по краям
+   (padding и такой же отрицательный margin) — чтобы обводка фокуса и
+   пунктир рамки не обрезались, когда поле уже раскрыто. */
+.collapseInner {
+  min-height: 0;
+  overflow: hidden;
+  padding: 4px;
+  margin: -4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .collapse, .collapseOpen { transition: none; }
+}
+
+/* Новый шаг въезжает со стороны движения (--dir: 1 — Next, −1 — Back)
+   и проявляется. Смещение небольшое: это перелистывание, а не слайд-
+   шоу. Срабатывает при появлении — шаг монтируется заново по key. */
+.stepIn { animation: stepIn 0.36s var(--ease-out) both; }
+@keyframes stepIn {
+  from { opacity: 0; translate: calc(var(--dir, 1) * 28px) 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stepIn { animation: none; }
+}
+
+/* Клавиатура открыта (data-keyboard ставит окно): места мало, и всё
+   его отдаём полям. Шапка — одна строка с названием, без подсказки и
+   пуговиц; окно почти без полей вокруг.
+
+   ВСЁ ЭТО — ПЛАВНО, в обе стороны. Высота окна (--vv-h) и отступы
+   едут, подсказка и пуговицы сворачиваются по высоте и гаснут, а не
+   пропадают. display: none анимировать нельзя, поэтому прячем через
+   max-height: потолок с запасом под самую длинную подсказку. */
+.overlay {
+  transition:
+    height 0.32s var(--ease-out),
+    top 0.32s var(--ease-out),
+    padding 0.32s var(--ease-out);
+}
+.head, .title, .close, .body, .foot {
+  transition-property: padding, font-size, margin, gap, top, width, height, color, border-color;
+  transition-duration: 0.32s;
+  transition-timing-function: var(--ease-out);
+}
+@media (max-width: 600px) {
+  .hint, .rail, .head :global(.eyebrow) {
+    max-height: 12rem;
+    overflow: hidden;
+    transition: max-height 0.32s var(--ease-out), opacity 0.2s var(--ease-soft),
+      margin 0.32s var(--ease-out), padding 0.32s var(--ease-out);
+  }
+}
+.overlay[data-keyboard] { padding: var(--sp-1); }
+.overlay[data-keyboard] .head { padding: var(--sp-2) var(--sp-4); gap: 0; }
+.overlay[data-keyboard] .hint,
+.overlay[data-keyboard] .rail,
+.overlay[data-keyboard] .head :global(.eyebrow) {
+  max-height: 0;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+}
+.overlay[data-keyboard] .headMain { gap: 0; }
+.overlay[data-keyboard] .title { font-size: var(--step-1); margin-top: 0; padding-right: 40px; }
+.overlay[data-keyboard] .close { top: var(--sp-1); width: 32px; height: 32px; }
+.overlay[data-keyboard] .body { padding-top: var(--sp-3); }
+@media (prefers-reduced-motion: reduce) {
+  .overlay, .head, .title, .close, .body, .foot, .hint, .rail { transition: none; }
+}
+/* Подвал тоже ужимается: подпись прячется, остаются кнопки. */
+.overlay[data-keyboard] .foot { padding-block: var(--sp-2); }
+.overlay[data-keyboard] .privacy { visibility: hidden; }

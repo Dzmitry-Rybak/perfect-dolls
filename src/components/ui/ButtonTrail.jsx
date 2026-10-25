@@ -91,7 +91,11 @@ export default function ButtonTrail() {
     let cursor = 0;
     let lastX = null, lastY = null;
 
-    const drop = (x, y) => {
+    const drop = (x, viewY) => {
+      /* Слой начинается под шапкой, а координаты — от верха экрана:
+         переводим в координаты слоя. Над шапкой след не сыплется. */
+      const y = viewY - host.getBoundingClientRect().top;
+      if (y < 0) return;
       const item = pool[cursor];
       cursor = (cursor + 1) % POOL;
 

@@ -6,8 +6,10 @@
  * короткий прайс готовых дизайнов. Их восемь, больше в ряд на экране
  * не помещается — отсюда и ограничение.
  *
- * Пока снимок не загружен, карточка показывает пустую рамку, а не
- * пропадает: так видно, какому дизайну фотографии ещё не хватает.
+ * У каждой модели до трёх снимков — на странице их листают прямо в
+ * карточке. Пока снимков нет, карточка показывает пустую рамку, а не
+ * пропадает: так видно, какому дизайну фотографий ещё не хватает.
+ * Нажатие на карточку открывает заказ этой модели.
  */
 const COLLECTIONS = [
   'Coraline-inspired',
@@ -55,27 +57,33 @@ export default {
               validation: (R) => R.required().min(1).precision(2),
             },
             {
-              name: 'photo',
-              title: 'Снимок',
-              type: 'image',
-              options: { hotspot: true },
+              name: 'photos',
+              title: 'Снимки',
+              type: 'array',
               description:
-                'Кадр обрезается до вертикального прямоугольника. Если обрезало ' +
-                'не то — нажмите кнопку с рамкой (Crop / Hotspot) и перетащите ' +
-                'кружок на главное. По нажатию на карточку снимок открывается ' +
-                'целиком, поэтому грузите файл покрупнее.',
-              fields: [
+                'До трёх. Первый — тот, что виден сразу, остальные листаются ' +
+                'в карточке. Кадр обрезается до вертикального прямоугольника: ' +
+                'если обрезало не то — нажмите кнопку с рамкой (Crop / Hotspot) ' +
+                'и перетащите кружок на главное.',
+              validation: (R) => R.max(3),
+              of: [
                 {
-                  name: 'alt',
-                  title: 'Что на снимке',
-                  type: 'string',
-                  validation: (R) => R.max(160),
+                  type: 'image',
+                  options: { hotspot: true },
+                  fields: [
+                    {
+                      name: 'alt',
+                      title: 'Что на снимке',
+                      type: 'string',
+                      validation: (R) => R.max(160),
+                    },
+                  ],
                 },
               ],
             },
           ],
           preview: {
-            select: { title: 'name', collection: 'collection', price: 'price', media: 'photo' },
+            select: { title: 'name', collection: 'collection', price: 'price', media: 'photos.0' },
             prepare: ({ title, collection, price, media }) => ({
               title,
               subtitle: [collection, price && `$${price}`].filter(Boolean).join(' · '),

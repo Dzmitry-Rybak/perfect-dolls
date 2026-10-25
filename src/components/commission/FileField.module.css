@@ -15,6 +15,12 @@
 }
 .drop:hover { border-color: var(--muted); }
 .drop:has(:focus-visible) { outline: 2px solid var(--rose); outline-offset: 2px; }
+/* Тот же цвет, что у поля с ошибкой (Field.module.css), — чтобы пара
+   «снимок или описание» подсвечивалась одинаково. */
+.bad {
+  border-color: var(--rose-dim);
+  border-style: solid;
+}
 .over {
   border-color: var(--rose);
   border-style: solid;

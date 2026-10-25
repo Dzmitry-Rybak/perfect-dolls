@@ -18,6 +18,7 @@ export default function Header() {
           прокрутки, ни от контекста наложения внутри шапки. */}
       <div className={styles.topShield} aria-hidden="true" />
 
+      <div className={styles.spacer} aria-hidden="true" />
       <header className={styles.header}>
         <a href="#main" className={styles.skip}>Skip to content</a>
 

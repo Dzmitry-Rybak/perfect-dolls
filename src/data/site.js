@@ -8,6 +8,8 @@
 export const SOCIAL = {
   instagram: 'https://www.instagram.com/cutesmokey/',
   tiktok:    'https://www.tiktok.com/@cutesmokey_art',
+  /** Мини-донаты: «Support my work» на главной, в About и в подвале. */
+  coffee:    'https://buymeacoffee.com/cutesmokeyart',
 };
 
 export const EMAIL = {
@@ -18,12 +20,17 @@ export const EMAIL = {
   /** Реклама и коммерческие предложения: подвал и вкладка PR. */
   pr:    'pr.cutesmokeyart@gmail.com',
   /**
-   * Куда бэкенд шлёт заполненные анкеты — и на кукол, и на портреты.
-   * Совпадает с основной почтой намеренно: Рита хочет заявки в одном
-   * ящике, а не разбирать их по двум. Адрес нигде не показывается,
-   * его читает только отправка письма.
+   * Куда бэкенд шлёт заполненные анкеты — по виду анкеты. Анкеты на
+   * куклу Рита попросила слать на кукольный ящик, остальные — на
+   * основной. Адреса нигде не показываются, их читает только отправка
+   * письма.
    */
-  commissions: 'squids.cutesmokeyart@gmail.com',
+  commissions: {
+    doll:     'cutesmokeyart@gmail.com',
+    portrait: 'squids.cutesmokeyart@gmail.com',
+    squid:    'squids.cutesmokeyart@gmail.com',
+    build:    'squids.cutesmokeyart@gmail.com',
+  },
 };
 
 export const BRAND = {

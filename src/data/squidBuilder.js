@@ -27,9 +27,17 @@ export const FUR_COLORS = [
   { id: 'cream',  label: 'Cream',  hex: '#ECE8DF' },
   { id: 'blue',   label: 'Blue',   hex: '#92A5C8' },
   { id: 'pink',   label: 'Pink',   hex: '#E2A7C1' },
+  /* Пастельный рядом с обычным розовым намеренно: они близки, и
+     выбирать между ними надо глядя на оба сразу, а не вспоминая
+     первый, пока смотришь на второй. */
+  { id: 'pastel', label: 'Pastel pink', hex: '#F5D1E1' },
   { id: 'sage',   label: 'Sage',   hex: '#95A989' },
   { id: 'red',    label: 'Red',    hex: '#C30924' },
   { id: 'orange', label: 'Orange', hex: '#ED8712' },
+  /* Тот же код, что у пуговичного Gold и ленточного Mustard: ткань,
+     пластик и лента у Риты одного оттенка, и разводить их по разным
+     числам нельзя — на схеме они стоят рядом. */
+  { id: 'yellow', label: 'Yellow', hex: '#DBC643' },
   { id: 'lilac',  label: 'Lilac',  hex: '#D896E8' },
 ];
 
@@ -256,6 +264,24 @@ export const RIBBON_KINDS = [
 export const PATTERN_PRICE = { simple: 10, complex: 20 };
 
 /**
+ * «Ещё не выбрано».
+ *
+ * Лента, бант и меховая нашивка появляются неокрашенными, а не
+ * розовыми. Розовый по умолчанию выглядел как сделанный выбор: деталь
+ * возникала уже решённой, и человек либо соглашался с ней не глядя,
+ * либо не понимал, что цвет вообще можно трогать. Белая лента и
+ * некрашеный мех читаются как заготовка — её хочется покрасить.
+ *
+ * Берём не свои числа, а те же, что лежат в палитрах: иначе однажды
+ * Рита поправит оттенок белого у лент, а здесь останется старый.
+ * Так же, кстати, давно устроен воротник.
+ */
+const hexOf = (palette, id) => palette.find((c) => c.id === id).hex;
+
+export const UNDYED_RIBBON = hexOf(RIBBON_COLORS, 'white');
+export const UNDYED_FUR = hexOf(FUR_COLORS, 'cream');
+
+/**
  * Некрашеный сквид — с него начинается конструктор.
  *
  * Раньше на старте стоял чёрный мех с розовыми ушами: это выглядело
@@ -292,15 +318,71 @@ export const defaultBuild = {
   complexNote: '',
   addons: [],
   ribbonKind: 'satin',
-  ribbonColor: '#F3B4D4',
-  collarColor: '#F9F8F6',
-  bowColor: '#F3B4D4',
+  /* Лента, воротник и бант появляются белыми — см. UNDYED_RIBBON. */
+  ribbonColor: UNDYED_RIBBON,
+  collarColor: UNDYED_RIBBON,
+  bowColor: UNDYED_RIBBON,
   bowCharm: null,       // номер подвески из CHARMS, null — не выбрана
   pierceCharm: null,
   pinCharm: null,
-  patchColor: '#E2A7C1',      // мех нашивки — общий для сердца и звезды; череп белый всегда
+  /* Мех нашивки — общий для сердца и звезды; череп белый всегда. */
+  patchColor: UNDYED_FUR,
   /* Слово из бусин. Пустая строка при включённой добавке — это не
      ошибка: человек мог включить её и ещё не решить, что писать. */
   beadWord: '',
   notes: '',
 };
+
+/* ---------- сводка для заявки ---------- */
+
+/** Имя цвета по коду — из любой палитры; не нашли — сам код. */
+const colourName = (hex) => {
+  if (!hex) return '—';
+  if (hex.toUpperCase() === BLANK) return 'not chosen';
+  const all = [...FUR_COLORS, ...RIBBON_COLORS, ...BUTTON_COLORS];
+  return all.find((c) => c.hex.toUpperCase() === hex.toUpperCase())?.label ?? hex.toUpperCase();
+};
+
+/**
+ * Сквид из конструктора — словами, по строке на пункт.
+ *
+ * Уходит в заявку рядом с сырой сборкой (JSON): Рите читать письмо,
+ * а не разбирать коды цветов. Порядок — как в панели конструктора.
+ */
+export function describeBuild(build, total) {
+  const lines = [];
+  const size = SIZES.find((s) => s.id === build.size);
+  lines.push(`Size: ${size?.label ?? build.size}${size?.note ? ` (${size.note})` : ''}`);
+
+  lines.push(`Fur: ${FUR_PARTS.map((p) => `${p.label} — ${colourName(build.fur[p.id])}`).join(', ')}`);
+  const pieces = Object.entries(build.pieces ?? {});
+  if (build.mix && pieces.length) {
+    lines.push(`Mixed pieces: ${pieces.map(([id, hex]) => `${id} — ${colourName(hex)}`).join(', ')}`);
+  }
+
+  const shape = BUTTON_SHAPES.find((s) => s.id === build.buttonShape)?.label ?? build.buttonShape;
+  const pattern = BUTTON_PATTERNS.find((p) => p.id === build.pattern);
+  lines.push(`Button: ${shape}, ${colourName(build.button)}, thread ${colourName(build.thread)}`
+    + (pattern ? `, ${pattern.label} in ${colourName(build.patternColor)}` : ', plain')
+    + (build.glitter ? ', glitter on top' : ''));
+  if (build.complexNote?.trim()) lines.push(`Complex pattern: ${build.complexNote.trim()}`);
+
+  const addons = ADDONS.filter((a) => build.addons.includes(a.id));
+  lines.push(`Add-ons: ${addons.length ? addons.map((a) => a.label).join(', ') : 'none'}`);
+  if (build.addons.includes('nameBeads')) lines.push(`Letter beads: ${build.beadWord || '(not written yet)'}`);
+  if (build.addons.includes('corset')) {
+    const kind = RIBBON_KINDS.find((r) => r.id === build.ribbonKind)?.label ?? build.ribbonKind;
+    lines.push(`Ribbon: ${kind}, ${colourName(build.ribbonColor)}`);
+  }
+  for (const c of ADDON_COLORS) {
+    if (c.addon !== 'corset' && build.addons.includes(c.addon)) lines.push(`${c.label}: ${colourName(build[c.key])}`);
+  }
+  for (const slot of CHARM_SLOTS) {
+    if (!build.addons.includes(slot.addon)) continue;
+    const charm = CHARMS.find((ch) => ch.n === build[slot.key]);
+    lines.push(`${slot.label}: ${charm ? `${charm.n}. ${charm.label}` : 'up to Margarita'}`);
+  }
+  if (build.notes?.trim()) lines.push(`Anything else: ${build.notes.trim()}`);
+  lines.push(`Estimated price: $${total}`);
+  return lines.join('\n');
+}
