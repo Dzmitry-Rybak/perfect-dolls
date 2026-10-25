@@ -504,7 +504,16 @@ export default function Builder() {
               })}>
                 Send this to Margarita
               </Button>
-              <button className={styles.reset} onClick={() => setBuild(defaultBuild)}>
+              {/* Начать заново — и на телефоне вернуться к схеме: сквид
+                  снова пустой, и смотреть дальше надо на него, а не на
+                  кнопки внизу. На широком экране схема и так рядом. */}
+              <button
+                className={styles.reset}
+                onClick={() => {
+                  setBuild(defaultBuild);
+                  if (window.matchMedia('(max-width: 940px)').matches) backToSketch();
+                }}
+              >
                 start over
               </button>
             </div>

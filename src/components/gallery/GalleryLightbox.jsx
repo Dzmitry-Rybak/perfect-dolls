@@ -215,7 +215,10 @@ export default function GalleryLightbox({ item, start = 0, onClose }) {
                   aria-selected={n === i}
                   aria-label={`Photo ${n + 1}`}
                   className={`${styles.dot} ${n === i ? styles.dotOn : ''}`}
-                  onClick={() => { setReady(false); setI(n); }}
+                  /* Точка уже открытого кадра — ничего не делаем: тот же
+                     кадр не перерисуется, и сброшенный ready погасил бы
+                     снимок (та же беда, что со свайпом, см. go). */
+                  onClick={() => { if (n === i) return; setReady(false); setI(n); }}
                 />
               ))}
             </div>
