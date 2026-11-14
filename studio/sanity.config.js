@@ -5,8 +5,8 @@ import { schemaTypes } from './schemas/index.js';
 /**
  * Админка cutesmokey.
  *
- * Разделов шесть: архив работ, полка «в наличии», главная, страницы
- * разделов, готовые сквиды и настройки. Четыре последних — документы
+ * Разделов пять: архив работ, главная, страницы разделов,
+ * готовые сквиды и настройки. Четыре последних — документы
  * в одном экземпляре на весь сайт, поэтому открываются сразу, без
  * списка из одной строки, и завести второй такой нельзя.
  */
@@ -36,9 +36,6 @@ export default defineConfig({
             S.listItem()
               .title('Работы')
               .child(S.documentTypeList('work').title('Работы')),
-            S.listItem()
-              .title('В наличии')
-              .child(S.documentTypeList('available').title('В наличии')),
             S.divider(),
             single(S, 'home', 'Главная'),
             single(S, 'pages', 'Страницы разделов'),
@@ -56,7 +53,7 @@ export default defineConfig({
   },
 
   document: {
-    /* «Создать» оставляем у работ и у полки, у одиночек — нет. */
+    /* «Создать» оставляем у работ, у одиночек — нет. */
     newDocumentOptions: (prev, { creationContext }) =>
       creationContext.type === 'global'
         ? prev.filter((t) => !SINGLETONS.includes(t.templateId))

@@ -39,7 +39,7 @@ function tick() {
        страницы должен смотреть в ту же сторону так же уверенно,
        как соседний. Поэтому вектор нормируем, а не масштабируем. */
     const len = Math.hypot(dx, dy) || 1;
-    eye.aim(dx / len, dy / len);
+    eye.aim(dx / len, dy / len, len);
   }
 }
 
@@ -48,8 +48,18 @@ function onMove(e) {
   if (!frame) frame = requestAnimationFrame(tick);
 }
 
+/* Палец. pointermove на телефоне почти не приходит: как только палец
+   поехал, браузер забирает касание под прокрутку и шлёт pointercancel.
+   touchstart/touchmove приходят и во время прокрутки — по ним глаза
+   и следят за пальцем. Пассивные: прокрутке не мешают. */
+function onTouch(e) {
+  const t = e.touches[0];
+  if (t) onMove(t);
+}
+
 /**
- * Подписать глаз. `aim(x, y)` получает единичный вектор на курсор.
+ * Подписать глаз. `aim(x, y, dist)` получает единичный вектор на курсор
+ * и расстояние до него в пикселях — кому оно нужно.
  * Возвращает отписку.
  */
 export function watchPointer(el, aim) {
@@ -59,6 +69,8 @@ export function watchPointer(el, aim) {
   if (!listening) {
     listening = true;
     window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('touchstart', onTouch, { passive: true });
+    window.addEventListener('touchmove', onTouch, { passive: true });
     window.addEventListener('scroll', measure, { passive: true });
     window.addEventListener('resize', measure, { passive: true });
   }
@@ -68,8 +80,16 @@ export function watchPointer(el, aim) {
     if (eyes.size) return;
     listening = false;
     window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('touchstart', onTouch);
+    window.removeEventListener('touchmove', onTouch);
     window.removeEventListener('scroll', measure);
     window.removeEventListener('resize', measure);
     if (frame) { cancelAnimationFrame(frame); frame = 0; }
   };
+}
+
+/** Сбросить замеры глаз — когда глаз переехал без прокрутки и
+ *  смены размера окна (например, карта вылетела в центр экрана). */
+export function remeasureGaze() {
+  measure();
 }

@@ -122,9 +122,7 @@ const PICKS = `*[_id == "pages"][0]{
   "portrait": portraitPicks[]._ref
 }`;
 
-/* Картинки главной и полка «в наличии» — одним запросом: на главной
-   они нужны вместе, а два запроса дали бы два разных момента
-   появления и лишний прыжок вёрстки. */
+/* Картинки главной: снимки карточек разделов. */
 const IMAGE = `{ alt, asset, hotspot, crop }`;
 const CARD = `{ "photo": photo${IMAGE}, "photoHover": photoHover${IMAGE} }`;
 const HOME = `{
@@ -134,9 +132,6 @@ const HOME = `{
     "dolls": dollsCard${CARD},
     "portraits": portraitsCard${CARD},
     "other": otherCard${CARD}
-  },
-  "available": *[_type == "available"] | order(order asc, _createdAt desc){
-    "id": _id, name, kind, price, note, "photo": photo${IMAGE}
   }
 }`;
 
@@ -233,7 +228,7 @@ const mapShotPhoto = (p) =>
     }
     : null);
 
-/** Одиночная картинка (главная, полка) — та же рамка, что у плитки. */
+/** Одиночная картинка (главная) — та же рамка, что у плитки. */
 const mapPhoto = (p) =>
   (p?.asset
     ? { src: tileUrl(p), srcSet: tileSrcSet(p), sizes: TILE_SIZES, alt: p.alt ?? '' }
@@ -343,17 +338,16 @@ export async function getSettings() {
 }
 
 /**
- * GET /api/home — картинки главной и полка «в наличии».
+ * GET /api/home — картинки главной.
  *
- * Пустой ответ — это не поломка: снимки могут быть ещё не выбраны,
- * а полка пуста почти всегда. Поэтому откат здесь не на выдуманные
+ * Пустой ответ — это не поломка: снимки могут быть ещё не выбраны. Поэтому откат здесь не на выдуманные
  * данные, а на то, что уже вшито в сборку: рисованная заглушка
  * вместо большого снимка и кадры разделов из data/nav.js.
  */
 export async function getHome() {
-  const blank = { hero: null, cards: {}, available: [] };
+  const blank = { hero: null, cards: {} };
   try {
-    const { home, available } = await client.fetch(HOME);
+    const { home } = await client.fetch(HOME);
     const cards = {};
     for (const id of ['squids', 'dolls', 'portraits', 'other']) {
       const photo = mapPhoto(home?.[id]?.photo);
@@ -375,9 +369,6 @@ export async function getHome() {
     return {
       hero: mapPhoto(home?.hero),
       cards,
-      available: (available ?? [])
-        .map((it) => ({ ...it, photo: mapPhoto(it.photo) }))
-        .filter((it) => it.photo),
     };
   } catch (err) {
     fellBack('главная', err);
@@ -392,8 +383,7 @@ export async function getHome() {
  * Встроенный список остаётся запасным: если сервис недоступен,
  * страница покажет имена с пустыми рамками, а не пустоту.
  *
- * Запись без снимка не выбрасываем, в отличие от полки «в наличии»:
- * там карточка без кадра бессмысленна, а здесь по пустой рамке видно,
+ * Запись без снимка не выбрасываем: по пустой рамке видно,
  * какому дизайну фотографии ещё не хватает.
  */
 export async function getSquidModels() {

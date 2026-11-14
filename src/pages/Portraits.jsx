@@ -1,8 +1,7 @@
 import PageShell from '../components/layout/PageShell.jsx';
 import OrderGate from '../components/ui/OrderGate.jsx';
 import Button from '../components/ui/Button.jsx';
-import Photo from '../components/ui/Photo.jsx';
-import StitchCard from '../components/ui/StitchCard.jsx';
+import PolaroidTile from '../components/ui/PolaroidTile.jsx';
 import Loader from '../components/ui/Loader.jsx';
 import { getWorks } from '../lib/api.js';
 import useAsync from '../lib/useAsync.js';
@@ -59,16 +58,9 @@ export default function Portraits() {
         {loading ? <Loader label="Leafing through the folder…" /> : (
           <>
             <ul className={styles.tiles}>
-              {data.shown.map((e) => (
+              {data.shown.map((e, i) => (
                 <li key={e.id}>
-                  <StitchCard seed={e.id} className={styles.tile}>
-                    <Photo
-                      src={e.shots[0].tile ?? e.shots[0].src}
-                      srcSet={e.shots[0].tileSrcSet}
-                      sizes={e.shots[0].tileSizes}
-                      alt={e.shots[0].alt}
-                    />
-                  </StitchCard>
+                  <PolaroidTile shot={e.shots[0]} index={i} />
                 </li>
               ))}
             </ul>

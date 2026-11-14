@@ -1,8 +1,7 @@
 import PageShell from '../components/layout/PageShell.jsx';
 import OrderGate from '../components/ui/OrderGate.jsx';
 import Button from '../components/ui/Button.jsx';
-import Photo from '../components/ui/Photo.jsx';
-import StitchCard from '../components/ui/StitchCard.jsx';
+import PolaroidTile from '../components/ui/PolaroidTile.jsx';
 import Loader from '../components/ui/Loader.jsx';
 import { getWorks } from '../lib/api.js';
 import useAsync from '../lib/useAsync.js';
@@ -86,17 +85,9 @@ export default function Dolls() {
         {loading ? <Loader label="Opening the drawers…" /> : (
           <>
             <ul className={styles.tiles}>
-              {data.shown.map((d) => (
+              {data.shown.map((d, i) => (
                 <li key={d.id}>
-                  <StitchCard seed={d.id} className={styles.tile}>
-                    <Photo
-                      src={d.shots[0].tile ?? d.shots[0].src}
-                      srcSet={d.shots[0].tileSrcSet}
-                      sizes={d.shots[0].tileSizes}
-                      alt={d.shots[0].alt}
-                    />
-                    <p className={styles.tileName}>{d.title}</p>
-                  </StitchCard>
+                  <PolaroidTile shot={d.shots[0]} title={d.title} index={i} />
                 </li>
               ))}
             </ul>

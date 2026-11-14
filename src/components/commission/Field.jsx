@@ -40,7 +40,7 @@ export default function Field({ field, value, error, onChange, className = '' })
         {field.label && (
           <span id={labelId} className={styles.label}>
             {field.label}
-            {field.required && <span className={styles.req} aria-hidden="true"> *</span>}
+            {field.required && <span className={styles.req} aria-hidden="true"> ✦</span>}
           </span>
         )}
         <div
@@ -95,7 +95,7 @@ export default function Field({ field, value, error, onChange, className = '' })
             {[].concat(field.label).map((part, i) => (typeof part === 'string' ? part : (
               <a key={i} href={part.href} target="_blank" rel="noreferrer noopener">{part.label}</a>
             )))}
-            {field.required && <span className={styles.req} aria-hidden="true"> *</span>}
+            {field.required && <span className={styles.req} aria-hidden="true"> ✦</span>}
             {field.required && <span className="visually-hidden"> — required</span>}
           </span>
         </label>
@@ -111,7 +111,7 @@ export default function Field({ field, value, error, onChange, className = '' })
       {field.label && (
         <label className={styles.label} htmlFor={field.type === 'chips' ? undefined : id}>
           {field.label}
-          {field.required && <span className={styles.req} aria-hidden="true"> *</span>}
+          {field.required && <span className={styles.req} aria-hidden="true"> ✦</span>}
           {field.required && <span className="visually-hidden"> — required</span>}
         </label>
       )}

@@ -6,14 +6,16 @@
   place-items: center;
   padding: var(--sp-6) var(--sp-4);
   text-align: center;
-  background: var(--ink);
-  border: 2px dashed var(--fog);
-  border-radius: var(--r-md);
+  /* Место, куда «кладут» снимок: овал света на листе, обведённый
+     тонким пунктиром-стежком. */
+  background: radial-gradient(70% 90% at 50% 50%, rgb(237 230 220 / 0.06), transparent 75%);
+  border: 1.5px dashed rgb(237 230 220 / 0.32);
+  border-radius: var(--r-lg);
   cursor: pointer;
   transition: border-color var(--t-fast) var(--ease-soft),
               background var(--t-fast) var(--ease-soft);
 }
-.drop:hover { border-color: var(--muted); }
+.drop:hover { border-color: rgb(237 230 220 / 0.6); }
 .drop:has(:focus-visible) { outline: 2px solid var(--rose); outline-offset: 2px; }
 /* Тот же цвет, что у поля с ошибкой (Field.module.css), — чтобы пара
    «снимок или описание» подсвечивалась одинаково. */
@@ -24,7 +26,8 @@
 .over {
   border-color: var(--rose);
   border-style: solid;
-  background: rgb(255 150 201 / 0.08);
+  background: radial-gradient(70% 90% at 50% 50%, rgb(255 150 201 / 0.14), transparent 75%);
+  box-shadow: 0 0 24px -6px rgb(255 150 201 / 0.45);
 }
 
 .dropTitle {
@@ -53,8 +56,8 @@
   align-items: center;
   gap: var(--sp-3);
   padding: var(--sp-2);
-  background: var(--ink);
-  border: 1px dashed rgb(81 76 88 / 0.5);
+  background: rgb(237 230 220 / 0.04);
+  border: 1px solid rgb(237 230 220 / 0.1);
   border-radius: var(--r-sm);
 }
 

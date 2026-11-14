@@ -1,75 +1,133 @@
-.closed {
+/* ============================================================
+   Карточка приёма заказов — розовый рваный листок со скрепкой.
+
+   Картинка растянута на карточку целиком (100% 100%). Нарезка на
+   части давала на стыках швы и обрывы краёв, поэтому лист один.
+
+   Поля текста — с запасом на рваную кромку сверху, белую полосу
+   подложки справа (~13% ширины) и скрепку в правом верхнем углу.
+   Снизу запас больше: кромка там занимает ~9% высоты, и поле email
+   с кнопкой иначе заходили на неё.
+   ============================================================ */
+.paper {
+  --paper-ink:    #2A1424;   /* текст — тёмная тушь по розовому */
+  --paper-ink-2:  #5C3552;   /* второстепенное */
+  --paper-accent: #A3194F;   /* малиновый — акценты и ошибки */
+
+  position: relative;
   display: grid;
-  gap: var(--sp-3);
-  padding: var(--sp-5);
-  background: var(--ink-raised);
-  border: 2px dashed var(--fog);
-  border-radius: var(--r-lg);
   max-width: 54ch;
+  padding: 84px 78px 64px 40px;
+  background: url('/art/pink-note.webp') center / 100% 100% no-repeat;
+  color: var(--paper-ink);
+  filter: drop-shadow(0 14px 26px rgb(0 0 0 / 0.5));
+}
+
+/* --- закрыто ---
+   Свой листок, вытянутый вверх: в закрытой карточке текста и подписки
+   больше, и широкий лист растягивался бы вдвое.
+
+   Файл квадратный (2000×2000) с прозрачными полями вокруг; сам листок
+   занимает x 350–1686, y 90–1916 (1336×1826). Поля срезаем фоном:
+   картинка крупнее карточки в 2000/1336 и 2000/1826 раза, а проценты
+   позиции ставят угол листка в угол карточки —
+   (350/1336) / (2000/1336 − 1) и (90/1826) / (2000/1826 − 1).
+
+   aspect-ratio — карточка не бывает ниже листка, поэтому при обычном
+   тексте он показан в своих пропорциях; длиннее текст — лист немного
+   вытягивается. Поля — по розовому: слева рваный край (~6% ширины),
+   справа белая подложка (~15%), сверху кромка (~8% высоты) и
+   скрепка, снизу кромка (~2%). */
+.closed {
+  gap: var(--sp-3);
+  align-content: start;
+  /* Узкий листок: при ширине колонки (~490px) высота по пропорциям
+     была 670px на 390px текста — пустота сверху и снизу. На 400px
+     листок по высоте почти совпадает с текстом. */
+  width: min(100%, 25rem);
+  aspect-ratio: 1336 / 1826;
+  padding: 62px 76px 40px 46px;
+  background-image: url('/art/pink-note-tall.webp');
+  background-size: 149.70% 109.53%;
+  background-position: 52.71% 51.72%;
 }
 .head {
   display: flex; align-items: center; gap: var(--sp-3);
+  /* справа сверху лежит скрепка — строка до неё не доходит */
+  margin-right: 56px;
   font-family: var(--font-ui);
   font-size: var(--step--1);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--moon);
+  color: var(--paper-ink-2);
 }
 .when {
+  /* вторая строка сверху — ещё на уровне скрепки */
+  margin-right: 56px;
   font-family: var(--font-display);
   font-size: var(--step-2);
-  color: var(--bone);
+  color: var(--paper-ink);
 }
-.when b { color: var(--rose); font-weight: 400; }
+.when b { color: var(--paper-accent); font-weight: 400; }
 .note {
   font-family: var(--font-body);
   font-size: var(--step-0);
   font-style: italic;
-  color: var(--muted);
+  color: var(--paper-ink-2);
   max-width: 46ch;
 }
 
 /* --- открытый приём --- */
-/* Закрытый блок — сухая табличка с датой, и это верно: там нечего делать.
-   Открытый должен звать, поэтому у него розовая строчка, рукописная
-   подпись и спираль в углу — тот же язык, что у блока «в конструктор». */
-.openNow {
-  position: relative; overflow: hidden;
-  display: grid; gap: var(--sp-2); justify-items: start;
-  padding: var(--sp-6) var(--sp-6) var(--sp-5);
-  background:
-    radial-gradient(120% 90% at 100% 0%, rgb(255 150 201 / 0.12), transparent 60%),
-    var(--ink-raised);
-  border: var(--stitch-rose);
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-lift);
-  max-width: 54ch;
-}
-/* Спираль — украшение, а не содержание: увести за край и приглушить */
-.openMark {
-  position: absolute; top: -18px; right: -14px;
-  opacity: 0.35; pointer-events: none;
-}
+/* Закрытый блок — табличка с датой: там нечего делать. Открытый
+   зовёт: рукописная подпись, крупный заголовок и кнопка тушью. */
+.openNow { gap: var(--sp-2); justify-items: start; }
 .openScribble {
   font-family: var(--font-hand);
   font-size: var(--step-0);
-  color: var(--rose);
+  color: var(--paper-accent);
   rotate: -3deg;
   margin-bottom: calc(var(--sp-1) * -1);
 }
 .openHead {
   display: flex; align-items: center; gap: var(--sp-3);
+  margin-right: 56px;
   font-family: var(--font-display);
   font-size: var(--step-3);
   line-height: 1.1;
-  color: var(--bone);
+  color: var(--paper-ink);
 }
 .openLead {
   font-family: var(--font-body);
   font-size: var(--step-0);
-  color: var(--lilac);
+  color: var(--paper-ink-2);
   max-width: 42ch;
   margin-bottom: var(--sp-3);
 }
+/* Кнопка заказа — обычного размера и по центру листка */
+.openBtn { justify-self: center; }
+
+/* Кнопки на листке — тушью: розовая кнопка на розовой бумаге
+   пропадала бы. Тёмная с розовой надписью, при наведении — малиновая. */
+.paper button[class],
+.paper a[class*='btn'] {
+  background: var(--paper-ink);
+  border-color: var(--paper-ink);
+  color: #FFD3E6;
+}
+.paper button[class]:hover:not(:disabled),
+.paper a[class*='btn']:hover {
+  background: var(--paper-accent);
+  border-color: var(--paper-accent);
+  color: #FFF4F9;
+  box-shadow: 0 6px 16px -6px rgb(163 25 79 / 0.7);
+}
+.paper button:focus-visible { outline: 2px solid var(--paper-ink); outline-offset: 3px; }
+
 @media (prefers-reduced-motion: reduce) { .openScribble { rotate: none } }
+
+/* На телефоне карточка во всю ширину колонки — поля чуть уже */
+@media (max-width: 560px) {
+  .paper { padding: 90px 60px 64px 30px; }
+  .closed { padding: 56px 66px 36px 40px; }
+}

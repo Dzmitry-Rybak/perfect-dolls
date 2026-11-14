@@ -1,0 +1,440 @@
+/* ============================================================
+   Маленькая карта в правом верхнем углу
+   ============================================================ */
+/* absolute, а не fixed: карта висит в углу первого экрана главной
+   и уезжает вместе со страницей. Отсчёт — от начала документа,
+   а под шапку в потоке стоит .spacer, поэтому та же формула. */
+.slot {
+  position: absolute;
+  top: calc(var(--header-h) + 60px);
+  right: max(var(--gutter, 1.25rem), env(safe-area-inset-right, 0px));
+  z-index: 90;               /* ниже шапки (100) и её меню */
+  width: clamp(122px, 10.2vw, 158px);
+  aspect-ratio: 720 / 1190;
+  padding: 0;
+  border-radius: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.slotCard {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 8%;      /* качается как подвешенная за верх */
+  /* Тени по форме картинки, поэтому drop-shadow, а не box-shadow.
+     Тёмная ближняя даёт объём, светлый ореол отделяет карту от
+     тёмного фона сайта — без него она в него проваливалась. */
+  filter:
+    drop-shadow(0 2px 2px rgb(0 0 0 / 0.55))
+    drop-shadow(0 0 3px rgb(255 255 255 / 0.55))
+    drop-shadow(0 6px 22px rgb(255 255 255 / 0.32));
+  animation: nudge 7s ease-in-out 2.5s infinite;
+  transition: scale var(--t-mid) var(--ease-out),
+              translate var(--t-mid) var(--ease-out),
+              filter var(--t-mid) var(--ease-out);
+}
+.slotCard { position: relative; }
+.lids { position: relative; width: 100%; height: 100%; }
+
+.slot:hover .slotCard,
+.slot:focus-visible .slotCard {
+  animation-play-state: paused;
+  scale: 1.08;
+  translate: 0 -3px;
+  filter:
+    drop-shadow(0 3px 3px rgb(0 0 0 / 0.5))
+    drop-shadow(0 0 4px rgb(255 255 255 / 0.65))
+    drop-shadow(0 8px 28px rgb(255 255 255 / 0.42));
+}
+.slot:active .slotCard { scale: 0.97; }
+
+/* Пока большая раскрыта — маленькой на месте нет: это она и улетела */
+.slotAway { visibility: hidden; }
+
+/* Покачивание: долго висит спокойно, потом плавно качнётся пару
+   раз туда-обратно и затухнет — как подвешенная карта от сквозняка.
+   Только поворот, без сдвигов, и не больше двух градусов: заметно
+   краем глаза, но не дёргается. */
+@keyframes nudge {
+  0%, 74%, 100% { transform: none; }
+  79%  { transform: rotate(2deg); }
+  85%  { transform: rotate(-1.6deg); }
+  91%  { transform: rotate(1deg); }
+  96%  { transform: rotate(-0.4deg); }
+}
+
+@media (max-width: 599px) {
+  .slot { width: 93px; top: calc(var(--header-h) + 38px); }
+}
+
+/* ============================================================
+   Раскрытая карта
+   ============================================================ */
+/* Слой начинается ПОД шапкой, а не с верха экрана: полноэкранный
+   fixed-слой поверх шапки на iPhone ломает заливку полосы под
+   строкой состояния (см. заметку про Safari в Header). */
+.overlay {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 190;              /* выше шапки (100), ниже анкеты (200) */
+  display: grid;
+  place-items: center;
+  padding: var(--sp-5) var(--sp-4);
+  padding-bottom: max(var(--sp-5), env(safe-area-inset-bottom, 0px));
+  perspective: 1600px;
+}
+
+.veil {
+  position: absolute;
+  inset: 0;
+  background: rgb(8 8 10 / 0.8);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.fly {
+  position: relative;
+  /* По высоте свободного места, но не шире экрана и не огромная */
+  width: min(
+    82vw,
+    calc((100dvh - var(--header-h) - 7rem) * 720 / 1190),
+    380px
+  );
+  aspect-ratio: 720 / 1190;
+  transform-origin: 50% 50%;
+  perspective: 1600px;
+  /* Размеры волшебства считаются от ширины карты (cqw) */
+  container-type: inline-size;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  container-type: inline-size;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* Тень у каждой стороны отдельно: filter на самой .card
+     сплющил бы 3D, и переворот перестал бы быть переворотом. */
+  filter:
+    drop-shadow(0 4px 6px rgb(0 0 0 / 0.5))
+    drop-shadow(0 30px 50px rgb(0 0 0 / 0.75));
+}
+.back img { width: 100%; height: 100%; }
+.back { transform: rotateY(180deg); }
+
+/* Текст — внутри чёрной рамки обратной стороны. Границы сняты
+   с картинки: чёрное поле примерно с 25% по 63% высоты. */
+.text {
+  position: absolute;
+  top: 25%;
+  bottom: 37%;
+  left: 17%;
+  right: 17%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4cqw;
+  text-align: center;
+}
+
+.label {
+  font-family: var(--font-ui);
+  font-size: 3.4cqw;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rose);
+}
+.label::before, .label::after { content: ' ✦ '; color: var(--moon); }
+
+.fortune {
+  font-family: var(--font-accent);
+  font-size: 6.4cqw;
+  line-height: 1.3;
+  color: var(--bone);
+  text-wrap: balance;
+}
+
+/* Крестик в стиле самой карты: бумажная кайма того же цвета, что
+   поля карты, контур чёрной тушью, внутри фиолетовое небо с белыми
+   точками — как верх лицевой стороны. При наведении небо становится
+   розовым, как веки. */
+.close {
+  --paper: #EAD3BC;
+  --ink-line: #1A1210;
+  --sky: #9A62BE;
+  --dots: rgb(255 246 234 / 0.75);
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 4px solid var(--paper);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--dots) 0 1.1px, transparent 1.6px) 0 0 / 9px 9px,
+    radial-gradient(circle, var(--dots) 0 0.9px, transparent 1.4px) 4px 5px / 11px 11px,
+    var(--sky);
+  box-shadow:
+    inset 0 0 0 2px var(--ink-line),        /* тушь по краю неба */
+    0 0 0 2px var(--ink-line),              /* тушь по краю каймы */
+    0 6px 14px -3px rgb(0 0 0 / 0.75);
+  opacity: 0;
+  scale: 0.6;
+  pointer-events: none;
+  transition: opacity var(--t-mid) var(--ease-out),
+              scale var(--t-mid) var(--ease-out),
+              rotate var(--t-mid) var(--ease-out);
+}
+.closeShown { opacity: 1; scale: 1; pointer-events: auto; }
+.close:hover {
+  --sky: #E0589B;
+  rotate: 90deg;
+}
+/* Общее правило :focus-visible в global.css ставит border-radius 3px —
+   оно и делало круглый крестик квадратным. Возвращаем круг. */
+.close:focus-visible {
+  border-radius: 50%;
+  outline: 2px solid var(--rose);
+  outline-offset: 3px;
+}
+/* Само окно получает фокус после касания — рамка ему не нужна */
+.overlay:focus { outline: none; }
+
+/* ============================================================
+   Глаз между век
+   ============================================================ */
+/* Овал выреза в лицевой картинке — проценты сняты с неё же
+   (card-front-lids.webp, 720×1190). Белок — тот же бумажный цвет,
+   которым овал был закрашен на рисунке. Тень сверху — от верхнего
+   века: без неё глаз выглядел наклеенным поверх, а не утопленным. */
+.well {
+  --gx: 0;
+  --gy: 0;
+  position: absolute;
+  left: 18.3%;
+  top: 37.97%;
+  width: 64.13%;
+  height: 21.78%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 60%, rgb(244 214 150), rgb(222 182 110) 78%);
+  box-shadow:
+    inset 0 10px 14px -6px rgb(60 20 30 / 0.55),
+    inset 0 -6px 10px -6px rgb(60 20 30 / 0.35);
+}
+
+.wander {
+  position: absolute;
+  inset: 0;
+}
+
+/* Радужка — 65% ширины овала (выше его высоты, края прячут
+   веки). Ходит на 23% своей ширины вбок и на 8% вверх-вниз:
+   дальше она упиралась бы в уголки глаза и выглядела косой. */
+.iris {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 65%;
+  aspect-ratio: 1;
+  max-width: none;
+  translate:
+    calc(-50% + var(--gx) * 23%)
+    calc(-50% + var(--gy) * 8%);
+  transition: translate 260ms var(--ease-out);
+}
+
+/* Без мыши (телефон) следить не за чем — глаз сам озирается */
+@media (hover: none) {
+  .wander { animation: look 9s var(--ease-soft) infinite; }
+  /* Палец на экране — глаз следит за ним, а не озирается */
+  .well[data-tracking] .wander { animation: none; }
+}
+@keyframes look {
+  0%, 18%, 100% { transform: none; }
+  24%, 40%      { transform: translateX(-16%); }
+  48%, 62%      { transform: translate(14%, 2%); }
+  70%, 82%      { transform: translate(4%, -4%); }
+}
+
+/* ============================================================
+   Волшебство на перевороте (см. SpellBehind в FortuneCard.jsx)
+   Все задержки отсчитываются от начала переворота (900ms):
+   на ~450ms карта стоит ребром — там вспышка и взрыв искр.
+   ============================================================ */
+.spellBehind {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 420ms var(--ease-soft);
+}
+.spellFading .spellBehind,
+.spellFading .flash { opacity: 0; }
+
+/* Сияние за картой: раскрывается к середине переворота и остаётся
+   мягко дышать, пока карта открыта. */
+.halo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 190cqw;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgb(255 236 190 / 0.75) 0%,
+    rgb(255 150 201 / 0.45) 22%,
+    rgb(169 123 214 / 0.28) 42%,
+    rgb(86 195 214 / 0.1) 58%,
+    transparent 70%);
+  animation:
+    haloIn 1100ms var(--ease-out) both,
+    haloBreath 4s ease-in-out 1100ms infinite;
+}
+@keyframes haloIn {
+  0%   { opacity: 0;   scale: 0.3; }
+  45%  { opacity: 1;   scale: 1.15; }
+  100% { opacity: 0.6; scale: 1; }
+}
+@keyframes haloBreath {
+  0%, 100% { opacity: 0.6; scale: 1; }
+  50%      { opacity: 0.8; scale: 1.06; }
+}
+
+/* Лучи — короткий всполох вокруг карты в момент вспышки */
+.rays {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 260cqw;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgb(255 236 190 / 0.5) 0deg 3deg,
+    transparent 3deg 18deg);
+  mask-image: radial-gradient(circle, #000 18%, transparent 62%);
+  -webkit-mask-image: radial-gradient(circle, #000 18%, transparent 62%);
+  animation: rays 1500ms var(--ease-out) 250ms both;
+}
+@keyframes rays {
+  0%   { opacity: 0; rotate: -20deg; scale: 0.5; }
+  25%  { opacity: 1; }
+  100% { opacity: 0; rotate: 25deg;  scale: 1.1; }
+}
+
+/* Круг со звёздами — как магический круг под картой Таро.
+   Появляется с переворотом и медленно вращается, пока открыто. */
+.ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 175cqw;
+  max-width: none;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  overflow: visible;
+  filter: drop-shadow(0 0 4px rgb(232 196 106 / 0.8));
+  animation:
+    ringIn 1200ms var(--ease-out) 200ms both,
+    spin 40s linear infinite;
+}
+@keyframes ringIn {
+  from { opacity: 0;    scale: 0.6; }
+  to   { opacity: 0.75; scale: 1; }
+}
+@keyframes spin { to { rotate: 360deg; } }
+
+/* Искры: разлетаются из-за карты на середине переворота */
+.sparkStar,
+.sparkDot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--s);
+  aspect-ratio: 1;
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  background: var(--c);
+  opacity: 0;
+  animation: burst var(--dur) cubic-bezier(0.15, 0.8, 0.3, 1) var(--delay) both;
+}
+.sparkStar {
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+}
+.sparkDot {
+  border-radius: 50%;
+  box-shadow: 0 0 6px 1px var(--c);
+}
+@keyframes burst {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.2) rotate(0deg); }
+  12%  { opacity: 1; }
+  70%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1) rotate(var(--rot)); }
+}
+
+/* Вспышка ПЕРЕД картой: накрывает её, пока та стоит ребром,
+   и прячет смену сторон. */
+.flash {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 150cqw;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle,
+    rgb(255 250 235 / 0.95) 0%,
+    rgb(255 220 160 / 0.6) 20%,
+    rgb(255 150 201 / 0.25) 42%,
+    transparent 65%);
+  mix-blend-mode: screen;
+  animation: flash 760ms ease-out 230ms both;
+  transition: opacity 300ms;
+}
+@keyframes flash {
+  0%   { opacity: 0; scale: 0.4; }
+  35%  { opacity: 1; scale: 1; }
+  100% { opacity: 0; scale: 1.3; }
+}
+
+/* Звёзды на тёмном фоне — загораются вразнобой и мерцают */
+.sky {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.skyStar {
+  position: absolute;
+  width: var(--s);
+  aspect-ratio: 1;
+  background: var(--c);
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  opacity: 0;
+  animation: twinkle var(--every) ease-in-out var(--delay) infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0;    scale: 0.4; rotate: 0deg; }
+  50%      { opacity: 0.85; scale: 1;   rotate: 45deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slotCard, .wander { animation: none; }
+  .iris { transition: none; }
+}

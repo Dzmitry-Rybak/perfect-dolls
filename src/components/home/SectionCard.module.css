@@ -1,4 +1,26 @@
-.card { display: flex; flex-direction: column; overflow: hidden; height: 100%; }
+/* Полароид без своей подложки: бумагу, подпись и булавки даёт сама
+   рамка. position: relative — для ссылки на всю карточку (.stretch). */
+.card {
+  position: relative;
+  display: flex; flex-direction: column;
+  height: 100%;
+  transition: translate var(--t-mid) var(--ease-out), rotate var(--t-mid) var(--ease-out);
+}
+/* Приподнять карточку, как снимок, который взяли со стола */
+.card:hover, .card:focus-within { translate: 0 -6px; rotate: -0.8deg; }
+
+.polaroid {
+  position: relative;
+  filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.45));
+}
+/* Рамка поверх снимка: снимок виден только в её прозрачное окно */
+.frame {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
 
 /* Своя длительность и кривая, не общие токены.
    --ease-out это cubic-bezier(0.22, 1, 0.36, 1): она проходит 69% пути
@@ -11,9 +33,9 @@
    Наплыв и приближение идут одним темпом — иначе картинка домасштабируется
    раньше, чем проявится, и движение распадается на два. */
 .media {
-  position: relative;
-  border-bottom: var(--stitch);
+  position: absolute;
   overflow: hidden;
+  background: var(--plum-deep);
   --swap-t: 400ms;
   --swap-ease: cubic-bezier(0.37, 0, 0.63, 1);
 }
@@ -22,6 +44,10 @@
    и его transition затирал бы соседний целиком — opacity менялась
    мгновенно, плавным оставалось только приближение. */
 .media svg, .media img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  object-fit: cover;
   transition: scale var(--swap-t) var(--swap-ease),
               opacity var(--swap-t) var(--swap-ease);
 }
@@ -48,6 +74,8 @@
    не показываем её вовсе: мгновенный скачок кадра раздражает
    сильнее, чем отсутствие эффекта. */
 @media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+  .card:hover, .card:focus-within { translate: none; rotate: none; }
   .media svg, .media img { transition: none; }
   .card:hover .media svg, .card:hover .media img,
   .card:focus-within .media svg, .card:focus-within .media img { scale: 1; }
@@ -56,17 +84,18 @@
 
 .body {
   display: flex; flex-direction: column; gap: var(--sp-2);
-  padding: var(--sp-4); flex: 1;
+  padding: 0 var(--sp-2); flex: 1;
 }
-.title { font-family: var(--font-display); font-size: var(--step-2); line-height: 1.1; }
-.title a { color: var(--bone); text-decoration: none; transition: color var(--t-fast); }
-.card:hover .title a { color: var(--rose); }
-.stretch::after { content: ''; position: absolute; inset: 0; }
+/* Ссылка спрятана вместе с заголовком (visually-hidden), но её
+   ::after растягиваем на всю карточку — от неё, а не от 1px-обёртки. */
+.stretch { position: static; }
+.stretch::after { content: ''; position: absolute; inset: 0; z-index: 2; }
+.body h3 { position: static !important; }
 
 .blurb {
   font-family: var(--font-body);
   font-size: var(--step-0);
-  color: var(--muted);
+  color: var(--bone);
   line-height: 1.45;
 }
 .go {
@@ -88,8 +117,7 @@
    экране наведения не бывает — там это просто строка, которая никогда
    не покажется, но место под себя просит. */
 @media (max-width: 559px) {
-  .body { padding: var(--sp-3); gap: var(--sp-1); }
-  .title { font-size: var(--step-1); }
+  .body { padding: 0 var(--sp-1); gap: var(--sp-1); }
   .blurb { font-size: var(--step--1); line-height: 1.35; }
   .go { display: none; }
 }

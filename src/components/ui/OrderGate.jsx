@@ -1,7 +1,5 @@
 import Button from './Button.jsx';
-import ButtonEye from './ButtonEye.jsx';
 import NotifyForm from './NotifyForm.jsx';
-import Spiral from './Spiral.jsx';
 import { useCommission } from '../../context/CommissionContext.jsx';
 import { useOrders } from '../../context/OrdersContext.jsx';
 import styles from './OrderGate.module.css';
@@ -32,23 +30,20 @@ export default function OrderGate({ topic, label, kind }) {
 
   if (isOpen) {
     return (
-      <div className={styles.openNow}>
-        <Spiral size={64} color="var(--rose)" className={styles.openMark} />
+      <div className={`${styles.paper} ${styles.openNow}`}>
         <p className={styles.openScribble}>the door is open</p>
-        <p className={`${styles.openHead} eye-host`}>
-          <ButtonEye size={16} holes={2} color="var(--rose)" />
+        <p className={styles.openHead}>
           Orders are open
         </p>
         <p className={styles.openLead}>{OPEN_LEAD[kind] ?? OPEN_LEAD.doll}</p>
-        <Button size="lg" onClick={() => open({ kind })}>{label}</Button>
+        <Button className={styles.openBtn} onClick={() => open({ kind })}>{label}</Button>
       </div>
     );
   }
 
   return (
-    <div className={styles.closed}>
-      <p className={`${styles.head} eye-host`}>
-        <ButtonEye size={16} holes={2} color="var(--moon)" />
+    <div className={`${styles.paper} ${styles.closed}`}>
+      <p className={styles.head}>
         Orders are closed right now
       </p>
       <p className={styles.when}>

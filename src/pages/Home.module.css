@@ -1,19 +1,6 @@
 /* ---------- hero ---------- */
 .hero { position: relative; overflow: hidden; padding-block: var(--sp-9) var(--sp-7); }
 
-.bleed { position: absolute; inset: 0; pointer-events: none; }
-.blobA, .blobB { position: absolute; border-radius: 50%; filter: blur(90px); }
-.blobA {
-  width: 44vw; height: 44vw; max-width: 600px; max-height: 600px;
-  top: -14%; right: -8%;
-  background: radial-gradient(circle, rgb(165 103 126 / 0.5), transparent 70%);
-}
-.blobB {
-  width: 36vw; height: 36vw; max-width: 460px; max-height: 460px;
-  bottom: -22%; left: -10%;
-  background: radial-gradient(circle, rgb(42 27 51 / 0.9), transparent 70%);
-}
-
 .heroInner {
   position: relative;
   display: grid;
@@ -22,32 +9,21 @@
   gap: clamp(1.5rem, 5vw, 4rem);
 }
 
+/* Срез прозрачных полей: непрозрачная часть файла 2000×2000 лежит
+   в прямоугольнике x 76–1942, y 280–1824 (1866×1544). Отступы в %
+   считаются от ширины обёртки, поэтому делим всё на 1866. */
 .avatar {
-  position: relative;
   margin: 0;
-  padding: var(--sp-3);
-  background: var(--ink-raised);
-  border: var(--stitch);
-  border-radius: var(--r-md);
-  rotate: -2deg;
-  box-shadow: var(--shadow-pin);
+  aspect-ratio: 1866 / 1544;
+  overflow: hidden;
+  filter: drop-shadow(0 10px 24px rgb(0 0 0 / 0.45));
 }
-.tape {
-  position: absolute; top: -12px; left: 50%; translate: -50% 0;
-  width: 92px; height: 24px;
-  background: rgb(237 230 220 / 0.14);
-  border-inline: 1px dashed rgb(237 230 220 / 0.25);
-  rotate: -3deg;
-}
-
-/* Пустая рамка, пока едет снимок из админки. Держит ровно то же
-   место, что и картинка (200×260, как у заглушки DollPortrait), —
-   поэтому заголовок не прыгает, когда снимок приезжает. */
-.avatarWait {
-  display: block;
-  width: 100%;
-  aspect-ratio: 200 / 260;
-  background: var(--plum-deep);
+.avatar img {
+  width: calc(100% * 2000 / 1866);
+  max-width: none;
+  height: auto;
+  margin-left: calc(-100% * 76 / 1866);
+  margin-top: calc(-100% * 280 / 1866);
 }
 
 /* Отступа сверху нет: надписи над заголовком больше не стоит. */
@@ -135,10 +111,23 @@
 /* ---------- разделы ---------- */
 .section { padding-block: var(--sp-8); position: relative; z-index: 1; }
 
+/* Разделов четыре: либо все в ряд, либо 2×2. auto-fit давал 3 + 1 —
+   «Other creations» одна во втором ряду читалась как забытая. */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--sp-5);
+}
+/* На компьютере полароиды чуть крупнее: ряд выходит за колонку текста
+   в поля страницы (до 1320px), иначе в 1144px четыре рамки получались
+   мелкими и подписи от руки читались с трудом. Отрицательные поля
+   центрируют расширенный ряд относительно колонки. */
+@media (min-width: 1100px) {
+  .grid {
+    --row: min(100vw - 48px, 1320px);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-inline: calc((100% - var(--row)) / 2);
+  }
 }
 .grid > li { display: flex; }
 .grid > li > * { width: 100%; }
@@ -165,188 +154,11 @@
   }
 }
 
-.divider { margin: var(--sp-6) auto; opacity: 0.5; }
-
-/* ---------- available now ---------- */
-.availHead { margin-bottom: var(--sp-5); }
-
-/* Пустая полка — пластина матового стекла, а не прозрачная коробка
-   в пунктире. Полка пуста почти всегда, то есть это и есть обычный
-   вид блока, а не редкое исключение: пустая рамка читалась как
-   недогруженный кусок страницы.
-
-   Собрана так же, как полоса у портретов в архиве: сам элемент —
-   толща стекла (полупрозрачная белизна, плотнее у краёв, реже
-   в середине), ::after — кромки, тонкий блик по верху и мягкое
-   свечение внутрь. Без кромок это просто светлый прямоугольник;
-   стеклом он становится именно от них.
-
-   Пунктир по краю сохранён — он держит связь со всем остальным
-   рукодельным строем страницы, но стал тоньше и мягче: поверх
-   стекла прежний жирный выглядел бы наклейкой. */
-.empty {
-  position: relative;
-  display: grid;
-  justify-items: center;
-  gap: var(--sp-3);
-  padding: var(--sp-8) var(--sp-5);
-  text-align: center;
-  overflow: hidden;
-  border: 1px dashed rgb(237 230 220 / 0.2);
-  border-radius: var(--r-lg);
-  backdrop-filter: blur(14px) saturate(130%);
-  -webkit-backdrop-filter: blur(14px) saturate(130%);
-  background: linear-gradient(
-    to bottom,
-    rgb(255 255 255 / 0.09),
-    rgb(255 255 255 / 0.03) 55%,
-    rgb(255 255 255 / 0.06)
-  );
-}
-.empty::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.22),
-    inset 0 -1px 0 rgb(255 255 255 / 0.06),
-    inset 0 20px 30px -24px rgb(255 255 255 / 0.45);
-}
-/* Текст и глаз — поверх кромок, иначе свечение ложится на буквы. */
-.empty > * { position: relative; z-index: 1; }
-.emptyText {
-  font-family: var(--font-body);
-  font-size: var(--step-1);
-  color: var(--lilac);
-  max-width: 52ch;
-  line-height: 1.55;
-}
-.emptyHint { font-size: var(--step--1); color: var(--muted); }
-
-/* ---------- полка готовых вещей ----------
-   Вещи приколоты к листу в клетку — тот же язык, что у листа
-   в конструкторе. Это единственное место на сайте, где можно
-   купить прямо сейчас, поэтому блок намеренно выпадает из общего
-   тёмного строя: светлая бумага среди тёмной страницы читается
-   как отдельная вещь, а не как ещё одна секция.               */
-.board {
-  position: relative;
-  padding: var(--sp-7) var(--sp-6) var(--sp-8);
-  background: #F2EDE3;
-  /* Клетка — плиткой 24×24, а не repeating-linear-gradient во весь
-     лист: лист повёрнут, браузер рисует его кусками, и длинный
-     градиент на стыках кусков съезжал ступенькой (так было и в
-     конструкторе). */
-  background-image:
-    linear-gradient(to right,  rgba(90, 120, 160, 0.2) 0 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(90, 120, 160, 0.2) 0 1px, transparent 1px);
-  background-size: 24px 24px;
-  border-radius: 2px;
-  /* Лист лежит чуть криво — как приколотый, а не свёрстанный. */
-  rotate: -0.4deg;
-  box-shadow: var(--shadow-pin);
-}
-/* Красное поле слева — как в школьной тетради. */
-.boardMargin {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 34px;
-  width: 1px;
-  background: rgba(200, 70, 90, 0.4);
-}
-
-.shelf {
-  position: relative;
-  display: grid;
-  /* auto-FILL, а не auto-fit. Разница видна только тогда, когда вещей
-     меньше, чем колонок: auto-fit схлопывает пустые колонки в ноль, и
-     оставшиеся делят между собой всю ширину полки — одна вещь
-     растягивалась во весь экран, а снимок в ней раздувало до
-     неузнаваемости. auto-fill пустые колонки сохраняет, и карточка
-     стоит в своей ячейке обычного размера, где бы её ни застали. */
-  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
-  /* Сверху воздух под булавки, снизу — под тени наклонённых карточек. */
-  gap: var(--sp-8) var(--sp-6);
-  padding-top: var(--sp-2);
-}
-
-.pinned {
-  position: relative;
-  rotate: var(--tilt);
-  transition: rotate var(--t-mid) var(--ease-out);
-}
-/* При наведении вещь выравнивается — как будто её поправили. */
-.pinned:hover { rotate: 0deg; }
-/* Булавка. Блик смещён влево-вверх, тень вправо-вниз — иначе
-   головка читается плоским кружком, а не объёмом. */
-.pin {
-  position: absolute;
-  z-index: 2;
-  top: -9px;
-  left: 50%;
-  width: 17px;
-  height: 17px;
-  margin-left: -8.5px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 34% 30%, #FFF0F6 0 10%, #FF9DCC 34%, #C4568C 68%, #8E3763 100%);
-  box-shadow:
-    0 2px 4px rgb(0 0 0 / 0.45),
-    inset 0 -2px 3px rgb(0 0 0 / 0.35);
-}
-
-.shelfCard {
-  overflow: hidden;
-  /* Тень поднимает карточку над бумагой: без неё наклон читается
-     как перекос вёрстки, а не как приколотая фотография. */
-  box-shadow: 0 12px 26px rgb(20 15 25 / 0.42);
-}
-/* Портрет 200×260 растягивается на всю колонку и делает карточку
-   выше экрана — блок перестаёт читаться целиком. */
-.shelfCard > :first-child { max-height: 210px; object-fit: cover; }
-.shelfBody { display: grid; gap: var(--sp-1); padding: var(--sp-4); }
-.shelfName {
-  font-family: var(--font-display);
-  font-size: var(--step-1);
-  color: var(--bone);
-}
-.shelfNote { font-size: var(--step--1); color: var(--muted); }
-/* Бирка висит на нитке — значит, должна качаться.
-   Ось поворота — у дырки под нитку, в левом краю бирки: качается она
-   вокруг неё, а не вокруг своей середины, иначе получается не маятник,
-   а дрожащий прямоугольник.
-   Качание затухающее и однократное: вещь на полке качнули, когда взяли
-   в руки, и она успокоилась. Бесконечный маятник на витрине из шести
-   карточек дёргал бы глаз. */
-.tag { transform-origin: 0.7rem 50%; }
-.pinned:hover .tag,
-.pinned:focus-within .tag {
-  animation: swing 1.5s var(--ease-soft);
-}
-@keyframes swing {
-  0%   { rotate: 0deg; }
-  18%  { rotate: -7deg; }
-  42%  { rotate: 4.5deg; }
-  65%  { rotate: -2.5deg; }
-  85%  { rotate: 1deg; }
-  100% { rotate: 0deg; }
-}
-
-.shelfFoot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-3);
-  margin-top: var(--sp-2);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pinned, .pinned:hover { transition: none; }
-  .pinned:hover .tag, .pinned:focus-within .tag { animation: none; }
-}
+/* Между полароидами и конструктором — только завиток. Свои отступы
+   у обеих секций плюс поля завитка давали почти 300px пустоты. */
+.section.cardsSection { padding-bottom: 0; }
+.section.stripSection { padding-top: 0; }
+.divider { margin: var(--sp-5) auto; opacity: 0.5; }
 
 /* ---------- полоса конструктора ---------- */
 .strip {
@@ -368,12 +180,70 @@
   font-family: var(--font-hand); font-size: var(--step-1);
   color: var(--rose); rotate: -3deg; margin-bottom: var(--sp-2);
 }
+/* Сквид из конструктора справа от текста — во весь рост на листке
+   в клетку, как мини-превью в /builder на телефоне: тот же цвет
+   бумаги, сетка и розовая кромка. Листок висит на нитке, приколотой
+   к верхнему краю полосы, и медленно качается.
+   Только на широком экране: на узком справа места нет. */
+.stripHanger {
+  position: absolute;
+  top: 0;
+  right: clamp(2rem, 8vw, 7rem);
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Качается от точки крепления нитки, как маятник */
+  transform-origin: 50% 0;
+  animation: swing 3.8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+/* Булавка, которой нитка приколота к краю */
+.stripPin {
+  flex: none;
+  width: 9px; height: 9px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: var(--rose);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+}
+.stripThread {
+  flex: 0 0 14%;
+  width: 1.5px;
+  background: rgb(237 230 220 / 0.75);
+}
+.stripSquid {
+  flex: 1;
+  min-height: 0;
+  padding: 8px;
+  /* Бумага прозрачна на 20%: сквид остаётся белым, а лист
+     чуть пропускает полосу под ним. */
+  background: rgb(242 237 227 / 0.8);
+  background-image:
+    linear-gradient(to right,  rgba(90, 120, 160, 0.2) 0 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(90, 120, 160, 0.2) 0 1px, transparent 1px);
+  background-size: 12px 12px;
+  border-radius: var(--r-md);
+  box-shadow: 0 10px 28px -8px rgb(0 0 0 / 0.65), 0 0 0 2px rgb(255 150 201 / 0.55);
+}
+.stripSquid svg { height: 100%; width: auto; max-width: none; }
+
+@keyframes swing {
+  from { rotate: -4deg; }
+  to   { rotate: 4deg; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stripHanger { animation: none; rotate: 2deg; }
+}
+@media (max-width: 860px) {
+  .stripHanger { display: none; }
+}
 .stripTitle { margin-bottom: var(--sp-4); }
 .stripLead { margin-bottom: var(--sp-6); color: var(--lilac); }
 
 @media (max-width: 860px) {
   .heroInner { grid-template-columns: 1fr; }
-  .avatar { max-width: 220px; rotate: 0deg; }
+  .avatar { max-width: 260px; }
   .hero { padding-block: var(--sp-7) var(--sp-5); }
 }
 
@@ -443,98 +313,4 @@
 /* То же на главной: её секции живут без общей оболочки страницы. */
 @media (max-width: 559px) {
   .section { padding-block: var(--sp-6); }
-}
-
-/* ---------- «проданное» место на полке ----------
-   Карточка той же формы, что у вещи, но уже без вещи: снимок прошлой
-   работы размыт, обесцвечен и притушен, поверх — штамп SOLD, как
-   чернилами по фотографии. Наведение её не выпрямляет: брать здесь
-   нечего. */
-/* Высота — как у соседней вещи: ячейка сетки и так растянута на ряд,
-   карточку тянем на всю ячейку, а лишнее место забирает снимок. */
-.sold { opacity: 0.92; display: flex; flex-direction: column; }
-.sold > .shelfCard { flex: 1; display: flex; flex-direction: column; }
-.sold .soldShot { flex: 1; min-height: 210px; max-height: none; height: auto; }
-.sold:hover { rotate: var(--tilt); }
-.soldShot {
-  position: relative;
-  display: block;
-  height: 210px;
-  overflow: hidden;
-  background: var(--ink);
-}
-.soldShot img {
-  /* Абсолютно — по размеру растянутой рамки, какой бы высоты ни вышла. */
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* scale — чтобы размытый край не оставлял светлой каймы по рамке. */
-  scale: 1.12;
-  filter: blur(7px) grayscale(0.55) brightness(0.6);
-}
-.stamp {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  translate: -50% -50%;
-  rotate: -14deg;
-  padding: 0.2rem 0.9rem 0.25rem;
-  font-family: var(--font-ui);
-  font-size: var(--step-2);
-  font-weight: 800;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--rose);
-  border: 3px solid var(--rose);
-  border-radius: var(--r-sm);
-  /* Двойная рамка и лёгкая неровность краски — штамп, а не плашка. */
-  box-shadow: inset 0 0 0 2px rgb(14 13 16 / 0.6), 0 0 0 2px rgb(14 13 16 / 0.35);
-  background: rgb(14 13 16 / 0.35);
-  opacity: 0.9;
-  mix-blend-mode: screen;
-}
-.soldNext {
-  margin-top: var(--sp-2);
-  font-family: var(--font-hand);
-  font-size: var(--step-0);
-  color: var(--muted);
-}
-@media (prefers-reduced-motion: reduce) {
-  .sold, .sold:hover { rotate: var(--tilt); }
-}
-
-/* ---------- полка на телефоне: одна колонка ----------
-   Карточки во всю ширину листа, по две друг под другом. */
-@media (max-width: 559px) {
-  .board { padding: var(--sp-6) var(--sp-4) var(--sp-6) calc(var(--sp-4) + 10px); }
-  .boardMargin { left: 16px; }
-  .shelf {
-    grid-template-columns: minmax(0, 1fr);
-    /* Строки одной высоты: в одной колонке у каждой своя строка, и
-       «проданная» карточка под вещью выходила ниже неё. */
-    grid-auto-rows: 1fr;
-    gap: var(--sp-7);
-  }
-
-  /* Больше двух — страницы по две листаются вбок целиком.
-     Страница чуть уже полки: следующая выглядывает краем, и видно,
-     что дальше есть ещё. Отступы внутри — под булавки и тени, иначе
-     их обрезала бы прокрутка. */
-  .carousel {
-    display: flex;
-    gap: var(--sp-4);
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    padding: var(--sp-3) 2px var(--sp-4);
-    margin-inline: -2px;
-    scrollbar-width: none;
-  }
-  .carousel::-webkit-scrollbar { display: none; }
-  .page {
-    flex: 0 0 calc(100% - 28px);
-    scroll-snap-align: start;
-  }
 }

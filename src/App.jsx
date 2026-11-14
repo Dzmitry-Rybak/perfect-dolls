@@ -1,13 +1,14 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 
-import { CommissionProvider } from './context/CommissionContext.jsx';
+import { CommissionProvider, useCommission } from './context/CommissionContext.jsx';
 import { OrdersProvider } from './context/OrdersContext.jsx';
 import CommissionModal from './components/commission/CommissionModal.jsx';
 import Header from './components/layout/Header.jsx';
 import Footer from './components/layout/Footer.jsx';
 import ButtonTrail from './components/ui/ButtonTrail.jsx';
 import Backdrop from './components/ui/Backdrop.jsx';
+import FortuneCard from './components/ui/FortuneCard.jsx';
 
 import Home from './pages/Home.jsx';
 import Squids from './pages/Squids.jsx';
@@ -30,6 +31,19 @@ function ScrollToTop() {
   return null;
 }
 
+/** Окно анкеты — новое на каждое открытие (см. session в контексте):
+ *  ни шаг, ни ответы прошлой анкеты не попадают в первый кадр новой. */
+function CommissionModalHost() {
+  const { session } = useCommission();
+  return <CommissionModal key={session} />;
+}
+
+/** Карта-предсказание — только на первом экране главной. */
+function HomeFortune() {
+  const { pathname } = useLocation();
+  return pathname === '/' ? <FortuneCard /> : null;
+}
+
 export default function App() {
   return (
     <OrdersProvider>
@@ -37,6 +51,7 @@ export default function App() {
       <ScrollToTop />
       <Backdrop />
       <Header />
+      <HomeFortune />
       <main id="main">
         <Routes>
           <Route path="/"           element={<Home />} />
@@ -61,7 +76,7 @@ export default function App() {
       </main>
       <Footer />
       <ButtonTrail />
-      <CommissionModal />
+      <CommissionModalHost />
     </CommissionProvider>
     </OrdersProvider>
   );

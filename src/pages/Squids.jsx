@@ -4,6 +4,7 @@ import Button from '../components/ui/Button.jsx';
 import ButtonEye from '../components/ui/ButtonEye.jsx';
 import Photo from '../components/ui/Photo.jsx';
 import StitchCard from '../components/ui/StitchCard.jsx';
+import PolaroidTile from '../components/ui/PolaroidTile.jsx';
 import Loader from '../components/ui/Loader.jsx';
 import { getWorks, getSquidModels } from '../lib/api.js';
 import useAsync from '../lib/useAsync.js';
@@ -178,7 +179,27 @@ export default function Squids() {
       lead={LEAD}
       wideLead
     >
-      <section className={`${styles.cta} ${styles.ctaFirst}`}>
+      <section>
+        <h2 className={`${styles.gridTitle} ${styles.titleFirst}`}>Ready-made designs</h2>
+        <p className={`prose ${styles.modelsLead}`}>
+          Eight standard-size designs from my mini collections.
+        </p>
+
+        {models.loading ? <Loader label="Getting them off the shelf…" /> : (
+          <ul className={styles.models}>
+            {models.data.map((m) => (
+              <li key={m.id}>
+                <ModelCard model={m} onOrder={orderModel} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Конструктор — после готовых дизайнов: сначала «возьми готового»,
+          потом «или собери своего», и только потом работы, которых
+          уже не купить. */}
+      <section className={styles.cta}>
         <div className={styles.ctaPaper} aria-hidden="true" />
         {/* Цифры переехали сюда из колонки сбоку: размеры и цена нужны
             ровно там, где принимают решение открыть конструктор. */}
@@ -207,43 +228,15 @@ export default function Squids() {
         </div>
       </section>
 
-      {/* Готовые дизайны — между конструктором и архивом намеренно:
-          сначала «собери своего», потом «или возьми готового», и только
-          потом работы, которых уже не купить. */}
-      <section>
-        <h2 className={styles.gridTitle}>Ready-made designs</h2>
-        <p className={`prose ${styles.modelsLead}`}>
-          Eight standard-size designs from my mini collections.
-        </p>
-
-        {models.loading ? <Loader label="Getting them off the shelf…" /> : (
-          <ul className={styles.models}>
-            {models.data.map((m) => (
-              <li key={m.id}>
-                <ModelCard model={m} onOrder={orderModel} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
       <section>
         <h2 className={styles.gridTitle}>Squids that already found homes</h2>
 
         {loading ? <Loader label="Waking them up…" /> : (
           <>
             <ul className={styles.tiles}>
-              {data.shown.map((w) => (
+              {data.shown.map((w, i) => (
                 <li key={w.id}>
-                  <StitchCard seed={w.id} className={styles.tile}>
-                    <Photo
-                      src={w.shots[0].tile ?? w.shots[0].src}
-                      srcSet={w.shots[0].tileSrcSet}
-                      sizes={w.shots[0].tileSizes}
-                      alt={w.shots[0].alt}
-                    />
-                    <p className={styles.tileName}>{w.title}</p>
-                  </StitchCard>
+                  <PolaroidTile shot={w.shots[0]} title={w.title} index={i} />
                 </li>
               ))}
             </ul>

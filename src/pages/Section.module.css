@@ -31,10 +31,6 @@
   border: var(--stitch-rose);
   border-radius: var(--r-lg);
 }
-/* Конструктор сразу под шапкой (Squids): отступ сверху даёт шапка, и
-   он равен отступу над завитком. Свой большой отступ здесь сдвигал бы
-   завиток с середины. */
-.ctaFirst { margin-top: 0; }
 .ctaPaper {
   position: absolute; inset: 0; opacity: 0.14;
   background-image:
@@ -68,13 +64,22 @@
 
 /* --- плитки примеров --- */
 .gridTitle { margin-block: var(--sp-6) var(--sp-4); }
+/* Первый блок сразу под шапкой (Squids): отступ сверху даёт шапка, и
+   он равен отступу над завитком. Свой отступ сдвигал бы завиток
+   с середины. */
+.titleFirst { margin-top: 0; }
 .tiles {
   display: grid;
-  /* auto-FILL — по той же причине, что и у полки на главной: в разделе
-     может оказаться одна-две работы, и auto-fit растянул бы их во всю
-     ширину. Пустые колонки лучше растянутого снимка. */
-  grid-template-columns: repeat(auto-fill, minmax(min(210px, 100%), 1fr));
+  /* В витрине всегда не больше четырёх работ (SHOWN = 4), поэтому
+     колонок ровно четыре, а на среднем экране — 2×2. Прежний auto-fill
+     по 210px на компьютере давал пять колонок: пятая пустовала,
+     и полароиды получались мелкими с большими просветами. Если работ
+     окажется меньше — пустые колонки, а не растянутый снимок. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--sp-5);
+}
+@media (min-width: 900px) {
+  .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 .tile { overflow: hidden; }
 

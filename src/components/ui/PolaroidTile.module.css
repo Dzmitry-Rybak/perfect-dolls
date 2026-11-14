@@ -1,0 +1,56 @@
+/* container-type: подпись меряется от ширины самого полароида (cqw),
+   а не экрана — плитка бывает и 300px на компьютере, и 160px на телефоне. */
+.tile {
+  position: relative;
+  /* В файлах рамок по бокам прозрачные поля, ~7% ширины с каждой
+     стороны. Растягиваем полароид на них, чтобы бумага, а не файл,
+     занимала ячейку сетки: иначе к зазору между плитками добавлялись
+     ещё два пустых поля, и полароиды стояли мелко и врозь. */
+  width: 114%;
+  margin: 0 -7%;
+  container-type: inline-size;
+  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 0.45));
+}
+
+/* Снимок под рамкой, виден только в её прозрачное окно */
+.media {
+  position: absolute;
+  overflow: hidden;
+  background: var(--plum-deep);
+}
+.media img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  object-fit: cover;
+}
+
+.frame {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+/* Название — как надпись ручкой на нижнем поле карточки */
+.label {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-hand);
+  font-size: 8.5cqw;
+  line-height: 1.1;
+  color: #231c27;
+  text-align: center;
+  rotate: -1.5deg;
+}
+.label span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
